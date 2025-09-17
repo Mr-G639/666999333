@@ -23,6 +23,7 @@ import {
   Transaction,
   ReferralOrder,
   UserBankInfo,
+  Review, // SỬA LỖI: Thêm import 'Review'
 } from "@/types";
 import { requestWithFallback } from "@/utils/request";
 import {
@@ -37,6 +38,7 @@ import { formatDistant } from "./utils/format";
 import CONFIG from "./config";
 import { categories as mockCategoriesData } from "./mock/categories";
 import mockTransactions from "./mock/transactions.json";
+import mockReviews from "./mock/reviews.json"; // SỬA LỖI: Thêm import dữ liệu review mẫu
 
 // ==================================================================
 // PHẦN XỬ LÝ HÌNH ẢNH DANH MỤC LOCAL
@@ -158,7 +160,7 @@ export const favoriteProductsState = atomWithStorage<number[]>("favorites", []);
 
 export const favoriteProductsDetailsState = atom(async (get) => {
   const favoriteIds = get(favoriteProductsState);
-  const allProducts = await get(productsState); // Sửa lỗi: Thêm await
+  const allProducts = await get(productsState);
   return allProducts.filter(p => favoriteIds.includes(p.id));
 });
 
@@ -167,14 +169,14 @@ export const recommendedProductsState = atom(async (get) => await get(productsSt
 
 export const productState = atomFamily((id: number) =>
   atom(async (get) => {
-    const products = await get(productsState); // Sửa lỗi: Thêm await
+    const products = await get(productsState);
     return products.find((product) => product.id === id);
   })
 );
 
 export const productsByCategoryState = atomFamily((id: string) =>
   atom(async (get) => {
-    const products = await get(productsState); // Sửa lỗi: Thêm await
+    const products = await get(productsState);
     return products.filter((product) => String(product.categoryId) === id);
   })
 );
@@ -197,7 +199,7 @@ export const searchCategoriesResultState = atom(async (get) => {
 export const searchResultState = atom(async (get) => {
   const keyword = get(keywordState);
   if (!keyword) return [];
-  const products = await get(productsState); // Sửa lỗi: Thêm await
+  const products = await get(productsState);
   return products.filter((product) =>
     product.name.toLowerCase().includes(keyword.toLowerCase())
   );
@@ -363,6 +365,18 @@ export const dailyCheckInState = atomWithStorage<DailyCheckInState>(
 );
 
 export const userPointsState = atomWithStorage<number>("user_points", 500);
+
+// ==================================================================
+// PHẦN ĐÁNH GIÁ SẢN PHẨM
+// ==================================================================
+export const reviewsState = atomFamily((productId: number) =>
+  atom(async () => {
+    // Trong thực tế, bạn sẽ gọi API để lấy review theo productId
+    // Ví dụ: await requestWithFallback<Review[]>(`/products/${productId}/reviews`, [])
+    // Ở đây chúng ta chỉ giả lập
+    return mockReviews.filter(review => review.productId === productId) as Review[];
+  })
+);
 
 // ==================================================================
 // PHẦN THÔNG TIN NGÂN HÀNG

@@ -14,7 +14,8 @@ type UseDotButtonType = {
 };
 
 export const useDotButton = (
-  emblaApi: EmblaCarouselType | undefined
+  emblaApi: EmblaCarouselType | undefined,
+  onSlideChange?: (index: number) => void,
 ): UseDotButtonType => {
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [scrollSnaps, setScrollSnaps] = useState<number[]>([]);
@@ -31,9 +32,16 @@ export const useDotButton = (
     setScrollSnaps(emblaApi.scrollSnapList());
   }, []);
 
-  const onSelect = useCallback((emblaApi: EmblaCarouselType) => {
-    setSelectedIndex(emblaApi.selectedScrollSnap());
-  }, []);
+  const onSelect = useCallback(
+    (emblaApi: EmblaCarouselType) => {
+      const newIndex = emblaApi.selectedScrollSnap();
+      setSelectedIndex(newIndex);
+      if (onSlideChange) {
+        onSlideChange(newIndex);
+      }
+    },
+    [onSlideChange],
+  );
 
   useEffect(() => {
     if (!emblaApi) return;
@@ -53,14 +61,17 @@ export const useDotButton = (
 export interface CarouselProps {
   slides: ReactNode[];
   disabled?: boolean;
+  onSlideChange?: (index: number) => void;
 }
 
 export default function Carousel(props: CarouselProps) {
   const [emblaRef, emblaApi] = useEmblaCarousel({ align: "center" }, [
     Autoplay({ active: !props.disabled }),
   ]);
-  const { selectedIndex, scrollSnaps, onDotButtonClick } =
-    useDotButton(emblaApi);
+  const { selectedIndex, scrollSnaps, onDotButtonClick } = useDotButton(
+    emblaApi,
+    props.onSlideChange,
+  );
 
   return (
     <div className="overflow-hidden" ref={emblaRef}>

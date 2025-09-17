@@ -12,6 +12,7 @@ import Carousel from "@/components/carousel";
 import { ReactNode, useMemo, useState, Suspense } from "react";
 import { HeartIcon } from "@/components/vectors";
 import { ProductGridSkeleton } from "@/components/skeleton";
+import ProductReviews from "./product-reviews";
 
 function ProductDetailContent() {
   const { id } = useParams();
@@ -19,6 +20,7 @@ function ProductDetailContent() {
   const [favorites, setFavorites] = useAtom(favoriteProductsState);
   const navigate = useNavigate();
   const [isMuted, setIsMuted] = useState(true);
+  const [activeSlideIndex, setActiveSlideIndex] = useState(0);
 
   const normalizedProduct = useMemo(() => {
     if (!product) return null;
@@ -33,7 +35,7 @@ function ProductDetailContent() {
       },
     };
   }, [product]);
-  
+
   if (!normalizedProduct) {
     return null;
   }
@@ -74,7 +76,10 @@ function ProductDetailContent() {
         alt={normalizedProduct.name}
         className="w-full aspect-square object-cover rounded-lg"
         style={{
-          viewTransitionName: i === 0 && !normalizedProduct.video ? `product-image-${normalizedProduct.id}` : undefined,
+          viewTransitionName:
+            i === 0 && !normalizedProduct.video
+              ? `product-image-${normalizedProduct.id}`
+              : undefined,
         }}
       />
     );
@@ -89,61 +94,74 @@ function ProductDetailContent() {
             className="absolute top-4 left-4 z-10 !bg-black/40 !border-none"
             icon={<Icon icon="zi-arrow-left" className="text-white" />}
           />
-          
-          <Carousel slides={mediaSlides} />
 
-          
-          {normalizedProduct.video && (
+          <Carousel
+            slides={mediaSlides}
+            onSlideChange={setActiveSlideIndex}
+          />
+
+          {normalizedProduct.video && activeSlideIndex === 0 && (
             <Button
               onClick={() => setIsMuted(!isMuted)}
               className="absolute bottom-10 right-4 z-10 !bg-black/40 !border-none"
-              // The following line has been corrected
-              icon={<Icon icon={isMuted ? 'zi-notif-off' : 'zi-notif'} className="text-white" />}
+              icon={
+                <Icon
+                  icon={isMuted ? "zi-notif-off" : "zi-notif"}
+                  className="text-white"
+                />
+              }
             />
           )}
         </div>
-        
+
         <div className="p-4 space-y-4">
-          
           <div className="bg-red-50 rounded-lg p-3 text-foreground">
-            
             <div className="flex justify-between items-center">
-              
               <div className="flex items-center space-x-2">
-                <span className="text-red-600 text-2xl font-bold">{formatPrice(normalizedProduct.price)}</span>
+                <span className="text-red-600 text-2xl font-bold">
+                  {formatPrice(normalizedProduct.price)}
+                </span>
                 {normalizedProduct.originalPrice && (
-                    <span className="text-xs bg-red-100 text-red-600 font-medium px-2 py-0.5 rounded">
-                        GIẢM {100 - Math.round((normalizedProduct.price * 100) / normalizedProduct.originalPrice)}%
-                    </span>
+                  <span className="text-xs bg-red-100 text-red-600 font-medium px-2 py-0.5 rounded">
+                    GIẢM{" "}
+                    {100 -
+                      Math.round(
+                        (normalizedProduct.price * 100) /
+                          normalizedProduct.originalPrice
+                      )}
+                    %
+                  </span>
                 )}
               </div>
               {normalizedProduct.soldCount && (
-                  <span className="text-sm text-gray-600">Đã bán {normalizedProduct.soldCount}+</span>
+                <span className="text-sm text-gray-600">
+                  Đã bán {normalizedProduct.soldCount}+
+                </span>
               )}
             </div>
-            
+
             {normalizedProduct.originalPrice && (
               <div className="mt-1">
-                  <span className="text-gray-500 line-through">{formatPrice(normalizedProduct.originalPrice)}</span>
+                <span className="text-gray-500 line-through">
+                  {formatPrice(normalizedProduct.originalPrice)}
+                </span>
               </div>
             )}
           </div>
 
-          
           <div>
             <h1 className="text-lg font-bold">{normalizedProduct.name}</h1>
           </div>
-          
-          
+
           <div className="flex items-center space-x-2">
             <Button
               className="flex-none !bg-red-100 !text-red-500 h-9 aspect-square"
               onClick={toggleFavorite}
             >
-              <HeartIcon active={isFavorited} className="w-6 h-6"/>
+              <HeartIcon active={isFavorited} className="w-6 h-6" />
             </Button>
             <div className="flex-1">
-                <ShareButton product={normalizedProduct} />
+              <ShareButton product={normalizedProduct} />
             </div>
           </div>
         </div>
@@ -158,6 +176,11 @@ function ProductDetailContent() {
             </Section>
           </>
         )}
+        <div className="bg-background h-2 w-full"></div>
+        {/* Thêm mục đánh giá sản phẩm */}
+        <Suspense fallback={<div className="p-4">Đang tải đánh giá...</div>}>
+          <ProductReviews productId={normalizedProduct.id} />
+        </Suspense>
         <div className="bg-background h-2 w-full"></div>
         <Section title="Sản phẩm khác">
           <RelatedProducts currentProductId={normalizedProduct.id} />
@@ -192,9 +215,10 @@ function ProductDetailContent() {
 }
 
 export default function ProductDetailPage() {
-    return (
-        <Suspense fallback={<ProductGridSkeleton />}>
-            <ProductDetailContent />
-        </Suspense>
-    )
+  return (
+    <Suspense fallback={<ProductGridSkeleton />}>
+      <ProductDetailContent />
+    </Suspense>
+  );
 }
+

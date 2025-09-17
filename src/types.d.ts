@@ -75,7 +75,7 @@ export interface Order {
   delivery: Delivery;
   total: number;
   note: string;
-  discountAmount?: number; // Bổ sung dòng này
+  discountAmount?: number;
 }
 export type VoucherType = "PERCENT" | "FIXED_AMOUNT" | "SHIPPING";
 
@@ -121,6 +121,21 @@ export interface ReferralOrder {
   commissionStatus: TransactionStatus;
   date: string;
 }
+
+// Bổ sung kiểu dữ liệu cho Đánh giá sản phẩm
+export interface Review {
+  id: number;
+  productId: number;
+  author: {
+    name: string;
+    avatar: string;
+  };
+  rating: number;
+  text: string;
+  timestamp: string;
+  images?: string[]; // Thêm thuộc tính này
+}
+
 
 // Bổ sung kiểu dữ liệu cho việc phân trang
 export interface PaginatedResponse<T> {
