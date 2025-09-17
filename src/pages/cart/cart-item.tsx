@@ -4,14 +4,13 @@ import { formatPrice } from "@/utils/format";
 import { animated, useSpring } from "@react-spring/web";
 import { useDrag } from "@use-gesture/react";
 import { Icon } from "zmp-ui";
-import QuantityInput from "@/components/quantity-input"; // 1. Import QuantityInput
+import QuantityInput from "@/components/quantity-input";
 
 const SWIPE_TO_DELTE_OFFSET = 80;
 
 export default function CartItem(props: CartItemProps) {
   const { addToCart } = useAddToCart(props.product);
 
-  // swipe left to delete animation
   const [{ x }, api] = useSpring(() => ({ x: 0 }));
   const bind = useDrag(
     ({ last, offset: [ox] }) => {
@@ -51,7 +50,10 @@ export default function CartItem(props: CartItemProps) {
         style={{ x }}
         className="bg-white p-4 flex items-center space-x-4 relative"
       >
-        <img src={props.product.image} className="w-14 h-14 rounded-lg" />
+        {/* --- THAY ĐỔI Ở ĐÂY --- */}
+        {/* Sửa `props.product.image` thành `props.product.images[0]` */}
+        <img src={props.product.images[0]} className="w-14 h-14 rounded-lg" />
+        
         <div className="flex-1 space-y-1">
           <div className="text-sm">{props.product.name}</div>
           <div className="flex flex-col">
@@ -65,7 +67,6 @@ export default function CartItem(props: CartItemProps) {
             )}
           </div>
         </div>
-        {/* 2. Thêm component QuantityInput vào đây */}
         <div className="w-24">
           <QuantityInput value={props.quantity} onChange={addToCart} />
         </div>

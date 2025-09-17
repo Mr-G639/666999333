@@ -5,6 +5,7 @@ import { useState } from "react";
 import { Button } from "zmp-ui";
 import { useAddToCart } from "@/hooks";
 import QuantityInput from "./quantity-input";
+import MarqueeText from "./marquee-text";
 
 export interface ProductItemProps {
   product: Product;
@@ -38,26 +39,37 @@ export default function ProductItem(props: ProductItemProps) {
               }}
               alt={props.product.name}
             />
-            <div className="pt-2 pb-1.5">
-              <div className="text-xs h-9 line-clamp-2">
-                {props.product.name}
+            {/* --- BỐ CỤC MỚI BẮT ĐẦU TỪ ĐÂY --- */}
+            <div className="pt-2 pb-1.5 flex flex-col">
+              {/* Tên sản phẩm */}
+              <div className="h-5 text-xs">
+                <MarqueeText text={props.product.name} />
               </div>
 
-              {/* BỐ CỤC GIÁ MỚI */}
-              <div className="mt-1">
+              {/* Số lượng đã bán */}
+              {props.product.soldCount && (
+                <div className="text-2xs text-inactive mt-0.5">
+                  Đã bán {props.product.soldCount}
+                </div>
+              )}
+
+              {/* Giá bán và thông tin khuyến mãi */}
+              <div className="mt-1 flex-1 flex flex-col justify-end">
                 <div className="text-sm font-bold text-primary">
                   {formatPrice(props.product.price)}
                 </div>
-                <div className="flex items-center space-x-2">
+                <div className="flex items-center space-x-2 text-2xs text-inactive">
                   {props.product.originalPrice && (
                     <>
-                      <span className="text-3xs text-subtitle line-through">
+                      <span className="line-through">
                         {formatPrice(props.product.originalPrice)}
                       </span>
-                      <span className="text-danger text-3xs">
+                      <span className="text-danger font-medium">
                         -
                         {Math.round(
-                          (1 - props.product.price / props.product.originalPrice) * 100
+                          (1 -
+                            props.product.price / props.product.originalPrice) *
+                            100
                         )}
                         %
                       </span>
@@ -65,14 +77,8 @@ export default function ProductItem(props: ProductItemProps) {
                   )}
                 </div>
               </div>
-
-              {/* SỐ LƯỢNG ĐÃ BÁN */}
-              {props.product.soldCount && (
-                <div className="text-2xs text-inactive mt-1">
-                  Đã bán {props.product.soldCount}
-                </div>
-              )}
             </div>
+             {/* --- KẾT THÚC BỐ CỤC MỚI --- */}
           </>
         )}
       </TransitionLink>

@@ -12,7 +12,7 @@ import SearchBar from "./search-bar";
 import TransitionLink from "./transition-link";
 import { Icon } from "zmp-ui";
 import { DefaultUserAvatar } from "./vectors";
-import logo from "@/static/logo.png"; // Dòng này import logo của bạn
+import logo from "@/static/logo.png";
 
 export default function Header() {
   const categories = useAtomValue(categoriesStateUpwrapped);
@@ -37,6 +37,20 @@ export default function Header() {
 
   const showBack = location.key !== "default" && !handle?.noBack;
 
+  // --- THAY ĐỔI BẮT ĐẦU TỪ ĐÂY ---
+  // Cập nhật hàm xử lý sự kiện quay lại
+  const handleBackClick = () => {
+    const path = location.pathname;
+    // Nếu là trang danh mục, đơn hàng, hoặc chi tiết đơn hàng thì điều hướng về trang chủ
+    if (path.startsWith('/category/') || path.startsWith('/orders') || path.startsWith('/order/')) {
+      navigate('/');
+    } else {
+      // Nếu không, thực hiện hành vi quay lại mặc định
+      navigate(-1);
+    }
+  };
+  // --- KẾT THÚC THAY ĐỔI ---
+
   return (
     <div
       className="w-full flex flex-col px-4 bg-primary text-primaryForeground pt-st overflow-hidden bg-no-repeat bg-right-top"
@@ -48,7 +62,7 @@ export default function Header() {
         {handle?.logo ? (
           <>
             <img
-              src={logo} // Sử dụng logo đã import
+              src={logo}
               className="flex-none w-8 h-8 rounded-full"
             />
             <TransitionLink to="/stations" className="flex-1 overflow-hidden">
@@ -68,7 +82,7 @@ export default function Header() {
             {showBack && (
               <div
                 className="py-1 px-2 cursor-pointer"
-                onClick={() => navigate(-1)}
+                onClick={handleBackClick}
               >
                 <Icon icon="zi-arrow-left" />
               </div>

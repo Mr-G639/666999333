@@ -5,9 +5,20 @@ import { categoriesState } from "@/state";
 export default function CategoryListPage() {
   const categories = useAtomValue(categoriesState);
 
+  // --- THÊM BƯỚC SỬA LỖI TẠI ĐÂY ---
+  // Chuẩn hóa dữ liệu để đảm bảo `image` luôn là một chuỗi (string)
+  const normalizedCategories = categories.map((category) => ({
+    ...category,
+    image:
+      typeof category.image === "string"
+        ? category.image
+        : (category.image as any).default,
+  }));
+
   return (
     <div className="grid grid-cols-4 p-4 gap-x-2 gap-y-8 bg-section">
-      {categories.map((category) => (
+      {/* Sử dụng dữ liệu đã được chuẩn hóa */}
+      {normalizedCategories.map((category) => (
         <TransitionLink
           key={category.id}
           className="flex flex-col items-center space-y-1 overflow-hidden cursor-pointer"

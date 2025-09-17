@@ -72,3 +72,24 @@
     transform: translateX(-100%);
   }
 }
+/* --- BỔ SUNG CHO MARQUEE ĐỘNG --- */
+.marquee-container {
+  white-space: nowrap;
+  overflow: hidden;
+  width: 100%;
+}
+
+.marquee-content {
+  display: inline-block;
+  will-change: transform; /* Tối ưu hóa hiệu năng animation */
+}
+
+/* Keyframes mới cho animation động */
+@keyframes marquee-dynamic {
+  from {
+    transform: translateX(var(--marquee-start-position));
+  }
+  to {
+    transform: translateX(var(--marquee-end-position));
+  }
+}

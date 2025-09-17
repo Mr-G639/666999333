@@ -13,9 +13,10 @@ export interface Product {
   price: number;
   originalPrice?: number;
   images: string[];
+  video?: string;
   category: Category;
   detail?: string;
-  soldCount?: number; // <-- Thêm dòng này
+  soldCount?: number;
 }
 
 export interface Category {
@@ -117,6 +118,13 @@ export interface ReferralOrder {
   sharedLink: string;
   customerName: string;
   paymentStatus: PaymentStatus;
-  commissionStatus: TransactionStatus
-  date: string; // <-- Thêm lại dòng này
+  commissionStatus: TransactionStatus;
+  date: string;
+}
+
+// Bổ sung kiểu dữ liệu cho việc phân trang
+export interface PaginatedResponse<T> {
+  data: T[];
+  totalItems: number;
+  totalPages: number;
 }

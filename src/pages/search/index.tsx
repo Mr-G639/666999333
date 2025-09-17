@@ -1,15 +1,13 @@
-// src/pages/search/index.tsx
-
-import ProductItem from "@/components/product-item";
 import Section from "@/components/section";
-import { ProductItemSkeleton } from "@/components/skeleton";
+// --- THAY ĐỔI Ở ĐÂY: Import SearchResultSkeleton từ file chung ---
+import { SearchResultSkeleton } from "@/components/skeleton";
 import { useAtomValue } from "jotai";
-import { HTMLAttributes, Suspense } from "react";
+import { Suspense } from "react";
 import {
   keywordState,
   recommendedProductsState,
   searchResultState,
-  searchCategoriesResultState, // Import atom mới
+  searchCategoriesResultState,
 } from "@/state";
 import ProductGrid from "@/components/product-grid";
 import { EmptySearchResult } from "@/components/empty";
@@ -18,15 +16,22 @@ import TransitionLink from "@/components/transition-link";
 // Component hiển thị danh sách danh mục tìm được
 function SearchedCategories() {
   const categories = useAtomValue(searchCategoriesResultState);
+  const normalizedCategories = categories.map((category) => ({
+    ...category,
+    image:
+      typeof category.image === "string"
+        ? category.image
+        : (category.image as any).default,
+  }));
 
-  if (categories.length === 0) {
-    return null; // Không hiển thị gì nếu không có kết quả
+  if (normalizedCategories.length === 0) {
+    return null;
   }
 
   return (
     <Section title="Danh mục liên quan">
       <div className="px-4 pt-2 pb-4">
-        {categories.map((category) => (
+        {normalizedCategories.map((category) => (
           <TransitionLink
             to={`/category/${category.id}`}
             key={category.id}
@@ -48,14 +53,24 @@ function SearchedCategories() {
 // Component hiển thị danh sách sản phẩm tìm được
 function SearchedProducts() {
   const searchResult = useAtomValue(searchResultState);
+  const normalizedProducts = searchResult.map((product) => ({
+    ...product,
+    category: {
+      ...product.category,
+      image:
+        typeof product.category.image === "string"
+          ? product.category.image
+          : (product.category.image as any).default,
+    },
+  }));
 
-  if (searchResult.length === 0) {
+  if (normalizedProducts.length === 0) {
     return <EmptySearchResult />;
   }
 
   return (
-    <Section title={`Sản phẩm (${searchResult.length})`}>
-      <ProductGrid products={searchResult} />
+    <Section title={`Sản phẩm (${normalizedProducts.length})`}>
+      <ProductGrid products={normalizedProducts} />
     </Section>
   );
 }
@@ -65,7 +80,6 @@ export function SearchResult() {
   const searchResult = useAtomValue(searchResultState);
   const categoriesResult = useAtomValue(searchCategoriesResultState);
 
-  // Chỉ hiển thị "Không có kết quả" khi cả 2 đều rỗng
   if (searchResult.length === 0 && categoriesResult.length === 0) {
     return <EmptySearchResult />;
   }
@@ -80,49 +94,22 @@ export function SearchResult() {
   );
 }
 
-export function SearchResultSkeleton() {
-  return (
-    <Section title={`Kết quả`}>
-      <ProductGridSkeleton />
-    </Section>
-  );
-}
-
-export function ProductGridSkeleton({
-  className,
-  ...props
-}: HTMLAttributes<HTMLDivElement>) {
-  return (
-    <div
-      className={"grid grid-cols-2 px-4 pt-2 pb-8 gap-4 ".concat(
-        className ?? ""
-      )}
-      {...props}
-    >
-      <ProductItemSkeleton />
-      <ProductItemSkeleton />
-      <ProductItemSkeleton />
-      <ProductItemSkeleton />
-    </div>
-  );
-}
-
 export function RecommendedProducts() {
   const recommendedProducts = useAtomValue(recommendedProductsState);
+  const normalizedProducts = recommendedProducts.map((product) => ({
+    ...product,
+    category: {
+      ...product.category,
+      image:
+        typeof product.category.image === "string"
+          ? product.category.image
+          : (product.category.image as any).default,
+    },
+  }));
 
   return (
     <Section title="Gợi ý sản phẩm">
-      <div className="py-2 px-4 pb-6 flex space-x-2 overflow-x-auto">
-        {recommendedProducts.map((product) => (
-          <div
-            key={product.id}
-            className="flex-none"
-            style={{ flexBasis: "calc((100vw - 48px) / 2)" }}
-          >
-            <ProductItem key={product.id} product={product} />
-          </div>
-        ))}
-      </div>
+      <ProductGrid products={normalizedProducts} layout="horizontal" />
     </Section>
   );
 }
