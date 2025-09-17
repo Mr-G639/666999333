@@ -39,29 +39,28 @@ export default function ProductItem(props: ProductItemProps) {
               }}
               alt={props.product.name}
             />
-            {/* --- BỐ CỤC MỚI BẮT ĐẦU TỪ ĐÂY --- */}
             <div className="pt-2 pb-1.5 flex flex-col">
-              {/* Tên sản phẩm */}
-              <div className="h-5 text-xs">
+              {/* --- THAY ĐỔI Ở ĐÂY: Thêm class font-bold --- */}
+              <div className="h-5 text-xs font-bold">
                 <MarqueeText text={props.product.name} />
               </div>
 
-              {/* Số lượng đã bán */}
+              {/* --- THAY ĐỔI Ở ĐÂY: Đổi class màu chữ --- */}
               {props.product.soldCount && (
-                <div className="text-2xs text-inactive mt-0.5">
+                <div className="text-2xs text-gray-500 mt-0.5">
                   Đã bán {props.product.soldCount}
                 </div>
               )}
 
-              {/* Giá bán và thông tin khuyến mãi */}
               <div className="mt-1 flex-1 flex flex-col justify-end">
                 <div className="text-sm font-bold text-primary">
                   {formatPrice(props.product.price)}
                 </div>
-                <div className="flex items-center space-x-2 text-2xs text-inactive">
+                <div className="flex items-center space-x-2 text-2xs">
                   {props.product.originalPrice && (
                     <>
-                      <span className="line-through">
+                      {/* --- THAY ĐỔI Ở ĐÂY: Đổi class màu chữ --- */}
+                      <span className="line-through text-gray-500">
                         {formatPrice(props.product.originalPrice)}
                       </span>
                       <span className="text-danger font-medium">
@@ -78,7 +77,6 @@ export default function ProductItem(props: ProductItemProps) {
                 </div>
               </div>
             </div>
-             {/* --- KẾT THÚC BỐ CỤC MỚI --- */}
           </>
         )}
       </TransitionLink>

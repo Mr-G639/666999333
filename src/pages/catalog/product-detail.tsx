@@ -29,11 +29,8 @@ export default function ProductDetailPage() {
 
   const { addToCart } = useAddToCart(normalizedProduct);
 
-  // --- THAY ĐỔI BẮT ĐẦU TỪ ĐÂY ---
-  // Tạo một mảng chứa các slide media (cả video và ảnh)
   const mediaSlides: ReactNode[] = [];
 
-  // Nếu sản phẩm có video, thêm slide video vào đầu mảng
   if (normalizedProduct.video) {
     mediaSlides.push(
       <video
@@ -46,7 +43,6 @@ export default function ProductDetailPage() {
     );
   }
 
-  // Thêm các slide hình ảnh vào mảng
   normalizedProduct.images.forEach((imgSrc, i) => {
     mediaSlides.push(
       <img
@@ -60,13 +56,11 @@ export default function ProductDetailPage() {
       />
     );
   });
-  // --- KẾT THÚC THAY ĐỔI ---
 
   return (
     <div className="w-full h-full flex flex-col">
       <div className="flex-1 overflow-y-auto">
         <div className="w-full p-4 pb-2 space-y-4 bg-section">
-          {/* Truyền mảng mediaSlides đã tạo vào Carousel */}
           <Carousel slides={mediaSlides} />
           
           <div>
