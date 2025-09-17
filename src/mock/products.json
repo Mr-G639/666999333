@@ -1,0 +1,62 @@
+[
+{
+  "id": 1,
+  "categoryId": 1,
+  "name": "Táo Fuji Hảo Hạng - 1kg",
+  "price": 67900,
+  "images": [
+    "https://zalo-miniapp.github.io/zaui-market/dummy/product/milk.png",
+    "https://zalo-miniapp.github.io/zaui-market/dummy/product/milk.png"
+    ],
+  "detail": "Sữa tươi ít đường với hương vị tự nhiên, bổ dưỡng và dễ tiêu, lý tưởng cho mọi lứa tuổi.",
+  "soldCount": 125 
+},
+{
+  "id": 2,
+  "categoryId": 1,
+  "name": "Táo Fuji Hảo Hạng - 1kg",
+  "price": 67900,
+  "images": [
+    "https://zalo-miniapp.github.io/zaui-market/dummy/product/milk.png",
+    "https://zalo-miniapp.github.io/zaui-market/dummy/product/milk.png"
+    ],
+  "detail": "Sữa tươi ít đường với hương vị tự nhiên, bổ dưỡng và dễ tiêu, lý tưởng cho mọi lứa tuổi.",
+  "soldCount": 125 
+},
+{
+  "id": 3,
+  "categoryId": 1,
+  "name": "Táo Fuji Hảo Hạng - 1kg",
+  "price": 67900,
+  "images": [
+    "https://zalo-miniapp.github.io/zaui-market/dummy/product/milk.png",
+    "https://zalo-miniapp.github.io/zaui-market/dummy/product/milk.png"
+    ],
+  "detail": "Sữa tươi ít đường với hương vị tự nhiên, bổ dưỡng và dễ tiêu, lý tưởng cho mọi lứa tuổi.",
+  "soldCount": 125 
+},
+{
+  "id": 4,
+  "categoryId": 1,
+  "name": "Táo Fuji Hảo Hạng - 1kg",
+  "price": 67900,
+  "images": [
+    "https://zalo-miniapp.github.io/zaui-market/dummy/product/milk.png",
+    "https://zalo-miniapp.github.io/zaui-market/dummy/product/milk.png"
+   ],
+  "detail": "Sữa tươi ít đường với hương vị tự nhiên, bổ dưỡng và dễ tiêu, lý tưởng cho mọi lứa tuổi.",
+  "soldCount": 125 
+},
+{
+  "id": 5,
+  "categoryId": 1,
+  "name": "Táo Fuji Hảo Hạng - 1kg",
+  "price": 67900,
+  "images": [
+    "https://zalo-miniapp.github.io/zaui-market/dummy/product/milk.png",
+    "https://zalo-miniapp.github.io/zaui-market/dummy/product/milk.png"
+   ],
+  "detail": "Sữa tươi ít đường với hương vị tự nhiên, bổ dưỡng và dễ tiêu, lý tưởng cho mọi lứa tuổi.",
+  "soldCount": 125 
+}
+]

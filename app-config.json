@@ -1,0 +1,22 @@
+{
+  "app": {
+    "title": "ZaUI F&B",
+    "textColor": "white",
+    "headerColor": "#991B1B",
+    "statusBar": "transparent",
+    "actionBarHidden": true,
+    "hideAndroidBottomNavigationBar": false,
+    "hideIOSSafeAreaBottom": true,
+    "selfControlLoading": false
+  },
+  "listCSS": [],
+  "listSyncJS": [],
+  "listAsyncJS": [],
+  "template": {
+    "name": "zaui-market",
+    "apiUrl": "",
+    "oaIDtoOpenChat": "4318657068771012646",
+    "shopName": "V2K",
+    "shopAddress": "V2K Sàn Thương Mại Điện Tử Giá Rẻ"
+  }
+}
