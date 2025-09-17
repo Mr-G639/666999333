@@ -1,6 +1,6 @@
 // src/pages/cart/cart-item.tsx
 
-import { useAddToCart } from "@/hooks"; // Đã được sửa đường dẫn
+import { useAddToCart } from "@/hooks/useCart"; // Đã được sửa đường dẫn
 import { CartItem as CartItemProps } from "@/types";
 import { formatPrice } from "@/utils/format";
 import { animated, useSpring } from "@react-spring/web";

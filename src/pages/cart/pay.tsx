@@ -1,4 +1,4 @@
-import { useCheckout } from "@/hooks";
+import { useCheckout } from "@/hooks/useOrder";
 import { useAtomValue } from "jotai";
 import { cartTotalState } from "@/state";
 import { formatPrice } from "@/utils/format";

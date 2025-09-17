@@ -6,7 +6,7 @@ import {
   cartState,
   ordersState,
 } from '@/state';
-import { useRequestInformation } from './useUser'; // Assuming useRequestInformation is moved to useUser.ts
+import { useRequestInformation } from './useUser';
 import { createOrder } from 'zmp-sdk/apis';
 
 export function useCheckout() {

@@ -1,4 +1,4 @@
-import { useRouteHandle } from "@/hooks";
+import { useRouteHandle } from "@/hooks/useUtility";
 import { FC, useEffect } from "react";
 import { useLocation } from "react-router";
 

@@ -1,6 +1,6 @@
 import Section from "@/components/section";
 import { VoucherIcon } from "@/components/vectors";
-import { useToBeImplemented } from "@/hooks";
+import { useToBeImplemented } from "@/hooks/useFeature";
 import { Icon } from "zmp-ui";
 
 export default function ApplyVoucher() {

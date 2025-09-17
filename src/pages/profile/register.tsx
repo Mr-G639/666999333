@@ -1,4 +1,4 @@
-import { useRequestInformation } from "@/hooks";
+import { useRequestInformation } from "@/hooks/useUser";
 import registerIllusRight from "@/static/register-illus-right.svg";
 
 export default function Register() {

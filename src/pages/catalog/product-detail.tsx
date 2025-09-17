@@ -5,7 +5,7 @@ import { productState } from "@/state";
 import { formatPrice } from "@/utils/format";
 import ShareButton from "./share-buttont";
 import RelatedProducts from "./related-products";
-import { useAddToCart } from "@/hooks";
+import { useAddToCart } from "@/hooks/useCart";
 import { Button } from "zmp-ui";
 import Section from "@/components/section";
 import Carousel from "@/components/carousel";

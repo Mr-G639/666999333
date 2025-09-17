@@ -7,7 +7,7 @@ import {
   loadableUserInfoState,
 } from "@/state";
 import { useMemo } from "react";
-import { useRouteHandle } from "@/hooks";
+import { useRouteHandle } from "@/hooks/useUtility";
 import { getConfig } from "@/utils/template";
 import headerIllus from "@/static/header-illus.svg";
 import SearchBar from "./search-bar";

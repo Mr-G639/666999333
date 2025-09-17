@@ -3,7 +3,7 @@ import HorizontalDivider from "./horizontal-divider";
 import { useAtomValue } from "jotai";
 import { cartState } from "@/state";
 import TransitionLink from "./transition-link";
-import { useRouteHandle } from "@/hooks";
+import { useRouteHandle } from "@/hooks/useUtility";
 import Badge from "./badge";
 
 const NAV_ITEMS = [

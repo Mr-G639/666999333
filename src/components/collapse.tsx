@@ -1,7 +1,7 @@
 import { Fragment, ReactNode, useEffect, useRef, useState } from "react";
 import { MinusIcon, PlusIcon } from "./vectors";
 import HorizontalDivider from "./horizontal-divider";
-import { useRealHeight } from "@/hooks";
+import { useRealHeight } from "@/hooks/useUtility";
 import { animated, useSpring, useSpringValue } from "@react-spring/web";
 
 export interface CollapseProps {
