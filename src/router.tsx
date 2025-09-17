@@ -22,6 +22,10 @@ import BankInfoPage from "./pages/profile/bank-info";
 import WithdrawalPage from "./pages/profile/withdrawal";
 import WithdrawalDetailPage from "./pages/profile/withdrawal-detail";
 
+// --- BỔ SUNG IMPORT CHO CÁC TRANG CÒN THIẾU ---
+import LoginPage from "./pages/auth/login";
+import RegisterPage from "./pages/auth/register";
+
 const router = createBrowserRouter(
   [
     {
@@ -34,6 +38,26 @@ const router = createBrowserRouter(
           handle: {
             logo: true,
             search: true,
+          },
+        },
+        // --- THÊM ROUTE CHO TRANG ĐĂNG NHẬP ---
+        {
+          path: "/login",
+          element: <LoginPage />,
+          handle: {
+            title: "Đăng nhập",
+            noFooter: true,
+            noFloatingCart: true,
+          },
+        },
+        // --- THÊM ROUTE CHO TRANG ĐĂNG KÝ ---
+        {
+          path: "/register",
+          element: <RegisterPage />,
+          handle: {
+            title: "Đăng ký",
+            noFooter: true,
+            noFloatingCart: true,
           },
         },
         {
@@ -199,4 +223,3 @@ const router = createBrowserRouter(
 );
 
 export default router;
-// <-- Đảm bảo không có dòng code nào thừa ở dưới đây

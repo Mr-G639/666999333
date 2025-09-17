@@ -1,4 +1,4 @@
-import { useAddToCart } from "@/hooks";
+import { useAddToCart } from "@/hooks/useCart";
 import { CartItem as CartItemProps } from "@/types";
 import { formatPrice } from "@/utils/format";
 import { animated, useSpring } from "@react-spring/web";
@@ -33,6 +33,10 @@ export default function CartItem(props: CartItemProps) {
     }
   );
 
+  // SỬA LỖI: Lấy URL hình ảnh một cách an toàn,
+  // ưu tiên 'images' array trước, sau đó mới đến 'image' làm phương án dự phòng.
+  const imageUrl = props.product?.images?.[0] ?? (props.product as any)?.image ?? "";
+
   return (
     <div className="relative after:border-b-[0.5px] after:border-black/10 after:absolute after:left-[88px] after:right-0 after:bottom-0 last:after:hidden">
       <div className="absolute right-0 top-0 bottom-0 w-20 py-px">
@@ -50,9 +54,10 @@ export default function CartItem(props: CartItemProps) {
         style={{ x }}
         className="bg-white p-4 flex items-center space-x-4 relative"
       >
-        {/* --- THAY ĐỔI Ở ĐÂY --- */}
-        {/* Sửa `props.product.image` thành `props.product.images[0]` */}
-        <img src={props.product.images[0]} className="w-14 h-14 rounded-lg" />
+        <img 
+          src={imageUrl} 
+          className="w-14 h-14 rounded-lg bg-skeleton" // Thêm bg-skeleton để có fallback UI
+        />
         
         <div className="flex-1 space-y-1">
           <div className="text-sm">{props.product.name}</div>

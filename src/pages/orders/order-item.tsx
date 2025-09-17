@@ -3,10 +3,16 @@ import { formatPrice } from "@/utils/format";
 import { List } from "zmp-ui";
 
 function OrderItem(props: CartItem) {
+  // Lấy URL hình ảnh một cách an toàn, ưu tiên 'images' array trước, sau đó mới đến 'image'
+  const imageUrl = props.product?.images?.[0] ?? (props.product as any)?.image ?? "";
+
   return (
     <List.Item
       prefix={
-        <img src={props.product.image} className="w-14 h-14 rounded-lg" />
+        <img 
+          src={imageUrl} 
+          className="w-14 h-14 rounded-lg bg-skeleton" // Thêm bg-skeleton để có fallback UI
+        />
       }
       suffix={
         <div className="text-sm font-medium flex items-center h-full">

@@ -3,7 +3,7 @@ import { formatPrice } from "@/utils/format";
 import TransitionLink from "./transition-link";
 import { useState } from "react";
 import { Button } from "zmp-ui";
-import { useAddToCart } from "@/hooks";
+import { useAddToCart } from "@/hooks/useCart"; // Sửa lỗi: Đường dẫn import đúng
 import QuantityInput from "./quantity-input";
 import MarqueeText from "./marquee-text";
 
@@ -40,14 +40,12 @@ export default function ProductItem(props: ProductItemProps) {
               alt={props.product.name}
             />
             <div className="pt-2 pb-1.5 flex flex-col">
-              {/* --- THAY ĐỔI Ở ĐÂY: Thêm class font-bold --- */}
               <div className="h-5 text-xs font-bold">
                 <MarqueeText text={props.product.name} />
               </div>
 
-              {/* --- THAY ĐỔI Ở ĐÂY: Đổi class màu chữ --- */}
               {props.product.soldCount && (
-                <div className="text-2xs text-gray-500 mt-0.5">
+                <div className="text-2xs text-subtitle mt-0.5"> {/* Cải thiện: Sử dụng màu từ theme */}
                   Đã bán {props.product.soldCount}
                 </div>
               )}
@@ -59,8 +57,7 @@ export default function ProductItem(props: ProductItemProps) {
                 <div className="flex items-center space-x-2 text-2xs">
                   {props.product.originalPrice && (
                     <>
-                      {/* --- THAY ĐỔI Ở ĐÂY: Đổi class màu chữ --- */}
-                      <span className="line-through text-gray-500">
+                      <span className="line-through text-subtitle"> {/* Cải thiện: Sử dụng màu từ theme */}
                         {formatPrice(props.product.originalPrice)}
                       </span>
                       <span className="text-danger font-medium">
