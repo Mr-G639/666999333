@@ -1,3 +1,5 @@
+// src/pages/home/category.tsx
+
 import TransitionLink from "@/components/transition-link";
 import { useAtomValue } from "jotai";
 import { categoriesState } from "@/state";
@@ -13,13 +15,13 @@ export default function Category() {
       <div
         className="bg-section grid gap-x-2 gap-y-4 py-2 px-4 overflow-x-auto"
         style={{
-          gridTemplateColumns: `repeat(4, minmax(70px, 1fr))`, // Assuming 4 items per row for skeleton
+          gridTemplateColumns: `repeat(4, minmax(70px, 1fr))`,
         }}
       >
-        {Array.from({ length: 8 }).map((_, index) => ( // Render 8 skeleton items
+        {Array.from({ length: 8 }).map((_, index) => (
           <div key={index} className="flex flex-col items-center space-y-1 flex-none overflow-hidden cursor-pointer mx-auto">
-            <div className="w-12 h-12 rounded-full bg-gray-300 animate-pulse"></div> {/* Circle skeleton */}
-            <div className="text-center text-3xs w-full h-3 bg-gray-300 animate-pulse rounded mt-1"></div> {/* Text line skeleton */}
+            <div className="w-12 h-12 rounded-full bg-gray-300 animate-pulse"></div>
+            <div className="text-center text-3xs w-full h-3 bg-gray-300 animate-pulse rounded mt-1"></div>
           </div>
         ))}
       </div>
@@ -33,6 +35,16 @@ export default function Category() {
 
   const categories = categoriesLoadable.data;
 
+  // --- SỬA LỖI TẠI ĐÂY ---
+  // Chuẩn hóa dữ liệu để đảm bảo `image` luôn là một chuỗi (string)
+  const normalizedCategories = categories.map((category) => ({
+    ...category,
+    image:
+      typeof category.image === "string"
+        ? category.image
+        : (category.image as any).default,
+  }));
+
   return (
     <div
       className="bg-section grid gap-x-2 gap-y-4 py-2 px-4 overflow-x-auto"
@@ -42,7 +54,8 @@ export default function Category() {
         )}, minmax(70px, 1fr))`,
       }}
     >
-      {categories.map((category) => (
+      {/* Sử dụng dữ liệu đã được chuẩn hóa */}
+      {normalizedCategories.map((category) => (
         <TransitionLink
           key={category.id}
           className="flex flex-col items-center space-y-1 flex-none overflow-hidden cursor-pointer mx-auto"

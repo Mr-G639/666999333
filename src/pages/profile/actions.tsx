@@ -1,4 +1,7 @@
+// src/pages/profile/actions.tsx
+
 import {
+  HeartIcon, // Thêm import này
   OrderHistoryIcon,
   PackageIcon,
   VoucherIcon,
@@ -18,6 +21,13 @@ export default function ProfileActions() {
           suffix={<Icon icon="zi-chevron-right" />}
           onClick={() => navigate("/orders")}
         />
+        {/* Thêm mục mới dưới đây */}
+        <List.Item
+          title="Sản phẩm yêu thích"
+          prefix={<HeartIcon className="w-5 h-5" />}
+          suffix={<Icon icon="zi-chevron-right" />}
+          onClick={() => navigate("/profile/wishlist")}
+        />
         <List.Item
           title="Ví Voucher"
           prefix={<VoucherIcon />}
@@ -31,7 +41,7 @@ export default function ProfileActions() {
           onClick={() => navigate("/profile/wallet")}
         />
         <List.Item
-          title="Đơn giới thiệu" // <-- Thêm mục mới
+          title="Đơn giới thiệu"
           prefix={<OrderHistoryIcon />}
           suffix={<Icon icon="zi-chevron-right" />}
           onClick={() => navigate("/profile/referrals")}

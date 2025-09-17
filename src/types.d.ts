@@ -75,8 +75,8 @@ export interface Order {
   delivery: Delivery;
   total: number;
   note: string;
+  discountAmount?: number; // Bổ sung dòng này
 }
-
 export type VoucherType = "PERCENT" | "FIXED_AMOUNT" | "SHIPPING";
 
 export interface Voucher {

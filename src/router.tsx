@@ -21,10 +21,10 @@ import ReferralDetailPage from "./pages/profile/referral-detail";
 import BankInfoPage from "./pages/profile/bank-info";
 import WithdrawalPage from "./pages/profile/withdrawal";
 import WithdrawalDetailPage from "./pages/profile/withdrawal-detail";
-
-// --- BỔ SUNG IMPORT CHO CÁC TRANG CÒN THIẾU ---
 import LoginPage from "./pages/auth/login";
 import RegisterPage from "./pages/auth/register";
+import VoucherSelectionPage from "./pages/cart/voucher-selection";
+import WishlistPage from "./pages/profile/wishlist";
 
 const router = createBrowserRouter(
   [
@@ -40,7 +40,6 @@ const router = createBrowserRouter(
             search: true,
           },
         },
-        // --- THÊM ROUTE CHO TRANG ĐĂNG NHẬP ---
         {
           path: "/login",
           element: <LoginPage />,
@@ -50,7 +49,6 @@ const router = createBrowserRouter(
             noFloatingCart: true,
           },
         },
-        // --- THÊM ROUTE CHO TRANG ĐĂNG KÝ ---
         {
           path: "/register",
           element: <RegisterPage />,
@@ -92,6 +90,14 @@ const router = createBrowserRouter(
           },
         },
         {
+          path: "/vouchers",
+          element: <VoucherSelectionPage />,
+          handle: {
+            title: "Chọn voucher",
+            noFooter: true,
+          },
+        },
+        {
           path: "/shipping-address",
           element: <ShippingAddressPage />,
           handle: {
@@ -120,6 +126,15 @@ const router = createBrowserRouter(
           element: <ProfileEditorPage />,
           handle: {
             title: "Thông tin tài khoản",
+            noFooter: true,
+            noFloatingCart: true,
+          },
+        },
+        {
+          path: "/profile/wishlist",
+          element: <WishlistPage />,
+          handle: {
+            title: "Sản phẩm yêu thích",
             noFooter: true,
             noFloatingCart: true,
           },

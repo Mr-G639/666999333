@@ -1,30 +1,51 @@
 import HorizontalDivider from "@/components/horizontal-divider";
-import { useAtomValue } from "jotai";
+import { useAtom, useAtomValue } from "jotai";
 import { useNavigate, useParams } from "react-router-dom";
-import { productState } from "@/state";
+import { productState, favoriteProductsState } from "@/state";
 import { formatPrice } from "@/utils/format";
 import ShareButton from "./share-buttont";
 import RelatedProducts from "./related-products";
 import { useAddToCart } from "@/hooks/useCart";
-import { Button } from "zmp-ui";
+import { Button, Icon } from "zmp-ui";
 import Section from "@/components/section";
 import Carousel from "@/components/carousel";
-import { ReactNode } from "react";
+import { ReactNode, useMemo, useState, Suspense } from "react";
+import { HeartIcon } from "@/components/vectors";
+import { ProductGridSkeleton } from "@/components/skeleton";
 
-export default function ProductDetailPage() {
+function ProductDetailContent() {
   const { id } = useParams();
-  const product = useAtomValue(productState(Number(id)))!;
+  const product = useAtomValue(productState(Number(id)));
+  const [favorites, setFavorites] = useAtom(favoriteProductsState);
   const navigate = useNavigate();
+  const [isMuted, setIsMuted] = useState(true);
 
-  const normalizedProduct = {
-    ...product,
-    category: {
-      ...product.category,
-      image:
-        typeof product.category.image === "string"
-          ? product.category.image
-          : (product.category.image as any).default,
-    },
+  const normalizedProduct = useMemo(() => {
+    if (!product) return null;
+    return {
+      ...product,
+      category: {
+        ...product.category,
+        image:
+          typeof product.category.image === "string"
+            ? product.category.image
+            : (product.category.image as any).default,
+      },
+    };
+  }, [product]);
+  
+  if (!normalizedProduct) {
+    return null;
+  }
+
+  const isFavorited = favorites.includes(normalizedProduct.id);
+
+  const toggleFavorite = () => {
+    setFavorites((prev) =>
+      isFavorited
+        ? prev.filter((favId) => favId !== normalizedProduct.id)
+        : [...prev, normalizedProduct.id]
+    );
   };
 
   const { addToCart } = useAddToCart(normalizedProduct);
@@ -37,7 +58,9 @@ export default function ProductDetailPage() {
         key="product-video"
         src={normalizedProduct.video}
         playsInline
-        controls
+        autoPlay
+        muted={isMuted}
+        loop
         className="w-full aspect-square object-cover rounded-lg"
       />
     );
@@ -51,39 +74,80 @@ export default function ProductDetailPage() {
         alt={normalizedProduct.name}
         className="w-full aspect-square object-cover rounded-lg"
         style={{
-          viewTransitionName: i === 0 && !normalizedProduct.video ? `product-image-${product.id}` : undefined,
+          viewTransitionName: i === 0 && !normalizedProduct.video ? `product-image-${normalizedProduct.id}` : undefined,
         }}
       />
     );
   });
 
   return (
-    <div className="w-full h-full flex flex-col">
+    <div className="w-full h-full flex flex-col bg-section">
       <div className="flex-1 overflow-y-auto">
-        <div className="w-full p-4 pb-2 space-y-4 bg-section">
-          <Carousel slides={mediaSlides} />
+        <div className="relative">
+          <Button
+            onClick={() => navigate(-1)}
+            className="absolute top-4 left-4 z-10 !bg-black/40 !border-none"
+            icon={<Icon icon="zi-arrow-left" className="text-white" />}
+          />
           
-          <div>
-            <div className="text-xl font-bold text-primary">
-              {formatPrice(normalizedProduct.price)}
+          <Carousel slides={mediaSlides} />
+
+          
+          {normalizedProduct.video && (
+            <Button
+              onClick={() => setIsMuted(!isMuted)}
+              className="absolute bottom-10 right-4 z-10 !bg-black/40 !border-none"
+              // The following line has been corrected
+              icon={<Icon icon={isMuted ? 'zi-notif-off' : 'zi-notif'} className="text-white" />}
+            />
+          )}
+        </div>
+        
+        <div className="p-4 space-y-4">
+          
+          <div className="bg-red-50 rounded-lg p-3 text-foreground">
+            
+            <div className="flex justify-between items-center">
+              
+              <div className="flex items-center space-x-2">
+                <span className="text-red-600 text-2xl font-bold">{formatPrice(normalizedProduct.price)}</span>
+                {normalizedProduct.originalPrice && (
+                    <span className="text-xs bg-red-100 text-red-600 font-medium px-2 py-0.5 rounded">
+                        GIẢM {100 - Math.round((normalizedProduct.price * 100) / normalizedProduct.originalPrice)}%
+                    </span>
+                )}
+              </div>
+              {normalizedProduct.soldCount && (
+                  <span className="text-sm text-gray-600">Đã bán {normalizedProduct.soldCount}+</span>
+              )}
             </div>
+            
             {normalizedProduct.originalPrice && (
-              <div className="text-2xs space-x-0.5">
-                <span className="text-subtitle line-through">
-                  {formatPrice(normalizedProduct.originalPrice)}
-                </span>
-                <span className="text-danger">
-                  -
-                  {100 -
-                    Math.round((normalizedProduct.price * 100) / normalizedProduct.originalPrice)}
-                  %
-                </span>
+              <div className="mt-1">
+                  <span className="text-gray-500 line-through">{formatPrice(normalizedProduct.originalPrice)}</span>
               </div>
             )}
-            <div className="text-sm mt-1">{normalizedProduct.name}</div>
           </div>
-          <ShareButton product={normalizedProduct} />
+
+          
+          <div>
+            <h1 className="text-lg font-bold">{normalizedProduct.name}</h1>
+          </div>
+          
+          
+          <div className="flex items-center space-x-2">
+            <Button
+              className="flex-none !bg-red-100 !text-red-500 h-9 aspect-square"
+              onClick={toggleFavorite}
+            >
+              <HeartIcon active={isFavorited} className="w-6 h-6"/>
+            </Button>
+            <div className="flex-1">
+                <ShareButton product={normalizedProduct} />
+            </div>
+          </div>
         </div>
+
         {normalizedProduct.detail && (
           <>
             <div className="bg-background h-2 w-full"></div>
@@ -96,7 +160,7 @@ export default function ProductDetailPage() {
         )}
         <div className="bg-background h-2 w-full"></div>
         <Section title="Sản phẩm khác">
-          <RelatedProducts currentProductId={product.id} />
+          <RelatedProducts currentProductId={normalizedProduct.id} />
         </Section>
       </div>
 
@@ -125,4 +189,12 @@ export default function ProductDetailPage() {
       </div>
     </div>
   );
+}
+
+export default function ProductDetailPage() {
+    return (
+        <Suspense fallback={<ProductGridSkeleton />}>
+            <ProductDetailContent />
+        </Suspense>
+    )
 }

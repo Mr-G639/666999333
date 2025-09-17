@@ -1,17 +1,19 @@
 // src/pages/cart/cart-item.tsx
 
-import { useAddToCart } from "@/hooks/useCart"; // Đã được sửa đường dẫn
+import { useAddToCart } from "@/hooks/useCart";
 import { CartItem as CartItemProps } from "@/types";
 import { formatPrice } from "@/utils/format";
 import { animated, useSpring } from "@react-spring/web";
 import { useDrag } from "@use-gesture/react";
 import { Icon } from "zmp-ui";
 import QuantityInput from "@/components/quantity-input";
+import { useNavigate } from "react-router-dom"; // Thêm import này
 
 const SWIPE_TO_DELTE_OFFSET = 80;
 
 export default function CartItem(props: CartItemProps) {
   const { addToCart } = useAddToCart(props.product);
+  const navigate = useNavigate(); // Thêm hook navigate
 
   const [{ x }, api] = useSpring(() => ({ x: 0 }));
   const bind = useDrag(
@@ -34,10 +36,12 @@ export default function CartItem(props: CartItemProps) {
       preventScroll: true,
     }
   );
-
-  // SỬA LỖI: Lấy URL hình ảnh một cách an toàn,
-  // ưu tiên 'images' array trước, sau đó mới đến 'image' làm phương án dự phòng.
+  
   const imageUrl = props.product?.images?.[0] ?? (props.product as any)?.image ?? "";
+
+  const handleNavigate = () => {
+    navigate(`/product/${props.product.id}`);
+  };
 
   return (
     <div className="relative after:border-b-[0.5px] after:border-black/10 after:absolute after:left-[88px] after:right-0 after:bottom-0 last:after:hidden">
@@ -58,24 +62,32 @@ export default function CartItem(props: CartItemProps) {
         style={{ x }}
         className="bg-white p-4 flex items-center space-x-4 relative"
       >
-        <img
-          src={imageUrl}
-          className="w-14 h-14 rounded-lg bg-skeleton" // Thêm bg-skeleton để có fallback UI
-        />
-        
-        <div className="flex-1 space-y-1">
-          <div className="text-sm">{props.product.name}</div>
-          <div className="flex flex-col">
-            <div className="text-sm font-bold">
-              {formatPrice(props.product.price)}
-            </div>
-            {props.product.originalPrice && (
-              <div className="line-through text-subtitle text-4xs">
-                {formatPrice(props.product.originalPrice)}
+        {/* Bọc phần tử có thể click */}
+        <div 
+          className="flex items-center space-x-4 flex-1 cursor-pointer" 
+          onClick={handleNavigate}
+        >
+          <img
+            src={imageUrl}
+            className="w-14 h-14 rounded-lg bg-skeleton"
+          />
+          
+          <div className="flex-1 space-y-1">
+            <div className="text-sm">{props.product.name}</div>
+            <div className="flex flex-col">
+              <div className="text-sm font-bold">
+                {formatPrice(props.product.price)}
               </div>
-            )}
+              {props.product.originalPrice && (
+                <div className="line-through text-subtitle text-4xs">
+                  {formatPrice(props.product.originalPrice)}
+                </div>
+              )}
+            </div>
           </div>
         </div>
+        
+        {/* Phần tử này không điều hướng */}
         <div className="w-24">
           <QuantityInput value={props.quantity} onChange={addToCart} />
         </div>

@@ -1,17 +1,19 @@
-import { useAtomValue, useAtom, useSetAtom } from 'jotai';
-import toast from 'react-hot-toast';
-import { useNavigate } from 'react-router-dom';
+import { useAtomValue, useAtom, useSetAtom } from "jotai";
+import toast from "react-hot-toast";
+import { useNavigate } from "react-router-dom";
 import {
   cartTotalState,
   cartState,
   ordersState,
-} from '@/state';
-import { useRequestInformation } from './useUser';
-import { createOrder } from 'zmp-sdk/apis';
+  selectedVoucherState, // Thêm import này
+} from "@/state";
+import { useRequestInformation } from "./useUser";
+import { createOrder } from "zmp-sdk/apis";
 
 export function useCheckout() {
-  const { totalAmount } = useAtomValue(cartTotalState);
+  const { finalAmount } = useAtomValue(cartTotalState); // Sửa thành finalAmount
   const [cart, setCart] = useAtom(cartState);
+  const selectedVoucher = useAtomValue(selectedVoucherState); // Lấy voucher
   const requestInfo = useRequestInformation();
   const navigate = useNavigate();
   const refreshNewOrders = useSetAtom(ordersState("pending"));
@@ -20,8 +22,10 @@ export function useCheckout() {
     try {
       await requestInfo();
       await createOrder({
-        amount: totalAmount,
-        desc: "Thanh toán đơn hàng",
+        amount: finalAmount, // Sử dụng finalAmount
+        desc: `Thanh toán đơn hàng. ${
+          selectedVoucher ? `Sử dụng voucher ${selectedVoucher.code}` : ""
+        }`,
         item: cart.map((item) => ({
           id: item.product.id,
           name: item.product.name,

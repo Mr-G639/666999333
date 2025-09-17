@@ -1,11 +1,14 @@
+// src/pages/cart/cart-summary.tsx
+
 import { useAtomValue } from "jotai";
-import { cartTotalState } from "@/state";
+import { cartTotalState, selectedVoucherState } from "@/state";
 import { formatPrice } from "@/utils/format";
 import Section from "@/components/section";
 import HorizontalDivider from "@/components/horizontal-divider";
 
 export default function CartSummary() {
-  const { totalAmount } = useAtomValue(cartTotalState);
+  const { totalAmount, finalAmount } = useAtomValue(cartTotalState);
+  const selectedVoucher = useAtomValue(selectedVoucherState);
 
   return (
     <Section title="Thanh toán" className="rounded-lg">
@@ -16,6 +19,12 @@ export default function CartSummary() {
               <th>Tạm tính</th>
               <td>{formatPrice(totalAmount)}</td>
             </tr>
+            {selectedVoucher && (
+              <tr>
+                <th>Giảm giá</th>
+                <td className="text-red-500">- {formatPrice(selectedVoucher.value)}</td>
+              </tr>
+            )}
             <tr>
               <th>Phí vận chuyển</th>
               <td>0 VND</td>
@@ -25,7 +34,7 @@ export default function CartSummary() {
         <HorizontalDivider />
         <div className="flex justify-between font-medium text-sm">
           <div>Tổng thanh toán</div>
-          <div>{formatPrice(totalAmount)}</div>
+          <div>{formatPrice(finalAmount)}</div>
         </div>
       </div>
     </Section>

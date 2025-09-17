@@ -1,3 +1,5 @@
+// src/state.ts
+
 import { atom } from "jotai";
 import {
   atomFamily,
@@ -41,13 +43,13 @@ import mockTransactions from "./mock/transactions.json";
 // ==================================================================
 
 const categoryImages = import.meta.glob<{ default: string }>(
-  "/src/static/category/*",
+  "./static/category/*",
   { eager: true, as: "url" }
 );
 
 const mappedCategories = mockCategoriesData.map((category) => {
   const imageName = category.image;
-  const imagePath = `/src/static/category/${imageName}`;
+  const imagePath = `./static/category/${imageName}`;
   return {
     ...category,
     image: categoryImages[imagePath] || "",
@@ -152,19 +154,27 @@ export const productsState = atom(async (get) => {
   }));
 });
 
-export const flashSaleProductsState = atom((get) => get(productsState));
-export const recommendedProductsState = atom((get) => get(productsState));
+export const favoriteProductsState = atomWithStorage<number[]>("favorites", []);
+
+export const favoriteProductsDetailsState = atom(async (get) => {
+  const favoriteIds = get(favoriteProductsState);
+  const allProducts = await get(productsState); // Sửa lỗi: Thêm await
+  return allProducts.filter(p => favoriteIds.includes(p.id));
+});
+
+export const flashSaleProductsState = atom(async (get) => await get(productsState));
+export const recommendedProductsState = atom(async (get) => await get(productsState));
 
 export const productState = atomFamily((id: number) =>
   atom(async (get) => {
-    const products = await get(productsState);
+    const products = await get(productsState); // Sửa lỗi: Thêm await
     return products.find((product) => product.id === id);
   })
 );
 
 export const productsByCategoryState = atomFamily((id: string) =>
   atom(async (get) => {
-    const products = await get(productsState);
+    const products = await get(productsState); // Sửa lỗi: Thêm await
     return products.filter((product) => String(product.categoryId) === id);
   })
 );
@@ -187,7 +197,7 @@ export const searchCategoriesResultState = atom(async (get) => {
 export const searchResultState = atom(async (get) => {
   const keyword = get(keywordState);
   if (!keyword) return [];
-  const products = await get(productsState);
+  const products = await get(productsState); // Sửa lỗi: Thêm await
   return products.filter((product) =>
     product.name.toLowerCase().includes(keyword.toLowerCase())
   );
@@ -199,14 +209,30 @@ export const searchResultState = atom(async (get) => {
 
 export const cartState = atomWithStorage<Cart>("cart", []);
 
+export const selectedVoucherState = atom<Voucher | undefined>(undefined);
+
 export const cartTotalState = atom((get) => {
   const items = get(cartState);
+  const selectedVoucher = get(selectedVoucherState);
+
+  const totalAmount = items.reduce(
+    (total, item) => total + item.product.price * item.quantity,
+    0
+  );
+
+  let finalAmount = totalAmount;
+  if (selectedVoucher) {
+    if (selectedVoucher.type === "FIXED_AMOUNT") {
+      finalAmount -= selectedVoucher.value;
+    } else if (selectedVoucher.type === "PERCENT") {
+      finalAmount -= totalAmount * (selectedVoucher.value / 100);
+    }
+  }
+
   return {
     totalItems: items.length,
-    totalAmount: items.reduce(
-      (total, item) => total + item.product.price * item.quantity,
-      0
-    ),
+    totalAmount,
+    finalAmount: Math.max(0, finalAmount),
   };
 });
 

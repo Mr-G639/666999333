@@ -1,17 +1,31 @@
+// src/pages/orders/order-item.tsx
+
 import { CartItem } from "@/types";
 import { formatPrice } from "@/utils/format";
 import { List } from "zmp-ui";
+import { useNavigate } from "react-router-dom";
 
-function OrderItem(props: CartItem) {
-  // Lấy URL hình ảnh một cách an toàn, ưu tiên 'images' array trước, sau đó mới đến 'image'
+// Thêm prop `clickable` để điều khiển hành vi
+function OrderItem(props: CartItem & { clickable?: boolean }) {
+  const navigate = useNavigate();
   const imageUrl = props.product?.images?.[0] ?? (props.product as any)?.image ?? "";
+
+  const handleClick = () => {
+    // Chỉ điều hướng nếu `clickable` là true
+    if (props.clickable) {
+      navigate(`/product/${props.product.id}`);
+    }
+  };
 
   return (
     <List.Item
+      onClick={handleClick}
+      // Thêm class `cursor-pointer` một cách có điều kiện để cải thiện UX
+      className={props.clickable ? "cursor-pointer" : ""}
       prefix={
         <img 
           src={imageUrl} 
-          className="w-14 h-14 rounded-lg bg-skeleton" // Thêm bg-skeleton để có fallback UI
+          className="w-14 h-14 rounded-lg bg-skeleton"
         />
       }
       suffix={

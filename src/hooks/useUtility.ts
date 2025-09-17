@@ -1,7 +1,7 @@
 import { MutableRefObject, useLayoutEffect, useState } from "react";
 import { UIMatch, useMatches } from "react-router-dom";
 
-// Hook để lấy chiều cao thực của một phần tử
+// Hook to get the real height of an element
 export function useRealHeight(
   element: MutableRefObject<HTMLDivElement | null>,
   defaultValue?: number
@@ -25,7 +25,7 @@ export function useRealHeight(
   return height;
 }
 
-// Hook để lấy thông tin của route hiện tại
+
 type RouteHandle = {
   title?: string | Function;
   logo?: boolean;
@@ -34,6 +34,8 @@ type RouteHandle = {
   noBack?: boolean;
   noFloatingCart?: boolean;
   scrollRestoration?: number;
+  // The following line has been added
+  noHeader?: boolean;
 };
 
 export function useRouteHandle() {

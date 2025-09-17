@@ -1,4 +1,6 @@
-import { EmptyBoxIcon, EmptyCartIcon, SearchIconLarge } from "./vectors";
+// src/components/empty.tsx
+
+import { EmptyBoxIcon, EmptyCartIcon, HeartIcon, SearchIconLarge } from "./vectors";
 
 export function EmptySearchResult() {
   return (
@@ -39,6 +41,18 @@ export function EmptyCart() {
       <EmptyCartIcon />
       <div className="text-inactive text-center text-2xs">
         Không có sản phẩm trong giỏ hàng
+      </div>
+    </div>
+  );
+}
+
+export function EmptyWishlist() {
+  return (
+    <div className="h-full flex-1 p-6 space-y-4 flex flex-col items-center justify-center">
+      {/* Cải thiện: Tăng kích thước và đổi màu icon cho nhất quán */}
+      <HeartIcon className="w-20 h-20 text-gray-300" />
+      <div className="text-inactive text-center text-2xs">
+        Bạn chưa có sản phẩm yêu thích nào
       </div>
     </div>
   );

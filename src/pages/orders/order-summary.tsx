@@ -1,3 +1,5 @@
+// src/pages/orders/order-summary.tsx
+
 import HorizontalDivider from "@/components/horizontal-divider";
 import Section from "@/components/section";
 import { Order } from "@/types";
@@ -31,7 +33,7 @@ function OrderSummary(props: { order: Order; full?: boolean }) {
           </span>
         </div>
       }
-      className="flex-1 overflow-y-auto rounded-lg"
+      className="flex-1 overflow-y-auto rounded-lg cursor-pointer"
       onClick={() => {
         if (!props.full) {
           navigate(`/order/${props.order.id}`, {
@@ -42,9 +44,11 @@ function OrderSummary(props: { order: Order; full?: boolean }) {
       }}
     >
       <div className="w-full">
+        {/* Truyền prop `itemsClickable` dựa trên trạng thái `full` */}
         <CollapsibleOrderItems
           items={props.order.items}
           defaultExpanded={props.full}
+          itemsClickable={props.full}
         />
       </div>
       <HorizontalDivider />

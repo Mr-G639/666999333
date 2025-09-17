@@ -1,5 +1,3 @@
-// src/components/header.tsx
-
 import { useAtomValue } from "jotai";
 import { useLocation, useNavigate } from "react-router-dom";
 import {
@@ -21,6 +19,13 @@ export default function Header() {
   const navigate = useNavigate();
   const location = useLocation();
   const [handle, matchRaw] = useRouteHandle();
+
+  
+  if (handle?.noHeader) {
+    return null; 
+  }
+  
+  
   const match = matchRaw && typeof matchRaw === "object" && "params" in matchRaw
     ? matchRaw
     : { params: {} };
@@ -39,14 +44,11 @@ export default function Header() {
 
   const showBack = location.key !== "default" && !handle?.noBack;
 
-  // Cập nhật hàm xử lý sự kiện quay lại
   const handleBackClick = () => {
     const path = location.pathname;
-    // Nếu là trang danh mục, đơn hàng, hoặc chi tiết đơn hàng thì điều hướng về trang chủ
     if (path.startsWith('/category/') || path.startsWith('/orders') || path.startsWith('/order/')) {
       navigate('/');
     } else {
-      // Nếu không, thực hiện hành vi quay lại mặc định
       navigate(-1);
     }
   };

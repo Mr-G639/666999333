@@ -1,9 +1,11 @@
+// src/components/product-item.tsx
+
 import { Product } from "@/types";
 import { formatPrice } from "@/utils/format";
 import TransitionLink from "./transition-link";
 import { useState } from "react";
 import { Button } from "zmp-ui";
-import { useAddToCart } from "@/hooks/useCart"; // Sửa lỗi: Đường dẫn import đúng
+import { useAddToCart } from "@/hooks/useCart";
 import QuantityInput from "./quantity-input";
 import MarqueeText from "./marquee-text";
 
@@ -24,7 +26,7 @@ export default function ProductItem(props: ProductItemProps) {
       <TransitionLink
         to={`/product/${props.product.id}`}
         replace={props.replace}
-        className="p-2 pb-0"
+        className="p-2 pb-0 flex flex-col flex-1"
       >
         {({ isTransitioning }) => (
           <>
@@ -39,37 +41,42 @@ export default function ProductItem(props: ProductItemProps) {
               }}
               alt={props.product.name}
             />
-            <div className="pt-2 pb-1.5 flex flex-col">
+            <div className="pt-2 pb-1.5 flex flex-col flex-1">
               <div className="h-5 text-xs font-bold">
                 <MarqueeText text={props.product.name} />
               </div>
 
-              {props.product.soldCount && (
-                <div className="text-2xs text-subtitle mt-0.5"> {/* Cải thiện: Sử dụng màu từ theme */}
-                  Đã bán {props.product.soldCount}
-                </div>
-              )}
-
-              <div className="mt-1 flex-1 flex flex-col justify-end">
-                <div className="text-sm font-bold text-primary">
-                  {formatPrice(props.product.price)}
-                </div>
-                <div className="flex items-center space-x-2 text-2xs">
+              <div className="mt-1 flex-1 flex flex-col justify-end space-y-1">
+                <div className="flex justify-between items-center">
+                  {/* THAY ĐỔI TẠI ĐÂY: Tăng kích thước chữ của giá bán */}
+                  <div className="text-base font-bold text-primary">
+                    {formatPrice(props.product.price)}
+                  </div>
                   {props.product.originalPrice && (
-                    <>
-                      <span className="line-through text-subtitle"> {/* Cải thiện: Sử dụng màu từ theme */}
-                        {formatPrice(props.product.originalPrice)}
-                      </span>
-                      <span className="text-danger font-medium">
-                        -
-                        {Math.round(
-                          (1 -
-                            props.product.price / props.product.originalPrice) *
-                            100
-                        )}
-                        %
-                      </span>
-                    </>
+                    <span className="text-danger font-medium text-2xs">
+                      -
+                      {Math.round(
+                        (1 -
+                          props.product.price / props.product.originalPrice) *
+                          100
+                      )}
+                      %
+                    </span>
+                  )}
+                </div>
+
+                <div className="flex justify-between items-center text-2xs">
+                  {props.product.originalPrice ? (
+                    <span className="line-through text-subtitle">
+                      {formatPrice(props.product.originalPrice)}
+                    </span>
+                  ) : (
+                    <span>&nbsp;</span>
+                  )}
+                  {props.product.soldCount && (
+                    <div className="text-subtitle">
+                      Đã bán {props.product.soldCount}
+                    </div>
                   )}
                 </div>
               </div>

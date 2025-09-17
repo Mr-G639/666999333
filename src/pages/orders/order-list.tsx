@@ -1,5 +1,8 @@
+// src/pages/orders/order-list.tsx
+
 import { Order } from "@/types";
-import { Atom, useAtomValue, useSetAtom } from "jotai";
+// Sửa lỗi: Import thêm WritableAtom
+import { useAtomValue, useSetAtom, WritableAtom } from "jotai";
 import { loadable } from "jotai/utils";
 import { useMemo } from "react";
 import { EmptyOrder } from "@/components/empty";
@@ -7,7 +10,10 @@ import ErrorMessage from "@/components/error-message";
 import OrderSummary from "./order-summary";
 import { OrderSummarySkeleton } from "@/components/skeleton";
 
-function OrderList(props: { ordersState: Atom<Promise<Order[]>> }) {
+// Sửa lỗi: Thay đổi kiểu dữ liệu của prop để phản ánh đúng là một atom có thể làm mới
+function OrderList(props: {
+  ordersState: WritableAtom<Promise<Order[]>, [void], void>;
+}) {
   const orderList = useAtomValue(
     useMemo(() => loadable(props.ordersState), [props.ordersState])
   );
@@ -18,7 +24,7 @@ function OrderList(props: { ordersState: Atom<Promise<Order[]>> }) {
     return (
       <ErrorMessage
         message="Failed to load orders."
-        onRetry={retryLoadableOrders}
+        onRetry={() => retryLoadableOrders()} // Sửa lỗi: Gọi hàm refresh
       />
     );
   }
