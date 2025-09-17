@@ -1,6 +1,6 @@
 // src/hooks.ts
 
-import { atom, useAtom, useAtomValue, useSetAtom } from "jotai";
+import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import { MutableRefObject, useCallback, useLayoutEffect, useMemo, useState } from "react";
 import toast from "react-hot-toast";
 import { UIMatch, useMatches, useNavigate } from "react-router-dom";
@@ -17,7 +17,7 @@ import { authorize, createOrder, openChat } from "zmp-sdk/apis";
 import { useAtomCallback } from "jotai/utils";
 
 // ==================================================================
-// CÁC CUSTOM HOOK ĐÃ ĐƯỢC KHÔI PHỤC
+// CÁC CUSTOM HOOK TIỆN ÍCH
 // ==================================================================
 
 export function useRealHeight(
@@ -43,6 +43,45 @@ export function useRealHeight(
   return height;
 }
 
+
+export function useCustomerSupport() {
+  return () =>
+    openChat({
+      type: "oa",
+      id: getConfig((config) => config.template.oaIDtoOpenChat),
+    });
+}
+
+export function useToBeImplemented() {
+  return () =>
+    toast("Chức năng dành cho các bên tích hợp phát triển...", {
+      icon: "🛠️",
+    });
+}
+
+
+type RouteHandle = {
+  title?: string | Function;
+  logo?: boolean;
+  search?: boolean;
+  noFooter?: boolean;
+  noBack?: boolean;
+  noFloatingCart?: boolean;
+  scrollRestoration?: number;
+};
+
+export function useRouteHandle() {
+  const matches = useMatches() as UIMatch<undefined, RouteHandle | undefined>[];
+  const lastMatch = matches[matches.length - 1];
+
+  return [lastMatch.handle, lastMatch, matches] as const;
+}
+
+
+// ==================================================================
+// HOOKS LIÊN QUAN ĐẾN USER
+// ==================================================================
+
 export function useRequestInformation() {
   const getStoredUserInfo = useAtomCallback(async (get) => {
     const userInfo = await get(userInfoState);
@@ -64,7 +103,7 @@ export function useRequestInformation() {
 }
 
 // ==================================================================
-// HOOK useAddToCart ĐÃ ĐƯỢC SỬA LỖI
+// HOOKS LIÊN QUAN ĐẾN GIỎ HÀNG VÀ THANH TOÁN (ĐÃ SỬA LỖI)
 // ==================================================================
 
 export function useAddToCart(product: Product) {
@@ -88,8 +127,10 @@ export function useAddToCart(product: Product) {
         }
       } else {
         if (itemIndex > -1) {
+          // Sửa lỗi tại đây: Cập nhật trực tiếp số lượng mới
           newCart[itemIndex] = { ...newCart[itemIndex], quantity: newQuantity };
         } else {
+          // Thêm sản phẩm mới vào giỏ
           newCart.push({ product, quantity: newQuantity });
         }
       }
@@ -104,24 +145,6 @@ export function useAddToCart(product: Product) {
   return { addToCart, cartQuantity };
 }
 
-// ==================================================================
-// CÁC CUSTOM HOOK ĐÃ ĐƯỢC KHÔI PHỤC
-// ==================================================================
-
-export function useCustomerSupport() {
-  return () =>
-    openChat({
-      type: "oa",
-      id: getConfig((config) => config.template.oaIDtoOpenChat),
-    });
-}
-
-export function useToBeImplemented() {
-  return () =>
-    toast("Chức năng dành cho các bên tích hợp phát triển...", {
-      icon: "🛠️",
-    });
-}
 
 export function useCheckout() {
   const { totalAmount } = useAtomValue(cartTotalState);
@@ -159,21 +182,4 @@ export function useCheckout() {
       );
     }
   };
-}
-
-type RouteHandle = {
-  title?: string | Function;
-  logo?: boolean;
-  search?: boolean;
-  noFooter?: boolean;
-  noBack?: boolean;
-  noFloatingCart?: boolean;
-  scrollRestoration?: number;
-};
-
-export function useRouteHandle() {
-  const matches = useMatches() as UIMatch<undefined, RouteHandle | undefined>[];
-  const lastMatch = matches[matches.length - 1];
-
-  return [lastMatch.handle, lastMatch, matches] as const;
 }

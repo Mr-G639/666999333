@@ -1,4 +1,6 @@
-import { useAddToCart } from "@/hooks/useCart";
+// src/pages/cart/cart-item.tsx
+
+import { useAddToCart } from "@/hooks"; // Đã được sửa đường dẫn
 import { CartItem as CartItemProps } from "@/types";
 import { formatPrice } from "@/utils/format";
 import { animated, useSpring } from "@react-spring/web";
@@ -39,7 +41,9 @@ export default function CartItem(props: CartItemProps) {
 
   return (
     <div className="relative after:border-b-[0.5px] after:border-black/10 after:absolute after:left-[88px] after:right-0 after:bottom-0 last:after:hidden">
-      <div className="absolute right-0 top-0 bottom-0 w-20 py-px">
+      <div
+        className="absolute right-0 top-0 bottom-0 w-20 py-px"
+      >
         <div
           className="bg-danger text-white/95 w-full h-full flex flex-col space-y-1 justify-center items-center cursor-pointer"
           onClick={() => addToCart(0)}
@@ -54,8 +58,8 @@ export default function CartItem(props: CartItemProps) {
         style={{ x }}
         className="bg-white p-4 flex items-center space-x-4 relative"
       >
-        <img 
-          src={imageUrl} 
+        <img
+          src={imageUrl}
           className="w-14 h-14 rounded-lg bg-skeleton" // Thêm bg-skeleton để có fallback UI
         />
         

@@ -1,3 +1,5 @@
+// src/components/header.tsx
+
 import { useAtomValue } from "jotai";
 import { useLocation, useNavigate } from "react-router-dom";
 import {
@@ -37,7 +39,6 @@ export default function Header() {
 
   const showBack = location.key !== "default" && !handle?.noBack;
 
-  // --- THAY ĐỔI BẮT ĐẦU TỪ ĐÂY ---
   // Cập nhật hàm xử lý sự kiện quay lại
   const handleBackClick = () => {
     const path = location.pathname;
@@ -49,7 +50,6 @@ export default function Header() {
       navigate(-1);
     }
   };
-  // --- KẾT THÚC THAY ĐỔI ---
 
   return (
     <div
