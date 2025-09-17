@@ -1,5 +1,6 @@
+// src/pages/search/index.tsx
+
 import Section from "@/components/section";
-// --- THAY ĐỔI Ở ĐÂY: Import SearchResultSkeleton từ file chung ---
 import { SearchResultSkeleton } from "@/components/skeleton";
 import { useAtomValue } from "jotai";
 import { Suspense } from "react";
@@ -13,25 +14,17 @@ import ProductGrid from "@/components/product-grid";
 import { EmptySearchResult } from "@/components/empty";
 import TransitionLink from "@/components/transition-link";
 
-// Component hiển thị danh sách danh mục tìm được
 function SearchedCategories() {
   const categories = useAtomValue(searchCategoriesResultState);
-  const normalizedCategories = categories.map((category) => ({
-    ...category,
-    image:
-      typeof category.image === "string"
-        ? category.image
-        : (category.image as any).default,
-  }));
 
-  if (normalizedCategories.length === 0) {
+  if (categories.length === 0) {
     return null;
   }
 
   return (
     <Section title="Danh mục liên quan">
       <div className="px-4 pt-2 pb-4">
-        {normalizedCategories.map((category) => (
+        {categories.map((category) => (
           <TransitionLink
             to={`/category/${category.id}`}
             key={category.id}
@@ -50,32 +43,20 @@ function SearchedCategories() {
   );
 }
 
-// Component hiển thị danh sách sản phẩm tìm được
 function SearchedProducts() {
   const searchResult = useAtomValue(searchResultState);
-  const normalizedProducts = searchResult.map((product) => ({
-    ...product,
-    category: {
-      ...product.category,
-      image:
-        typeof product.category.image === "string"
-          ? product.category.image
-          : (product.category.image as any).default,
-    },
-  }));
 
-  if (normalizedProducts.length === 0) {
+  if (searchResult.length === 0) {
     return <EmptySearchResult />;
   }
 
   return (
-    <Section title={`Sản phẩm (${normalizedProducts.length})`}>
-      <ProductGrid products={normalizedProducts} />
+    <Section title={`Sản phẩm (${searchResult.length})`}>
+      <ProductGrid products={searchResult} />
     </Section>
   );
 }
 
-// Component chính để gom kết quả
 export function SearchResult() {
   const searchResult = useAtomValue(searchResultState);
   const categoriesResult = useAtomValue(searchCategoriesResultState);
@@ -96,20 +77,10 @@ export function SearchResult() {
 
 export function RecommendedProducts() {
   const recommendedProducts = useAtomValue(recommendedProductsState);
-  const normalizedProducts = recommendedProducts.map((product) => ({
-    ...product,
-    category: {
-      ...product.category,
-      image:
-        typeof product.category.image === "string"
-          ? product.category.image
-          : (product.category.image as any).default,
-    },
-  }));
 
   return (
     <Section title="Gợi ý sản phẩm">
-      <ProductGrid products={normalizedProducts} layout="horizontal" />
+      <ProductGrid products={recommendedProducts} layout="horizontal" />
     </Section>
   );
 }

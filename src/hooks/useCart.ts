@@ -1,42 +1,52 @@
-import { useAtom, useAtomValue } from "jotai";
-import { useMemo, useCallback } from "react";
+// src/hooks/useCart.ts
+
+import { useSetAtom, useAtomValue } from "jotai";
+import { useCallback } from "react";
 import toast from "react-hot-toast";
 import { cartState } from "@/state";
 import { Product } from "@/types";
 
-export function useAddToCart(product: Product) {
-  const [cart, setCart] = useAtom(cartState);
+/**
+ * Hook chuyên cung cấp các hành động (ghi) để thay đổi giỏ hàng.
+ * Component sử dụng hook này sẽ KHÔNG re-render khi cartState thay đổi.
+ */
+export function useCartActions() {
+  const setCart = useSetAtom(cartState);
 
-  const cartQuantity = useMemo(
-    () => cart.find((item) => item.product.id === product.id)?.quantity ?? 0,
-    [cart, product.id]
-  );
-
-  const addToCart = useCallback((newQuantity: number, options?: { toast: boolean }) => {
+  const addToCart = useCallback((product: Product, quantity: number, options?: { toast: boolean }) => {
     setCart((currentCart) => {
       const newCart = [...currentCart];
       const itemIndex = newCart.findIndex(
         (item) => item.product.id === product.id
       );
 
-      if (newQuantity <= 0) {
+      if (quantity <= 0) {
         if (itemIndex > -1) {
           newCart.splice(itemIndex, 1);
         }
       } else {
         if (itemIndex > -1) {
-          newCart[itemIndex] = { ...newCart[itemIndex], quantity: newQuantity };
+          newCart[itemIndex] = { ...newCart[itemIndex], quantity: quantity };
         } else {
-          newCart.push({ product, quantity: newQuantity });
+          newCart.push({ product, quantity: quantity });
         }
       }
       return newCart;
     });
 
-    if (options?.toast) {
+    if (options?.toast && quantity > 0) {
       toast.success("Đã thêm vào giỏ hàng");
     }
-  }, [product, setCart]);
+  }, [setCart]);
 
-  return { addToCart, cartQuantity };
+  return { addToCart };
+}
+
+/**
+ * Hook chuyên để đọc số lượng của một sản phẩm cụ thể trong giỏ hàng.
+ * Component sử dụng hook này sẽ CHỈ re-render khi số lượng của chính sản phẩm đó thay đổi.
+ */
+export function useCartItemQuantity(productId: number) {
+  const cart = useAtomValue(cartState);
+  return cart.find((item) => item.product.id === productId)?.quantity ?? 0;
 }

@@ -23,7 +23,7 @@ import {
   Transaction,
   ReferralOrder,
   UserBankInfo,
-  Review, // SỬA LỖI: Thêm import 'Review'
+  Review,
 } from "@/types";
 import { requestWithFallback } from "@/utils/request";
 import {
@@ -38,26 +38,47 @@ import { formatDistant } from "./utils/format";
 import CONFIG from "./config";
 import { categories as mockCategoriesData } from "./mock/categories";
 import mockTransactions from "./mock/transactions.json";
-import mockReviews from "./mock/reviews.json"; // SỬA LỖI: Thêm import dữ liệu review mẫu
+import mockReviews from "./mock/reviews.json";
 
 // ==================================================================
-// PHẦN XỬ LÝ HÌNH ẢNH DANH MỤC LOCAL
+// PHẦN XỬ LÝ HÌNH ẢNH DANH MỤC & SẢN PHẨM LOCAL
 // ==================================================================
 
-const categoryImages = import.meta.glob<{ default: string }>(
-  "./static/category/*",
-  { eager: true, as: "url" }
+const allImages = import.meta.glob<{ default: string }>(
+  "./static/**/*.{png,jpg,jpeg,svg}",
+  { eager: true }
 );
 
-const mappedCategories = mockCategoriesData.map((category) => {
-  const imageName = category.image;
-  const imagePath = `./static/category/${imageName}`;
-  return {
-    ...category,
-    image: categoryImages[imagePath] || "",
-  };
-});
+/**
+ * Hàm trợ giúp để chuẩn hóa đường dẫn hình ảnh.
+ * Nó có thể xử lý cả tên tệp cục bộ (ví dụ: 'QANu.png'), URL đầy đủ và module import.
+ * @param imagePath - Đường dẫn hình ảnh.
+ * @returns Một chuỗi URL hợp lệ cho hình ảnh.
+ */
+const getImageUrl = (imagePath: string | { default: string }): string => {
+  // Trường hợp 1: imagePath đã là một module object (từ import trực tiếp)
+  if (typeof imagePath !== 'string' && imagePath.default) {
+    return imagePath.default;
+  }
 
+  const pathAsString = imagePath as string;
+
+  // Trường hợp 2: imagePath đã là một URL đầy đủ
+  if (pathAsString.startsWith('http') || pathAsString.startsWith('/')) {
+    return pathAsString;
+  }
+  
+  // Trường hợp 3: imagePath là tên tệp cục bộ (cần tìm trong các module đã import)
+  const key = Object.keys(allImages).find(k => k.includes(`/${pathAsString}`));
+  
+  // Nếu tìm thấy, trả về giá trị `default`. Nếu không, trả về chuỗi rỗng.
+  return key ? allImages[key].default : "";
+};
+
+const mappedCategories = mockCategoriesData.map((category) => ({
+  ...category,
+  image: getImageUrl(category.image),
+}));
 
 // ==================================================================
 // PHẦN THÔNG TIN NGƯỜI DÙNG
@@ -145,15 +166,20 @@ export const productsState = atom(async (get) => {
   const products = await requestWithFallback<
     (Product & { categoryId: number })[]
   >("/products", []);
-  return products.map((product) => ({
-    ...product,
-    category:
-      categories.find((category) => category.id === product.categoryId) ?? {
-        id: 0,
-        name: "Unknown",
-        image: "",
-      },
-  }));
+
+  return products.map((product) => {
+    const category = categories.find((cat) => cat.id === product.categoryId) ?? {
+      id: 0,
+      name: "Unknown",
+      image: "",
+    };
+
+    return {
+      ...product,
+      category,
+      images: product.images.map(img => getImageUrl(img))
+    };
+  });
 });
 
 export const favoriteProductsState = atomWithStorage<number[]>("favorites", []);
@@ -177,7 +203,7 @@ export const productState = atomFamily((id: number) =>
 export const productsByCategoryState = atomFamily((id: string) =>
   atom(async (get) => {
     const products = await get(productsState);
-    return products.filter((product) => String(product.categoryId) === id);
+    return products.filter((product) => String(product.category.id) === id);
   })
 );
 
@@ -370,12 +396,27 @@ export const userPointsState = atomWithStorage<number>("user_points", 500);
 // PHẦN ĐÁNH GIÁ SẢN PHẨM
 // ==================================================================
 export const reviewsState = atomFamily((productId: number) =>
-  atom(async () => {
-    // Trong thực tế, bạn sẽ gọi API để lấy review theo productId
-    // Ví dụ: await requestWithFallback<Review[]>(`/products/${productId}/reviews`, [])
-    // Ở đây chúng ta chỉ giả lập
+  atomWithRefresh(async () => {
     return mockReviews.filter(review => review.productId === productId) as Review[];
   })
+);
+
+export const postReviewAtom = atom(
+  null,
+  async (get, set, { productId, review }: { productId: number, review: Omit<Review, 'id' | 'author' | 'timestamp' | 'productId'> }) => {
+    const userInfo = await get(userInfoState);
+    if (!userInfo) {
+      toast.error("Vui lòng đăng nhập để đánh giá");
+      return;
+    }
+    
+    console.log("Đang gửi review:", { productId, ...review, author: userInfo.name });
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    
+    set(reviewsState(productId));
+    
+    toast.success("Đăng đánh giá thành công!");
+  }
 );
 
 // ==================================================================

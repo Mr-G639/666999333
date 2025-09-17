@@ -35,16 +35,6 @@ export default function Category() {
 
   const categories = categoriesLoadable.data;
 
-  // --- SỬA LỖI TẠI ĐÂY ---
-  // Chuẩn hóa dữ liệu để đảm bảo `image` luôn là một chuỗi (string)
-  const normalizedCategories = categories.map((category) => ({
-    ...category,
-    image:
-      typeof category.image === "string"
-        ? category.image
-        : (category.image as any).default,
-  }));
-
   return (
     <div
       className="bg-section grid gap-x-2 gap-y-4 py-2 px-4 overflow-x-auto"
@@ -54,8 +44,7 @@ export default function Category() {
         )}, minmax(70px, 1fr))`,
       }}
     >
-      {/* Sử dụng dữ liệu đã được chuẩn hóa */}
-      {normalizedCategories.map((category) => (
+      {categories.map((category) => (
         <TransitionLink
           key={category.id}
           className="flex flex-col items-center space-y-1 flex-none overflow-hidden cursor-pointer mx-auto"

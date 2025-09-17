@@ -1,3 +1,5 @@
+// src/pages/catalog/product-detail.tsx
+
 import HorizontalDivider from "@/components/horizontal-divider";
 import { useAtom, useAtomValue } from "jotai";
 import { useNavigate, useParams } from "react-router-dom";
@@ -5,11 +7,11 @@ import { productState, favoriteProductsState } from "@/state";
 import { formatPrice } from "@/utils/format";
 import ShareButton from "./share-buttont";
 import RelatedProducts from "./related-products";
-import { useAddToCart } from "@/hooks/useCart";
-import { Button, Icon } from "zmp-ui";
+import { useCartActions } from "@/hooks/useCart";
+import { Button } from "zmp-ui";
 import Section from "@/components/section";
 import Carousel from "@/components/carousel";
-import { ReactNode, useMemo, useState, Suspense } from "react";
+import { ReactNode, useState, Suspense } from "react";
 import { HeartIcon } from "@/components/vectors";
 import { ProductGridSkeleton } from "@/components/skeleton";
 import ProductReviews from "./product-reviews";
@@ -21,44 +23,29 @@ function ProductDetailContent() {
   const navigate = useNavigate();
   const [isMuted, setIsMuted] = useState(true);
   const [activeSlideIndex, setActiveSlideIndex] = useState(0);
+  const { addToCart } = useCartActions();
 
-  const normalizedProduct = useMemo(() => {
-    if (!product) return null;
-    return {
-      ...product,
-      category: {
-        ...product.category,
-        image:
-          typeof product.category.image === "string"
-            ? product.category.image
-            : (product.category.image as any).default,
-      },
-    };
-  }, [product]);
-
-  if (!normalizedProduct) {
+  if (!product) {
     return null;
   }
 
-  const isFavorited = favorites.includes(normalizedProduct.id);
+  const isFavorited = favorites.includes(product.id);
 
   const toggleFavorite = () => {
     setFavorites((prev) =>
       isFavorited
-        ? prev.filter((favId) => favId !== normalizedProduct.id)
-        : [...prev, normalizedProduct.id]
+        ? prev.filter((favId) => favId !== product.id)
+        : [...prev, product.id]
     );
   };
 
-  const { addToCart } = useAddToCart(normalizedProduct);
-
   const mediaSlides: ReactNode[] = [];
 
-  if (normalizedProduct.video) {
+  if (product.video) {
     mediaSlides.push(
       <video
         key="product-video"
-        src={normalizedProduct.video}
+        src={product.video}
         playsInline
         autoPlay
         muted={isMuted}
@@ -68,17 +55,17 @@ function ProductDetailContent() {
     );
   }
 
-  normalizedProduct.images.forEach((imgSrc, i) => {
+  product.images.forEach((imgSrc, i) => {
     mediaSlides.push(
       <img
         key={`product-image-${i}`}
         src={imgSrc}
-        alt={normalizedProduct.name}
+        alt={product.name}
         className="w-full aspect-square object-cover rounded-lg"
         style={{
           viewTransitionName:
-            i === 0 && !normalizedProduct.video
-              ? `product-image-${normalizedProduct.id}`
+            i === 0 && !product.video
+              ? `product-image-${product.id}`
               : undefined,
         }}
       />
@@ -89,29 +76,10 @@ function ProductDetailContent() {
     <div className="w-full h-full flex flex-col bg-section">
       <div className="flex-1 overflow-y-auto">
         <div className="relative">
-          <Button
-            onClick={() => navigate(-1)}
-            className="absolute top-4 left-4 z-10 !bg-black/40 !border-none"
-            icon={<Icon icon="zi-arrow-left" className="text-white" />}
-          />
-
           <Carousel
             slides={mediaSlides}
             onSlideChange={setActiveSlideIndex}
           />
-
-          {normalizedProduct.video && activeSlideIndex === 0 && (
-            <Button
-              onClick={() => setIsMuted(!isMuted)}
-              className="absolute bottom-10 right-4 z-10 !bg-black/40 !border-none"
-              icon={
-                <Icon
-                  icon={isMuted ? "zi-notif-off" : "zi-notif"}
-                  className="text-white"
-                />
-              }
-            />
-          )}
         </div>
 
         <div className="p-4 space-y-4">
@@ -119,38 +87,38 @@ function ProductDetailContent() {
             <div className="flex justify-between items-center">
               <div className="flex items-center space-x-2">
                 <span className="text-red-600 text-2xl font-bold">
-                  {formatPrice(normalizedProduct.price)}
+                  {formatPrice(product.price)}
                 </span>
-                {normalizedProduct.originalPrice && (
+                {product.originalPrice && (
                   <span className="text-xs bg-red-100 text-red-600 font-medium px-2 py-0.5 rounded">
                     GIẢM{" "}
                     {100 -
                       Math.round(
-                        (normalizedProduct.price * 100) /
-                          normalizedProduct.originalPrice
+                        (product.price * 100) /
+                          product.originalPrice
                       )}
                     %
                   </span>
                 )}
               </div>
-              {normalizedProduct.soldCount && (
+              {product.soldCount && (
                 <span className="text-sm text-gray-600">
-                  Đã bán {normalizedProduct.soldCount}+
+                  Đã bán {product.soldCount}+
                 </span>
               )}
             </div>
 
-            {normalizedProduct.originalPrice && (
+            {product.originalPrice && (
               <div className="mt-1">
                 <span className="text-gray-500 line-through">
-                  {formatPrice(normalizedProduct.originalPrice)}
+                  {formatPrice(product.originalPrice)}
                 </span>
               </div>
             )}
           </div>
 
           <div>
-            <h1 className="text-lg font-bold">{normalizedProduct.name}</h1>
+            <h1 className="text-lg font-bold">{product.name}</h1>
           </div>
 
           <div className="flex items-center space-x-2">
@@ -161,29 +129,31 @@ function ProductDetailContent() {
               <HeartIcon active={isFavorited} className="w-6 h-6" />
             </Button>
             <div className="flex-1">
-              <ShareButton product={normalizedProduct} />
+              <ShareButton product={product} />
             </div>
           </div>
         </div>
+        
+        {/* === BỐ CỤC MỚI === */}
+        <div className="bg-background h-2 w-full"></div>
+        <Suspense fallback={<div className="p-4">Đang tải đánh giá...</div>}>
+          <ProductReviews productId={product.id} />
+        </Suspense>
 
-        {normalizedProduct.detail && (
+        {product.detail && (
           <>
             <div className="bg-background h-2 w-full"></div>
             <Section title="Mô tả sản phẩm">
               <div className="text-sm whitespace-pre-wrap text-subtitle p-4 pt-2">
-                {normalizedProduct.detail}
+                {product.detail}
               </div>
             </Section>
           </>
         )}
-        <div className="bg-background h-2 w-full"></div>
-        {/* Thêm mục đánh giá sản phẩm */}
-        <Suspense fallback={<div className="p-4">Đang tải đánh giá...</div>}>
-          <ProductReviews productId={normalizedProduct.id} />
-        </Suspense>
+        
         <div className="bg-background h-2 w-full"></div>
         <Section title="Sản phẩm khác">
-          <RelatedProducts currentProductId={normalizedProduct.id} />
+          <RelatedProducts currentProductId={product.id} />
         </Section>
       </div>
 
@@ -192,16 +162,14 @@ function ProductDetailContent() {
         <Button
           variant="tertiary"
           onClick={() => {
-            addToCart(1, {
-              toast: true,
-            });
+            addToCart(product, 1, { toast: true });
           }}
         >
           Thêm vào giỏ
         </Button>
         <Button
           onClick={() => {
-            addToCart(1);
+            addToCart(product, 1);
             navigate("/cart", {
               viewTransition: true,
             });
@@ -221,4 +189,3 @@ export default function ProductDetailPage() {
     </Suspense>
   );
 }
-

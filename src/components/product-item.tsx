@@ -5,7 +5,7 @@ import { formatPrice } from "@/utils/format";
 import TransitionLink from "./transition-link";
 import { useState } from "react";
 import { Button } from "zmp-ui";
-import { useAddToCart } from "@/hooks/useCart";
+import { useCartActions, useCartItemQuantity } from "@/hooks/useCart"; // SỬA LỖI: Import hook mới
 import QuantityInput from "./quantity-input";
 import MarqueeText from "./marquee-text";
 
@@ -16,7 +16,14 @@ export interface ProductItemProps {
 
 export default function ProductItem(props: ProductItemProps) {
   const [selected, setSelected] = useState(false);
-  const { addToCart, cartQuantity } = useAddToCart(props.product);
+  
+  // SỬA LỖI: Tách biệt logic đọc và ghi để tối ưu hiệu năng
+  const { addToCart } = useCartActions();
+  const cartQuantity = useCartItemQuantity(props.product.id);
+
+  const handleQuantityChange = (quantity: number, options?: { toast: boolean }) => {
+    addToCart(props.product, quantity, options);
+  };
 
   return (
     <div
@@ -48,7 +55,6 @@ export default function ProductItem(props: ProductItemProps) {
 
               <div className="mt-1 flex-1 flex flex-col justify-end space-y-1">
                 <div className="flex justify-between items-center">
-                  {/* THAY ĐỔI TẠI ĐÂY: Tăng kích thước chữ của giá bán */}
                   <div className="text-base font-bold text-primary">
                     {formatPrice(props.product.price)}
                   </div>
@@ -92,15 +98,13 @@ export default function ProductItem(props: ProductItemProps) {
             fullWidth
             onClick={(e) => {
               e.stopPropagation();
-              addToCart(1, {
-                toast: true,
-              });
+              handleQuantityChange(1, { toast: true }); // SỬA LỖI: Gọi hàm mới
             }}
           >
             Thêm vào giỏ
           </Button>
         ) : (
-          <QuantityInput value={cartQuantity} onChange={addToCart} />
+          <QuantityInput value={cartQuantity} onChange={handleQuantityChange} /> // SỬA LỖI: Gọi hàm mới
         )}
       </div>
     </div>

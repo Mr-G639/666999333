@@ -1,19 +1,19 @@
 // src/pages/cart/cart-item.tsx
 
-import { useAddToCart } from "@/hooks/useCart";
+import { useCartActions } from "@/hooks/useCart";
 import { CartItem as CartItemProps } from "@/types";
 import { formatPrice } from "@/utils/format";
 import { animated, useSpring } from "@react-spring/web";
 import { useDrag } from "@use-gesture/react";
 import { Icon } from "zmp-ui";
 import QuantityInput from "@/components/quantity-input";
-import { useNavigate } from "react-router-dom"; // Thêm import này
+import { useNavigate } from "react-router-dom";
 
 const SWIPE_TO_DELTE_OFFSET = 80;
 
 export default function CartItem(props: CartItemProps) {
-  const { addToCart } = useAddToCart(props.product);
-  const navigate = useNavigate(); // Thêm hook navigate
+  const { addToCart } = useCartActions();
+  const navigate = useNavigate();
 
   const [{ x }, api] = useSpring(() => ({ x: 0 }));
   const bind = useDrag(
@@ -42,6 +42,10 @@ export default function CartItem(props: CartItemProps) {
   const handleNavigate = () => {
     navigate(`/product/${props.product.id}`);
   };
+  
+  const handleQuantityChange = (newQuantity: number) => {
+    addToCart(props.product, newQuantity);
+  };
 
   return (
     <div className="relative after:border-b-[0.5px] after:border-black/10 after:absolute after:left-[88px] after:right-0 after:bottom-0 last:after:hidden">
@@ -50,7 +54,7 @@ export default function CartItem(props: CartItemProps) {
       >
         <div
           className="bg-danger text-white/95 w-full h-full flex flex-col space-y-1 justify-center items-center cursor-pointer"
-          onClick={() => addToCart(0)}
+          onClick={() => handleQuantityChange(0)}
         >
           <Icon icon="zi-delete" />
           <div className="text-2xs font-medium">Xoá</div>
@@ -62,7 +66,6 @@ export default function CartItem(props: CartItemProps) {
         style={{ x }}
         className="bg-white p-4 flex items-center space-x-4 relative"
       >
-        {/* Bọc phần tử có thể click */}
         <div 
           className="flex items-center space-x-4 flex-1 cursor-pointer" 
           onClick={handleNavigate}
@@ -87,9 +90,8 @@ export default function CartItem(props: CartItemProps) {
           </div>
         </div>
         
-        {/* Phần tử này không điều hướng */}
         <div className="w-24">
-          <QuantityInput value={props.quantity} onChange={addToCart} />
+          <QuantityInput value={props.quantity} onChange={handleQuantityChange} />
         </div>
       </animated.div>
     </div>

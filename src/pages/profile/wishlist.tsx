@@ -15,22 +15,8 @@ const Wishlist = () => {
         return <EmptyWishlist />;
     }
 
-    // --- SỬA LỖI TẠI ĐÂY ---
-    // Chuẩn hóa dữ liệu hình ảnh trong category của mỗi sản phẩm yêu thích
-    const normalizedProducts = favoriteProducts.map((product) => ({
-        ...product,
-        category: {
-        ...product.category,
-        image:
-            typeof product.category.image === "string"
-            ? product.category.image
-            : (product.category.image as any).default,
-        },
-    }));
-
-    return <ProductGrid products={normalizedProducts} />;
+    return <ProductGrid products={favoriteProducts} />;
 }
-
 
 const WishlistPage = () => {
   return (
