@@ -46,23 +46,22 @@ export default function Header() {
 
   const handleBackClick = () => {
     const path = location.pathname;
-    // Nếu đang ở trang danh mục hoặc trang danh sách đơn hàng, thì quay về trang chủ
     if (path.startsWith('/category/') || path.startsWith('/orders')) {
       navigate('/');
     } else {
-      // Đối với các trường hợp khác (bao gồm chi tiết đơn hàng), quay lại trang trước đó
       navigate(-1);
     }
   };
 
   return (
+    // --- THAY ĐỔI TẠI ĐÂY: Xóa "justify-center" ---
     <div
-      className="w-full flex flex-col px-4 bg-primary text-primaryForeground pt-st overflow-hidden bg-no-repeat bg-right-top"
+      className="w-full flex flex-col px-4 bg-primary text-primaryForeground pt-st overflow-hidden bg-no-repeat bg-right-top h-28"
       style={{
         backgroundImage: `url(${headerIllus})`,
       }}
     >
-      <div className="w-full min-h-12 pr-[90px] flex py-2 space-x-2 items-center">
+      <div className={`w-full min-h-12 flex py-2 space-x-2 items-center ${!handle?.logo ? 'pr-[90px]' : ''}`}>
         {handle?.logo ? (
           <>
             <img
@@ -97,7 +96,7 @@ export default function Header() {
         )}
       </div>
       {handle?.search && (
-        <div className="w-full py-2 flex space-x-2">
+        <div className="w-full py-1 flex space-x-2">
           <SearchBar
             onFocus={() => {
               if (location.pathname !== "/search") {

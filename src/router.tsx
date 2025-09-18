@@ -27,8 +27,8 @@ import LoginPage from "./pages/auth/login";
 import RegisterPage from "./pages/auth/register";
 import VoucherSelectionPage from "./pages/cart/voucher-selection";
 import WishlistPage from "./pages/profile/wishlist";
-// --- SỬA LỖI TẠI ĐÂY ---
-import ReviewsListPage from "./pages/catalog/product-reviews/ReviewsListPage"; 
+import ReviewsListPage from "./pages/catalog/product-reviews/ReviewsListPage";
+import FlashSalePage from "@/pages/flash-sale";
 
 const router = createBrowserRouter(
   [
@@ -67,7 +67,16 @@ const router = createBrowserRouter(
           element: <CategoryListPage />,
           handle: {
             title: "Danh mục",
-            noBack: true,
+            // noBack: true, <-- THAY ĐỔI TẠI ĐÂY: Xóa dòng này để hiện nút back
+          },
+        },
+        {
+          path: "/flash-sale",
+          element: <FlashSalePage />,
+          handle: {
+            title: "Flash Sale",
+            search: true, // <-- THAY ĐỔI TẠI ĐÂY: Thêm thanh tìm kiếm
+            // noBack: true, <-- THAY ĐỔI TẠI ĐÂY: Xóa dòng này để hiện nút back
           },
         },
         {

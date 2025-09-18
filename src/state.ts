@@ -39,6 +39,7 @@ import CONFIG from "./config";
 import { categories as mockCategoriesData } from "./mock/categories";
 import mockTransactions from "./mock/transactions.json";
 import mockReviews from "./mock/reviews.json";
+import stationsData from "@/mock/stations.json"; // <-- BỔ SUNG DÒNG NÀY
 
 // ==================================================================
 // PHẦN XỬ LÝ HÌNH ẢNH DANH MỤC & SẢN PHẨM LOCAL
@@ -323,7 +324,11 @@ export const stationsState = atom(async () => {
     console.warn("Lấy vị trí thất bại hoặc người dùng từ chối:", error);
   }
 
-  const stations = await requestWithFallback<Station[]>("/stations", []);
+  // --- THAY ĐỔI TẠI ĐÂY ---
+  // Sử dụng dữ liệu import trực tiếp thay vì gọi API
+  const stations = stationsData as Station[];
+  await new Promise((resolve) => setTimeout(resolve, 500)); // Giả lập độ trễ mạng
+  
   return stations.map((station) => ({
     ...station,
     distance: location

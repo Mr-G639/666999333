@@ -13,9 +13,9 @@ const NAV_ITEMS = [
     icon: HomeIcon,
   },
   {
-    name: "Danh mục",
-    path: "/categories",
-    icon: CategoryIcon,
+    name: "Flash Sale", // <-- THAY ĐỔI TẠI ĐÂY
+    path: "/flash-sale",   // <-- THAY ĐỔI TẠI ĐÂY
+    icon: CategoryIcon, // Giữ lại icon hoặc thay thế bằng icon phù hợp
   },
   {
     name: "Đơn hàng",

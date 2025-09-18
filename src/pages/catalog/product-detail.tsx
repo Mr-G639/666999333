@@ -142,7 +142,6 @@ function ProductDetailContent() {
         
         <div className="bg-background h-2 w-full"></div>
         <Suspense fallback={<div className="p-4">Đang tải đánh giá...</div>}>
-          {/* Tên thuộc tính chính xác là productId */}
           <ProductReviewsSummary productId={product.id} />
         </Suspense>
 
