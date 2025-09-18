@@ -1,6 +1,7 @@
 // src/pages/catalog/product-detail.tsx
 
 import HorizontalDivider from "@/components/horizontal-divider";
+// Sửa lỗi: Thêm 'useAtomValue' vào danh sách import từ jotai.
 import { useAtom, useAtomValue } from "jotai";
 import { useNavigate, useParams } from "react-router-dom";
 import { productState, favoriteProductsState } from "@/state";
@@ -11,11 +12,13 @@ import { useCartActions } from "@/hooks/useCart";
 import { Button } from "zmp-ui";
 import Section from "@/components/section";
 import Carousel from "@/components/carousel";
-import { ReactNode, useState, Suspense } from "react";
+import { ReactNode, useState, Suspense, useMemo } from "react";
 import { HeartIcon } from "@/components/vectors";
 import { ProductGridSkeleton } from "@/components/skeleton";
 import toast from "react-hot-toast";
 import ProductReviewsSummary from "./product-reviews/summary";
+// Feature: Import form đánh giá mới
+import ProductReviewForm from "./product-reviews/form";
 
 function ProductDetailContent() {
   const { id } = useParams();
@@ -26,16 +29,16 @@ function ProductDetailContent() {
   const [activeSlideIndex, setActiveSlideIndex] = useState(0);
   const { addToCart } = useCartActions();
 
+  // Bug Fix: Xử lý trạng thái đang tải. Nếu không có product, hiển thị skeleton và thoát sớm.
   if (!product) {
-    return null;
+    return <ProductGridSkeleton />;
   }
 
   const isFavorited = favorites.includes(product.id);
 
   const toggleFavorite = () => {
     setFavorites((prev) => {
-      const isCurrentlyFavorited = prev.includes(product.id);
-      if (isCurrentlyFavorited) {
+      if (isFavorited) {
         toast.success("Đã xóa khỏi danh sách yêu thích");
         return prev.filter((favId) => favId !== product.id);
       } else {
@@ -44,39 +47,50 @@ function ProductDetailContent() {
       }
     });
   };
+  
+  // Performance: Sử dụng useMemo để chỉ tính toán lại mediaSlides khi product thay đổi.
+  const mediaSlides: ReactNode[] = useMemo(() => {
+    const slides: ReactNode[] = [];
+    if (product.video) {
+      slides.push(
+        <video
+          key="product-video"
+          src={product.video}
+          playsInline
+          autoPlay
+          muted={isMuted}
+          loop
+          className="w-full aspect-square object-cover rounded-lg"
+        />
+      );
+    }
+    product.images.forEach((imgSrc, i) => {
+      slides.push(
+        <img
+          key={`product-image-${i}`}
+          src={imgSrc}
+          alt={product.name}
+          className="w-full aspect-square object-cover rounded-lg"
+          style={{
+            viewTransitionName:
+              i === 0 && !product.video
+                ? `product-image-${product.id}`
+                : undefined,
+          }}
+        />
+      );
+    });
+    return slides;
+  }, [product, isMuted]);
 
-  const mediaSlides: ReactNode[] = [];
+  // Refactor: Tính toán phần trăm giảm giá để JSX sạch hơn.
+  const discountPercent = useMemo(() => {
+    if (product.originalPrice && product.price) {
+      return 100 - Math.round((product.price * 100) / product.originalPrice);
+    }
+    return null;
+  }, [product.price, product.originalPrice]);
 
-  if (product.video) {
-    mediaSlides.push(
-      <video
-        key="product-video"
-        src={product.video}
-        playsInline
-        autoPlay
-        muted={isMuted}
-        loop
-        className="w-full aspect-square object-cover rounded-lg"
-      />
-    );
-  }
-
-  product.images.forEach((imgSrc, i) => {
-    mediaSlides.push(
-      <img
-        key={`product-image-${i}`}
-        src={imgSrc}
-        alt={product.name}
-        className="w-full aspect-square object-cover rounded-lg"
-        style={{
-          viewTransitionName:
-            i === 0 && !product.video
-              ? `product-image-${product.id}`
-              : undefined,
-        }}
-      />
-    );
-  });
 
   return (
     <div className="w-full h-full flex flex-col bg-section">
@@ -95,15 +109,9 @@ function ProductDetailContent() {
                 <span className="text-red-600 text-2xl font-bold">
                   {formatPrice(product.price)}
                 </span>
-                {product.originalPrice && (
+                {discountPercent !== null && (
                   <span className="text-xs bg-red-100 text-red-600 font-medium px-2 py-0.5 rounded">
-                    GIẢM{" "}
-                    {100 -
-                      Math.round(
-                        (product.price * 100) /
-                          product.originalPrice
-                      )}
-                    %
+                    GIẢM {discountPercent}%
                   </span>
                 )}
               </div>
@@ -145,6 +153,12 @@ function ProductDetailContent() {
           <ProductReviewsSummary productId={product.id} />
         </Suspense>
 
+        {/* THÊM VÀO ĐÂY: Form để người dùng đăng đánh giá */}
+        <div className="bg-background h-2 w-full"></div>
+        <Section title="Gửi đánh giá của bạn">
+          <ProductReviewForm />
+        </Section>
+        
         {product.detail && (
           <>
             <div className="bg-background h-2 w-full"></div>

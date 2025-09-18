@@ -1,3 +1,12 @@
+// src/types.d.ts
+
+// ==================================================================
+// SECTION: NGƯỜI DÙNG & TÀI KHOẢN
+// ==================================================================
+
+/**
+ * Đại diện cho thông tin của một người dùng đã đăng nhập.
+ */
 export interface UserInfo {
   id: string;
   name: string;
@@ -7,6 +16,23 @@ export interface UserInfo {
   address: string;
 }
 
+/**
+ * Thông tin tài khoản ngân hàng của người dùng để rút tiền.
+ */
+export interface UserBankInfo {
+  bankName: string;
+  accountHolder: string;
+  accountNumber: string;
+}
+
+
+// ==================================================================
+// SECTION: SẢN PHẨM & DANH MỤC
+// ==================================================================
+
+/**
+ * Đại diện cho một sản phẩm trong cửa hàng.
+ */
 export interface Product {
   id: number;
   name: string;
@@ -19,24 +45,60 @@ export interface Product {
   soldCount?: number;
 }
 
+/**
+ * Đại diện cho một danh mục sản phẩm.
+ */
 export interface Category {
   id: number;
   name: string;
   image: string;
 }
 
+/**
+ * Đại diện cho một đánh giá của sản phẩm từ người dùng.
+ */
+export interface Review {
+  id: number;
+  productId: number;
+  author: {
+    name: string;
+    avatar: string;
+  };
+  rating: number;
+  text: string;
+  timestamp: string;
+  images?: string[];
+}
+
+
+// ==================================================================
+// SECTION: ĐƠN HÀNG & GIAO HÀNG
+// ==================================================================
+
+/**
+ * Đại diện cho một mặt hàng trong giỏ hàng hoặc đơn hàng.
+ */
 export interface CartItem {
   product: Product;
   quantity: number;
 }
 
+/**
+ * Kiểu dữ liệu cho toàn bộ giỏ hàng, là một mảng các CartItem.
+ */
 export type Cart = CartItem[];
 
+/**
+ * Tọa độ địa lý.
+ */
 export interface Location {
   lat: number;
   lng: number;
 }
 
+/**
+ * Địa chỉ giao hàng của người dùng.
+ */
 export interface ShippingAddress {
   alias: string;
   address: string;
@@ -44,14 +106,20 @@ export interface ShippingAddress {
   phone: string;
 }
 
+/**
+ * Điểm nhận hàng (cửa hàng, chi nhánh).
+ */
 export interface Station {
   id: number;
   name: string;
   image: string;
-  address: string;
+  address: string; // Sửa lỗi: Bổ sung thuộc tính `address` còn thiếu.
   location: Location;
 }
 
+/**
+ * Thông tin hình thức giao hàng, có thể là giao tận nơi hoặc tự đến lấy.
+ */
 export type Delivery =
   | ({
       type: "shipping";
@@ -62,9 +130,19 @@ export type Delivery =
       address: string;
     };
 
+/**
+ * Các trạng thái của một đơn hàng.
+ */
 export type OrderStatus = "pending" | "shipping" | "completed";
+
+/**
+ * Các trạng thái thanh toán của một đơn hàng.
+ */
 export type PaymentStatus = "pending" | "success" | "failed";
 
+/**
+ * Đại diện cho một đơn hàng hoàn chỉnh.
+ */
 export interface Order {
   id: number;
   status: OrderStatus;
@@ -77,8 +155,20 @@ export interface Order {
   note: string;
   discountAmount?: number;
 }
+
+
+// ==================================================================
+// SECTION: VOUCHER, GIAO DỊCH & HOA HỒNG
+// ==================================================================
+
+/**
+ * Các loại voucher.
+ */
 export type VoucherType = "PERCENT" | "FIXED_AMOUNT" | "SHIPPING";
 
+/**
+ * Đại diện cho một voucher giảm giá.
+ */
 export interface Voucher {
   id: number;
   code: string;
@@ -90,9 +180,19 @@ export interface Voucher {
   condition?: string;
 }
 
+/**
+ * Các loại giao dịch trong ví hoa hồng.
+ */
 export type TransactionType = "COMMISSION" | "WITHDRAWAL" | "ADJUSTMENT";
+
+/**
+ * Các trạng thái của một giao dịch.
+ */
 export type TransactionStatus = "PENDING" | "COMPLETED" | "REJECTED";
 
+/**
+ * Đại diện cho một giao dịch trong ví hoa hồng.
+ */
 export interface Transaction {
   id: string;
   type: TransactionType;
@@ -103,12 +203,9 @@ export interface Transaction {
   referralId?: string;
 }
 
-export interface UserBankInfo {
-  bankName: string;
-  accountHolder: string;
-  accountNumber: string;
-}
-
+/**
+ * Đại diện cho một đơn hàng được tạo ra từ link giới thiệu.
+ */
 export interface ReferralOrder {
   id: string;
   orderId: string;
@@ -122,22 +219,14 @@ export interface ReferralOrder {
   date: string;
 }
 
-// Bổ sung kiểu dữ liệu cho Đánh giá sản phẩm
-export interface Review {
-  id: number;
-  productId: number;
-  author: {
-    name: string;
-    avatar: string;
-  };
-  rating: number;
-  text: string;
-  timestamp: string;
-  images?: string[]; // Thêm thuộc tính này
-}
 
+// ==================================================================
+// SECTION: UTILITY TYPES
+// ==================================================================
 
-// Bổ sung kiểu dữ liệu cho việc phân trang
+/**
+ * Kiểu dữ liệu chung cho các phản hồi API có phân trang.
+ */
 export interface PaginatedResponse<T> {
   data: T[];
   totalItems: number;

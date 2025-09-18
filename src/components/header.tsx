@@ -2,10 +2,7 @@
 
 import { useAtomValue } from "jotai";
 import { useLocation, useNavigate } from "react-router-dom";
-import {
-  categoriesStateUpwrapped,
-  loadableUserInfoState,
-} from "@/state";
+import { categoriesStateUpwrapped, loadableUserInfoState } from "@/state";
 import { useMemo } from "react";
 import { useRouteHandle } from "@/hooks/useUtility";
 import { getConfig } from "@/utils/template";
@@ -45,57 +42,50 @@ export default function Header() {
   const showBack = location.key !== "default" && !handle?.noBack;
 
   const handleBackClick = () => {
-    const path = location.pathname;
-    if (path.startsWith('/category/') || path.startsWith('/orders')) {
-      navigate('/');
-    } else {
-      navigate(-1);
-    }
+    navigate(-1);
   };
 
+  const hasLogo = handle?.logo;
+  const hasSearch = handle?.search;
+  const hasExtraContent = hasLogo || hasSearch;
+
   return (
-    // --- THAY ĐỔI TẠI ĐÂY: Xóa "justify-center" ---
     <div
-      className="w-full flex flex-col px-4 bg-primary text-primaryForeground pt-st overflow-hidden bg-no-repeat bg-right-top h-28"
+      // Sửa lỗi: Chiều cao header linh hoạt
+      className={`w-full flex flex-col px-4 bg-primary text-primaryForeground pt-st overflow-hidden bg-no-repeat bg-right-top ${
+        hasExtraContent ? 'h-28' : 'h-auto'
+      }`}
       style={{
         backgroundImage: `url(${headerIllus})`,
       }}
     >
-      <div className={`w-full min-h-12 flex py-2 space-x-2 items-center ${!handle?.logo ? 'pr-[90px]' : ''}`}>
-        {handle?.logo ? (
+      <div className="w-full min-h-12 flex py-2 space-x-2 items-center">
+        {hasLogo ? (
           <>
-            <img
-              src={logo}
-              className="flex-none w-8 h-8 rounded-full"
-              alt="App Logo"
-            />
+            <img src={logo} className="flex-none w-8 h-8 rounded-full" alt="App Logo" />
             <TransitionLink to="/stations" className="flex-1 overflow-hidden">
               <div className="flex items-center space-x-1">
-                <h1 className="text-lg font-bold">
-                  {getConfig((c) => c.template.shopName)}
-                </h1>
+                <h1 className="text-lg font-bold">{getConfig((c) => c.template.shopName)}</h1>
                 <Icon icon="zi-chevron-right" />
               </div>
-              <p className="overflow-x-auto whitespace-nowrap text-2xs">
-                {getConfig((c) => c.template.shopAddress)}
-              </p>
+              <p className="overflow-x-auto whitespace-nowrap text-2xs">{getConfig((c) => c.template.shopAddress)}</p>
             </TransitionLink>
           </>
         ) : (
-          <>
+          // Sửa lỗi: Căn giữa tiêu đề một cách chính xác
+          <div className="flex-1 flex items-center relative">
             {showBack && (
-              <div
-                className="py-1 px-2 cursor-pointer"
-                onClick={handleBackClick}
-              >
-                <Icon icon="zi-arrow-left" />
+              <div className="absolute left-0 top-1/2 -translate-y-1/2 z-10">
+                <div className="p-2 -ml-2 cursor-pointer" onClick={handleBackClick}>
+                  <Icon icon="zi-arrow-left" />
+                </div>
               </div>
             )}
-            <div className="text-xl font-medium truncate">{title}</div>
-          </>
+            <div className="text-xl font-medium truncate flex-1 text-center">{title}</div>
+          </div>
         )}
       </div>
-      {handle?.search && (
+      {hasSearch && (
         <div className="w-full py-1 flex space-x-2">
           <SearchBar
             onFocus={() => {
@@ -106,17 +96,9 @@ export default function Header() {
           />
           <TransitionLink to="/profile">
             {userInfo.state === "hasData" && userInfo.data ? (
-              <img
-                className="w-8 h-8 rounded-full"
-                src={userInfo.data.avatar}
-                alt="User Avatar"
-              />
+              <img className="w-8 h-8 rounded-full" src={userInfo.data.avatar} alt="User Avatar" />
             ) : (
-              <DefaultUserAvatar
-                width={32}
-                height={32}
-                className={userInfo.state === "loading" ? "animate-pulse" : ""}
-              />
+              <DefaultUserAvatar width={32} height={32} className={userInfo.state === "loading" ? "animate-pulse" : ""} />
             )}
           </TransitionLink>
         </div>

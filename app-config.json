@@ -1,8 +1,8 @@
 {
   "app": {
-    "title": "ZaUI F&B",
+    "title": "V2K Shop",
     "textColor": "white",
-    "headerColor": "#991B1B",
+    "headerColor": "#F5B000",
     "statusBar": "transparent",
     "actionBarHidden": true,
     "hideAndroidBottomNavigationBar": false,
@@ -17,6 +17,6 @@
     "apiUrl": "",
     "oaIDtoOpenChat": "4318657068771012646",
     "shopName": "V2K",
-    "shopAddress": "V2K Sàn Thương Mại Điện Tử Giá Rẻ"
+    "shopAddress": "Sàn TMĐT V2K Giá Rẻ"
   }
 }

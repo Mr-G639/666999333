@@ -2,60 +2,86 @@
 
 import HorizontalDivider from "@/components/horizontal-divider";
 import Section from "@/components/section";
-import { Order } from "@/types";
+import { Order, PaymentStatus } from "@/types";
 import { formatPrice } from "@/utils/format";
 import CollapsibleOrderItems from "./collapsible-order-items";
 import { useNavigate } from "react-router-dom";
+import { useMemo } from "react";
 
-function OrderSummary(props: { order: Order; full?: boolean }) {
+// Refactor: Tạo một đối tượng mapping để quản lý thông tin của paymentStatus.
+// Giúp code sạch hơn, dễ đọc, dễ bảo trì và mở rộng.
+const paymentStatusMapping: Record<PaymentStatus, { text: string; className: string }> = {
+  pending: { text: "Chờ xác nhận", className: "text-primary" },
+  success: { text: "Đã thanh toán", className: "text-primary" },
+  failed: { text: "Thanh toán thất bại", className: "text-danger" },
+};
+
+interface OrderSummaryProps {
+  order: Order;
+  full?: boolean; // `full` dùng để xác định có đang ở trang chi tiết không
+}
+
+/**
+ * Component hiển thị thông tin tóm tắt của một đơn hàng.
+ * Có thể được sử dụng trong danh sách đơn hàng hoặc trang chi tiết đơn hàng.
+ * @param {OrderSummaryProps} props - Props của component.
+ */
+function OrderSummary(props: OrderSummaryProps) {
+  const { order, full = false } = props;
   const navigate = useNavigate();
+
+  // Lấy thông tin hiển thị cho trạng thái thanh toán từ mapping object.
+  const statusInfo = paymentStatusMapping[order.paymentStatus] || { text: 'Không xác định', className: 'text-inactive' };
+  
+  // Bug fix: Sử dụng ngày nhận hàng thực tế từ dữ liệu `order` thay vì hardcode.
+  // Dùng `useMemo` để chỉ định dạng lại ngày tháng khi `order.receivedAt` thay đổi.
+  const formattedReceivedDate = useMemo(() => {
+    return new Date(order.receivedAt).toLocaleString('vi-VN', {
+      hour: '2-digit',
+      minute: '2-digit',
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric'
+    });
+  }, [order.receivedAt]);
+
+  const handleNavigation = () => {
+    // Chỉ điều hướng đến trang chi tiết nếu không ở chế độ `full`.
+    if (!full) {
+      navigate(`/order/${order.id}`, {
+        state: order,
+        viewTransition: true,
+      });
+    }
+  };
+
   return (
     <Section
       title={
         <div className="w-full flex justify-between items-center space-x-2 font-normal">
           <span className="text-xs truncate">
-            Thời gian nhận: Từ 16h, 20/1/2025
+            Thời gian nhận: {formattedReceivedDate}
           </span>
-          <span
-            className={`text-xs ${
-              props.order.paymentStatus === "failed"
-                ? "text-danger"
-                : "text-primary"
-            }`}
-          >
-            {
-              {
-                pending: "Chờ xác nhận",
-                success: "Đã thanh toán",
-                failed: "Thanh toán thất bại",
-              }[props.order.paymentStatus]
-            }
+          <span className={`text-xs ${statusInfo.className}`}>
+            {statusInfo.text}
           </span>
         </div>
       }
       className="flex-1 overflow-y-auto rounded-lg cursor-pointer"
-      onClick={() => {
-        if (!props.full) {
-          navigate(`/order/${props.order.id}`, {
-            state: props.order,
-            viewTransition: true,
-          });
-        }
-      }}
+      onClick={handleNavigation}
     >
       <div className="w-full">
-        {/* Truyền prop `itemsClickable` dựa trên trạng thái `full` */}
         <CollapsibleOrderItems
-          items={props.order.items}
-          defaultExpanded={props.full}
-          itemsClickable={props.full}
+          items={order.items}
+          defaultExpanded={full}
+          itemsClickable={full} // Sản phẩm trong danh sách có thể click được khi ở trang chi tiết.
         />
       </div>
       <HorizontalDivider />
       <div className="flex justify-between items-center px-4 py-2 space-x-4">
         <div className="text-xs">Tổng tiền hàng</div>
         <div className="text-sm font-medium">
-          {formatPrice(props.order.total)}
+          {formatPrice(order.total)}
         </div>
       </div>
     </Section>
