@@ -1,46 +1,88 @@
 // src/components/layout.tsx
 
-import { Outlet } from "react-router-dom";
+import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import Header from "./header";
 import Footer from "./footer";
-import { Suspense } from "react";
+import { Suspense, useEffect } from "react";
 import { PageSkeleton } from "./skeleton";
 import { Toaster } from "react-hot-toast";
 import { ScrollRestoration } from "./scroll-restoration";
 import FloatingCartPreview from "./floating-cart-preview";
+import { useDrag } from "@use-gesture/react";
+import { useSpring, animated } from "@react-spring/web";
+
+const SWIPE_THRESHOLD_PERCENT = 0.3;
+const EDGE_THRESHOLD_PX = 40;
+const DRAG_ACTIVATION_THRESHOLD_PX = 10;
 
 export default function Layout() {
-  return (
-    <div className="w-screen h-screen flex flex-col bg-section text-foreground">
-      <Header />
-      <div className="flex-1 overflow-y-auto bg-background">
-        <Suspense fallback={<PageSkeleton />}>
-          <Outlet />
-        </Suspense>
-      </div>
-      <Footer />
+  const navigate = useNavigate();
+  const location = useLocation();
+  const canGoBack = location.key !== "default";
+
+  const [{ x }, api] = useSpring(() => ({
+    x: 0,
+    config: { tension: 250, friction: 30 },
+  }));
+
+  useEffect(() => {
+    api.start({ x: 0, immediate: true });
+  }, [location.key, api]);
+
+  const bind = useDrag(
+    ({ down, movement: [mx], initial: [ix], velocity: [vx], last }) => {
+      if (!canGoBack || (down && ix > EDGE_THRESHOLD_PX)) return;
       
-      {/* --- THAY ĐỔI Ở ĐÂY --- */}
+      if (last) {
+        if (mx > window.innerWidth * SWIPE_THRESHOLD_PERCENT || vx > 0.5) {
+          navigate(-1);
+        } else {
+          api.start({ x: 0 });
+        }
+      } else {
+        api.start({ x: Math.max(mx, 0), immediate: true });
+      }
+    },
+    {
+      axis: "x",
+      threshold: DRAG_ACTIVATION_THRESHOLD_PX,
+    }
+  );
+
+  return (
+    <div className="w-screen h-screen flex flex-col bg-section text-foreground overflow-x-hidden">
+      <animated.div
+        {...bind()}
+        style={{ x, touchAction: 'pan-y' }}
+        className="flex-1 flex flex-col bg-background h-full w-full"
+      >
+        <Header />
+        <div className="flex-1 overflow-y-auto">
+          <Suspense fallback={<PageSkeleton />}>
+            <Outlet />
+          </Suspense>
+        </div>
+        <Footer />
+      </animated.div>
+      
       <Toaster
         position="top-center"
-        // 1. Thêm containerStyle để đẩy toàn bộ khu vực thông báo xuống
         containerStyle={{
-          top: 123, // Khoảng cách từ đỉnh màn hình, bạn có thể điều chỉnh cho phù hợp
+          top: 123,
         }}
         toastOptions={{
-          className: 'text-sm font-medium', 
+          className: 'text-sm font-medium',
+          duration: 3000,
           style: {
-            // 2. Xóa 'top: 24' vì đã có containerStyle
             borderRadius: '8px',
             background: '#333',
             color: '#fff',
             padding: '12px 18px',
             width: '80%',
-            animation: 'slide-down 0.35s cubic-bezier(0.21, 1.02, 0.73, 1)',
+            // SỬA LỖI: Xóa dòng animation để sử dụng hiệu ứng mặc định của thư viện
           },
         }}
       />
-      {/* --- KẾT THÚC THAY ĐỔI --- */}
 
       <FloatingCartPreview />
       <ScrollRestoration />

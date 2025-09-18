@@ -147,8 +147,8 @@ export interface Order {
   id: number;
   status: OrderStatus;
   paymentStatus: PaymentStatus;
-  createdAt: Date;
-  receivedAt: Date;
+  createdAt: string; // Sửa lỗi: Chuyển từ Date sang string để nhất quán với dữ liệu JSON
+  receivedAt: string; // Sửa lỗi: Chuyển từ Date sang string
   items: CartItem[];
   delivery: Delivery;
   total: number;

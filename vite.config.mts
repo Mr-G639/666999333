@@ -1,3 +1,5 @@
+// vite.config.mts
+
 import { defineConfig } from "vite";
 import zaloMiniApp from "zmp-vite-plugin";
 import react from "@vitejs/plugin-react";
@@ -9,12 +11,11 @@ const __dirname = path.dirname(__filename);
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  // Bỏ `root: "./src"` để server chạy từ thư mục gốc của dự án.
   base: "",
   plugins: [zaloMiniApp(), react()],
   resolve: {
     alias: {
-      // Sửa lại alias để hoạt động đúng với chuẩn ES Module
+      // Chỉ giữ lại alias "@" trỏ đến thư mục /src
       "@": path.resolve(__dirname, "./src"),
     },
   },

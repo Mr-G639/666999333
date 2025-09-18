@@ -1,9 +1,11 @@
+// src/pages/profile/wallet.tsx
+
 import { referralOrdersState, transactionsState, walletState } from "@/state";
 import { Transaction } from "@/types";
 import { formatPrice } from "@/utils/format";
 import { useAtomValue } from "jotai";
 import { useNavigate } from "react-router-dom";
-import { Box, Button, Icon, Page, Text } from "zmp-ui";
+import { Box, Button, Icon, Text } from "zmp-ui";
 
 const TransactionIcon = ({ type }: { type: Transaction['type'] }) => {
   if (type === 'WITHDRAWAL') {

@@ -71,7 +71,6 @@ const profileRoutes = [
     path: "/profile/wallet", 
     element: <WalletPage />, 
     handle: { 
-      // Sửa lỗi: Bổ sung title còn thiếu để hiển thị header chính xác.
       title: "Ví hoa hồng", 
       noFooter: true, 
       noFloatingCart: true 

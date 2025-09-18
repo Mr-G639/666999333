@@ -1,3 +1,5 @@
+// src/css/app.scss
+
 :not(input):not(textarea) {
   -webkit-user-select: none;
   user-select: none;
@@ -74,7 +76,6 @@
   }
 }
 
-/* --- BỔ SUNG CHO MARQUEE ĐỘNG --- */
 .marquee-container {
   white-space: nowrap;
   overflow: hidden;
@@ -86,7 +87,6 @@
   will-change: transform; /* Tối ưu hóa hiệu năng animation */
 }
 
-/* Keyframes mới cho animation động */
 @keyframes marquee-dynamic {
   from {
     transform: translateX(var(--marquee-start-position));
@@ -96,42 +96,4 @@
   }
 }
 
-/* --- BỔ SUNG CHO HIỆU ỨNG TOAST TỪ TRÊN XUỐNG --- */
-.toast-container {
-  /* Ghi đè lại các style cũ để tùy chỉnh */
-  > div > div {
-    padding: 0 !important;
-    background-color: transparent !important;
-    border-radius: 0 !important;
-    box-shadow: none !important;
-  }
-}
-
-/* Keyframes cho hiệu ứng trượt xuống khi toast xuất hiện */
-@keyframes slide-down {
-  from {
-    opacity: 0;
-    transform: translateY(-100%);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-/* Keyframes cho hiệu ứng trượt lên khi toast biến mất */
-@keyframes slide-up {
-  from {
-    opacity: 1;
-    transform: translateY(0);
-  }
-  to {
-    opacity: 0;
-    transform: translateY(-100%);
-  }
-}
-
-/* Áp dụng animation khi toast thoát ra */
-.slide-up {
-  animation: slide-up 0.4s forwards cubic-bezier(0.07, 0.7, 0.31, 1);
-}
+/* SỬA LỖI: Đã xóa bỏ các hiệu ứng tùy chỉnh cho toast để dùng mặc định */

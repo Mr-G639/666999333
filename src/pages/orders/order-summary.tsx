@@ -36,8 +36,8 @@ function OrderSummary(props: OrderSummaryProps) {
   // Lấy thông tin hiển thị cho trạng thái thanh toán từ mapping object.
   const statusInfo = paymentStatusMapping[order.paymentStatus] || { text: 'Không xác định', className: 'text-inactive' };
   
-  // Bug fix: Sử dụng ngày nhận hàng thực tế từ dữ liệu `order` thay vì hardcode.
-  // Dùng `useMemo` để chỉ định dạng lại ngày tháng khi `order.receivedAt` thay đổi.
+  // Sửa lỗi: Sử dụng ngày nhận hàng thực tế từ dữ liệu `order` thay vì hardcode.
+  // Dùng `useMemo` để chỉ định dạng lại ngày tháng khi `order.receivedAt` thay đổi để tối ưu hiệu năng.
   const formattedReceivedDate = useMemo(() => {
     return new Date(order.receivedAt).toLocaleString('vi-VN', {
       hour: '2-digit',

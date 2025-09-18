@@ -1,3 +1,5 @@
+// src/hooks/useOrder.ts
+
 import { useAtomValue, useAtom, useSetAtom } from "jotai";
 import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
@@ -27,7 +29,7 @@ export function useCheckout() {
           selectedVoucher ? `Sử dụng voucher ${selectedVoucher.code}` : ""
         }`,
         item: cart.map((item) => ({
-          id: item.product.id,
+          id: String(item.product.id), // Chuyển id sang string để phù hợp với API
           name: item.product.name,
           price: item.product.price,
           quantity: item.quantity,
