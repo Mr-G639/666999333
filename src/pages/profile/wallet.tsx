@@ -3,7 +3,7 @@ import { Transaction } from "@/types";
 import { formatPrice } from "@/utils/format";
 import { useAtomValue } from "jotai";
 import { useNavigate } from "react-router-dom";
-import { Box, Button, Header, Icon, Page, Text } from "zmp-ui";
+import { Box, Button, Icon, Page, Text } from "zmp-ui";
 
 const TransactionIcon = ({ type }: { type: Transaction['type'] }) => {
   if (type === 'WITHDRAWAL') {
@@ -40,9 +40,8 @@ const WalletPage = () => {
   };
 
   return (
-    <Page className="flex flex-col bg-gray-100">
-      <Header title="Ví hoa hồng" showBackIcon />
-
+    // --- THAY ĐỔI TẠI ĐÂY: Thay thế <Page> bằng <div> ---
+    <div className="flex flex-col bg-gray-100 h-full">
       <Box className="m-4 p-4 bg-primary text-white rounded-lg text-center space-y-2">
         <Text>Số dư khả dụng</Text>
         <Text size="xLarge" bold>{formatPrice(availableBalance)}</Text>
@@ -82,7 +81,7 @@ const WalletPage = () => {
           ))}
         </div>
       </Box>
-    </Page>
+    </div>
   );
 };
 

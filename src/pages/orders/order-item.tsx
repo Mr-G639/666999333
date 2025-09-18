@@ -1,17 +1,22 @@
 // src/pages/orders/order-item.tsx
 
-import { CartItem } from "@/types";
+import { CartItem, Product } from "@/types";
 import { formatPrice } from "@/utils/format";
-import { List } from "zmp-ui";
+import { Button, List } from "zmp-ui";
 import { useNavigate } from "react-router-dom";
 
-// Thêm prop `clickable` để điều khiển hành vi
-function OrderItem(props: CartItem & { clickable?: boolean }) {
+// --- THAY ĐỔI: Thêm các props mới ---
+interface OrderItemProps extends CartItem {
+  clickable?: boolean;
+  isCompleted?: boolean;
+  onReview: (product: Product) => void;
+}
+
+function OrderItem(props: OrderItemProps) {
   const navigate = useNavigate();
   const imageUrl = props.product?.images?.[0] ?? (props.product as any)?.image ?? "";
 
   const handleClick = () => {
-    // Chỉ điều hướng nếu `clickable` là true
     if (props.clickable) {
       navigate(`/product/${props.product.id}`);
     }
@@ -20,7 +25,6 @@ function OrderItem(props: CartItem & { clickable?: boolean }) {
   return (
     <List.Item
       onClick={handleClick}
-      // Thêm class `cursor-pointer` một cách có điều kiện để cải thiện UX
       className={props.clickable ? "cursor-pointer" : ""}
       prefix={
         <img 
@@ -29,9 +33,25 @@ function OrderItem(props: CartItem & { clickable?: boolean }) {
           alt={props.product.name}
         />
       }
+      // --- THAY ĐỔI: Sửa lại suffix để chứa nút đánh giá ---
       suffix={
-        <div className="text-sm font-medium flex items-center h-full">
-          x{props.quantity}
+        <div className="flex flex-col items-end justify-between h-full">
+          <div className="text-sm font-medium">
+            x{props.quantity}
+          </div>
+          {props.isCompleted && (
+            <Button 
+              size="small" 
+              variant="tertiary" 
+              className="mt-1"
+              onClick={(e) => {
+                e.stopPropagation();
+                props.onReview(props.product);
+              }}
+            >
+              Đánh giá
+            </Button>
+          )}
         </div>
       }
     >

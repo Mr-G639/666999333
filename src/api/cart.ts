@@ -1,16 +1,27 @@
-import { Cart, Product } from '@/types';
+// src/api/cart.ts
+
+import { Cart, Product, Category } from '@/types';
 import productsData from "../mock/products.json";
+
+// --- CẢI THIỆN: Khởi tạo dữ liệu mock category một cách nhất quán ---
+// Điều này giúp đảm bảo rằng mọi sản phẩm đều có thông tin category hợp lệ.
+const mockCategories: Category[] = [
+  { id: 1, name: "Trái cây", image: "" },
+  { id: 2, name: "Tráng miệng", image: "" },
+  { id: 3, name: "Đồ ăn nhẹ", image: "" },
+  { id: 4, name: "Sữa", image: "" },
+  { id: 5, name: "Gia dụng", image: "" },
+];
 
 // Giả lập trạng thái giỏ hàng trên server (in-memory)
 let dummyCart: Cart = [];
 
 /**
- * Tìm kiếm một sản phẩm trong file mock dựa trên ID.
+ * [HELPER] Tìm kiếm và chuyển đổi dữ liệu sản phẩm thô từ file mock.
  * @param productId - ID của sản phẩm cần tìm.
- * @returns Đối tượng Product nếu tìm thấy, ngược lại trả về undefined.
+ * @returns Đối tượng Product hoàn chỉnh nếu tìm thấy, ngược lại trả về undefined.
  */
-const findDummyProduct = (productId: number): Product | undefined => {
-  // Tìm dữ liệu sản phẩm thô từ file JSON
+const findAndFormatProduct = (productId: number): Product | undefined => {
   const productData = productsData.find(p => p.id === productId);
 
   if (!productData) {
@@ -18,41 +29,42 @@ const findDummyProduct = (productId: number): Product | undefined => {
     return undefined;
   }
 
-  // Chuyển đổi dữ liệu thô sang đúng định dạng của kiểu Product
-  // Điều này rất quan trọng để đảm bảo tính nhất quán dữ liệu trên toàn ứng dụng.
+  // --- SỬA LỖI & REFACTOR: Đảm bảo dữ liệu Category nhất quán và an toàn ---
+  // Tìm category tương ứng từ mảng mockCategories đã định nghĩa.
+  const category = mockCategories.find(c => c.id === productData.categoryId) 
+                 // Cung cấp một category mặc định an toàn nếu không tìm thấy.
+                 || { id: 99, name: "Danh mục chung", image: "" };
+
   return {
     ...productData,
-    // Đảm bảo thuộc tính 'images' là một mảng theo đúng định nghĩa trong src/types.d.ts
+    // --- SỬA LỖI: Xử lý an toàn trường hợp images có thể là null/undefined ---
     images: productData.images ?? [],
-    category: {
-      id: productData.categoryId,
-      name: `Category ${productData.categoryId}`, // Tên category giả lập
-      image: ""
-    }
+    category,
   };
 };
 
 /**
- * Giả lập API lấy thông tin giỏ hàng từ server.
- * @returns Một Promise giải quyết với trạng thái hiện tại của giỏ hàng.
+ * [API MOCK] Giả lập API lấy thông tin giỏ hàng từ server.
+ * @returns Một Promise chứa trạng thái hiện tại của giỏ hàng.
  */
 export const getCartFromApi = async (): Promise<Cart> => {
   await new Promise(resolve => setTimeout(resolve, 400)); // Giả lập độ trễ mạng
-  console.log("[Mock API] getCartFromApi -> Trả về:", dummyCart);
-  return [...dummyCart]; // Trả về một bản sao để đảm bảo tính bất biến
+  console.log("[Mock API] getCartFromApi -> Trả về giỏ hàng:", dummyCart);
+  // Trả về một bản sao để đảm bảo tính bất biến (immutability)
+  return [...dummyCart];
 };
 
 /**
- * Giả lập API cập nhật số lượng của một sản phẩm trong giỏ hàng.
- * - Nếu sản phẩm chưa có trong giỏ hàng và quantity > 0, sản phẩm sẽ được thêm mới.
- * - Nếu sản phẩm đã có, số lượng sẽ được cập nhật.
- * - Nếu quantity <= 0, sản phẩm sẽ bị xóa khỏi giỏ hàng.
+ * [API MOCK] Giả lập API cập nhật số lượng của một sản phẩm trong giỏ hàng.
+ * - Thêm mới nếu sản phẩm chưa có và quantity > 0.
+ * - Cập nhật số lượng nếu sản phẩm đã có.
+ * - Xóa sản phẩm nếu quantity <= 0.
  * @param productId - ID của sản phẩm cần cập nhật.
  * @param quantity - Số lượng mới.
- * @returns Một Promise giải quyết với trạng thái giỏ hàng sau khi đã cập nhật.
+ * @returns Một Promise chứa trạng thái giỏ hàng sau khi đã cập nhật.
  */
 export const updateCartItemQuantityApi = async (productId: number, quantity: number): Promise<Cart> => {
-  await new Promise(resolve => setTimeout(resolve, 400)); // Giả lập độ trễ mạng
+  await new Promise(resolve => setTimeout(resolve, 400));
   console.log(`[Mock API] updateCartItemQuantityApi -> productId: ${productId}, quantity: ${quantity}`);
 
   const existingItemIndex = dummyCart.findIndex(item => item.product.id === productId);
@@ -60,35 +72,33 @@ export const updateCartItemQuantityApi = async (productId: number, quantity: num
   if (existingItemIndex > -1) {
     // Sản phẩm đã có trong giỏ hàng
     if (quantity > 0) {
-      // Cập nhật số lượng
       dummyCart[existingItemIndex].quantity = quantity;
     } else {
       // Xóa sản phẩm nếu số lượng <= 0
       dummyCart.splice(existingItemIndex, 1);
     }
   } else if (quantity > 0) {
-    // Sản phẩm chưa có trong giỏ hàng, thêm mới
-    const productToAdd = findDummyProduct(productId);
+    // Sản phẩm chưa có, thêm mới vào giỏ hàng
+    const productToAdd = findAndFormatProduct(productId);
     if (productToAdd) {
       dummyCart.push({ product: productToAdd, quantity });
     } else {
-      // Ném lỗi nếu không tìm thấy sản phẩm để thêm vào giỏ
-      throw new Error(`Sản phẩm với ID ${productId} không tồn tại.`);
+      // Ném lỗi nếu không tìm thấy sản phẩm để thêm vào giỏ, giúp gỡ lỗi dễ hơn.
+      throw new Error(`[Mock API] Thêm thất bại: Sản phẩm với ID ${productId} không tồn tại.`);
     }
   }
 
-  console.log("[Mock API] updateCartItemQuantityApi -> Giỏ hàng sau khi cập nhật:", dummyCart);
-  // Trả về một bản sao của giỏ hàng để đảm bảo tính bất biến
+  console.log("[Mock API] updateCartItemQuantityApi -> Giỏ hàng sau cập nhật:", dummyCart);
   return [...dummyCart];
 };
 
 /**
- * Giả lập API đồng bộ hóa toàn bộ giỏ hàng với server.
+ * [API MOCK] Giả lập API đồng bộ hóa toàn bộ giỏ hàng với server.
  * @param cart - Trạng thái giỏ hàng mới cần đồng bộ.
- * @returns Một Promise giải quyết với trạng thái giỏ hàng đã được xác nhận bởi server.
+ * @returns Một Promise chứa trạng thái giỏ hàng đã được server xác nhận.
  */
 export const updateCartApi = async (cart: Cart): Promise<Cart> => {
-  await new Promise(resolve => setTimeout(resolve, 400)); // Giả lập độ trễ mạng
+  await new Promise(resolve => setTimeout(resolve, 400));
   console.log("[Mock API] updateCartApi -> Đồng bộ hóa với giỏ hàng:", cart);
   dummyCart = [...cart]; // Ghi đè toàn bộ giỏ hàng giả lập
   return [...dummyCart];

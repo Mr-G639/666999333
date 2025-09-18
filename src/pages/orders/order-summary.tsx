@@ -2,7 +2,7 @@
 
 import HorizontalDivider from "@/components/horizontal-divider";
 import Section from "@/components/section";
-import { Order, PaymentStatus } from "@/types";
+import { Order, PaymentStatus, Product } from "@/types";
 import { formatPrice } from "@/utils/format";
 import CollapsibleOrderItems from "./collapsible-order-items";
 import { useNavigate } from "react-router-dom";
@@ -19,6 +19,9 @@ const paymentStatusMapping: Record<PaymentStatus, { text: string; className: str
 interface OrderSummaryProps {
   order: Order;
   full?: boolean; // `full` dùng để xác định có đang ở trang chi tiết không
+  // --- THÊM CÁC PROPS MỚI ---
+  isCompleted?: boolean;
+  onReview: (product: Product) => void;
 }
 
 /**
@@ -27,7 +30,7 @@ interface OrderSummaryProps {
  * @param {OrderSummaryProps} props - Props của component.
  */
 function OrderSummary(props: OrderSummaryProps) {
-  const { order, full = false } = props;
+  const { order, full = false, isCompleted, onReview } = props;
   const navigate = useNavigate();
 
   // Lấy thông tin hiển thị cho trạng thái thanh toán từ mapping object.
@@ -75,6 +78,9 @@ function OrderSummary(props: OrderSummaryProps) {
           items={order.items}
           defaultExpanded={full}
           itemsClickable={full} // Sản phẩm trong danh sách có thể click được khi ở trang chi tiết.
+          // --- TRUYỀN PROPS XUỐNG ---
+          isCompleted={isCompleted}
+          onReview={onReview}
         />
       </div>
       <HorizontalDivider />

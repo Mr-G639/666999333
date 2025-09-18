@@ -1,6 +1,6 @@
 // src/pages/orders/collapsible-order-items.tsx
 
-import { CartItem } from "@/types";
+import { CartItem, Product } from "@/types";
 import OrderItem from "./order-item";
 import { useState } from "react";
 import { Icon, List } from "zmp-ui";
@@ -9,6 +9,9 @@ function CollapsibleOrderItems(props: {
   items: CartItem[];
   defaultExpanded?: boolean;
   itemsClickable?: boolean;
+  // --- THÊM CÁC PROPS MỚI ---
+  isCompleted?: boolean;
+  onReview: (product: Product) => void;
 }) {
   const [collapsed, setCollapsed] = useState(
     props.defaultExpanded ? false : true
@@ -32,7 +35,14 @@ function CollapsibleOrderItems(props: {
     <>
       <List noSpacing>
         {displayItems.map((item) => (
-          <OrderItem key={item.product.id} {...item} clickable={props.itemsClickable} />
+          <OrderItem 
+            key={item.product.id} 
+            {...item} 
+            clickable={props.itemsClickable}
+            // --- TRUYỀN PROPS XUỐNG CHO ORDERITEM ---
+            isCompleted={props.isCompleted}
+            onReview={props.onReview}
+          />
         ))}
       </List>
       

@@ -1,7 +1,6 @@
 // src/pages/catalog/product-detail.tsx
 
 import HorizontalDivider from "@/components/horizontal-divider";
-// Sửa lỗi: Thêm 'useAtomValue' vào danh sách import từ jotai.
 import { useAtom, useAtomValue } from "jotai";
 import { useNavigate, useParams } from "react-router-dom";
 import { productState, favoriteProductsState } from "@/state";
@@ -17,8 +16,7 @@ import { HeartIcon } from "@/components/vectors";
 import { ProductGridSkeleton } from "@/components/skeleton";
 import toast from "react-hot-toast";
 import ProductReviewsSummary from "./product-reviews/summary";
-// Feature: Import form đánh giá mới
-import ProductReviewForm from "./product-reviews/form";
+// --- THAY ĐỔI: Xóa import form đánh giá ---
 
 function ProductDetailContent() {
   const { id } = useParams();
@@ -29,7 +27,6 @@ function ProductDetailContent() {
   const [activeSlideIndex, setActiveSlideIndex] = useState(0);
   const { addToCart } = useCartActions();
 
-  // Bug Fix: Xử lý trạng thái đang tải. Nếu không có product, hiển thị skeleton và thoát sớm.
   if (!product) {
     return <ProductGridSkeleton />;
   }
@@ -48,7 +45,6 @@ function ProductDetailContent() {
     });
   };
   
-  // Performance: Sử dụng useMemo để chỉ tính toán lại mediaSlides khi product thay đổi.
   const mediaSlides: ReactNode[] = useMemo(() => {
     const slides: ReactNode[] = [];
     if (product.video) {
@@ -83,7 +79,6 @@ function ProductDetailContent() {
     return slides;
   }, [product, isMuted]);
 
-  // Refactor: Tính toán phần trăm giảm giá để JSX sạch hơn.
   const discountPercent = useMemo(() => {
     if (product.originalPrice && product.price) {
       return 100 - Math.round((product.price * 100) / product.originalPrice);
@@ -153,11 +148,7 @@ function ProductDetailContent() {
           <ProductReviewsSummary productId={product.id} />
         </Suspense>
 
-        {/* THÊM VÀO ĐÂY: Form để người dùng đăng đánh giá */}
-        <div className="bg-background h-2 w-full"></div>
-        <Section title="Gửi đánh giá của bạn">
-          <ProductReviewForm />
-        </Section>
+        {/* --- THAY ĐỔI: Xóa bỏ hoàn toàn Section chứa form đánh giá --- */}
         
         {product.detail && (
           <>

@@ -1,3 +1,5 @@
+// src/pages/orders/index.tsx
+
 import { Tabs } from "zmp-ui";
 import OrderList from "./order-list";
 import { ordersState } from "@/state";
@@ -20,7 +22,8 @@ function OrdersPage() {
         <OrderList ordersState={ordersState("shipping")} />
       </Tabs.Tab>
       <Tabs.Tab key="completed" label="Lịch sử">
-        <OrderList ordersState={ordersState("completed")} />
+        {/* --- THAY ĐỔI: Thêm prop isCompleted={true} --- */}
+        <OrderList ordersState={ordersState("completed")} isCompleted />
       </Tabs.Tab>
     </Tabs>
   );

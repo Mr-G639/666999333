@@ -6,7 +6,8 @@ import { ProductGridSkeleton } from "@/components/skeleton";
 import { favoriteProductsDetailsState } from "@/state";
 import { useAtomValue } from "jotai";
 import { Suspense } from "react";
-import { Header, Page } from "zmp-ui";
+// Sửa đổi: Xóa Header và thay Page bằng một thẻ div đơn giản
+import { Page } from "zmp-ui";
 
 const Wishlist = () => {
     const favoriteProducts = useAtomValue(favoriteProductsDetailsState);
@@ -20,14 +21,15 @@ const Wishlist = () => {
 
 const WishlistPage = () => {
   return (
-    <Page className="flex flex-col">
-      <Header title="Sản phẩm yêu thích" showBackIcon />
+    // --- THAY ĐỔI TẠI ĐÂY: Thay thế <Page> bằng <div> ---
+    <div className="flex flex-col h-full">
+      {/* Dòng <Header ... /> đã được xóa */}
       <div className="flex-1 overflow-y-auto">
         <Suspense fallback={<ProductGridSkeleton />}>
             <Wishlist />
         </Suspense>
       </div>
-    </Page>
+    </div>
   );
 };
 
