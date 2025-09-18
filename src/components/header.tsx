@@ -1,3 +1,5 @@
+// src/components/header.tsx
+
 import { useAtomValue } from "jotai";
 import { useLocation, useNavigate } from "react-router-dom";
 import {
@@ -20,12 +22,10 @@ export default function Header() {
   const location = useLocation();
   const [handle, matchRaw] = useRouteHandle();
 
-  
   if (handle?.noHeader) {
-    return null; 
+    return null;
   }
-  
-  
+
   const match = matchRaw && typeof matchRaw === "object" && "params" in matchRaw
     ? matchRaw
     : { params: {} };
@@ -46,9 +46,11 @@ export default function Header() {
 
   const handleBackClick = () => {
     const path = location.pathname;
-    if (path.startsWith('/category/') || path.startsWith('/orders') || path.startsWith('/order/')) {
+    // Nếu đang ở trang danh mục hoặc trang danh sách đơn hàng, thì quay về trang chủ
+    if (path.startsWith('/category/') || path.startsWith('/orders')) {
       navigate('/');
     } else {
+      // Đối với các trường hợp khác (bao gồm chi tiết đơn hàng), quay lại trang trước đó
       navigate(-1);
     }
   };
@@ -66,6 +68,7 @@ export default function Header() {
             <img
               src={logo}
               className="flex-none w-8 h-8 rounded-full"
+              alt="App Logo"
             />
             <TransitionLink to="/stations" className="flex-1 overflow-hidden">
               <div className="flex items-center space-x-1">
@@ -107,6 +110,7 @@ export default function Header() {
               <img
                 className="w-8 h-8 rounded-full"
                 src={userInfo.data.avatar}
+                alt="User Avatar"
               />
             ) : (
               <DefaultUserAvatar

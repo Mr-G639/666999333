@@ -1,4 +1,4 @@
-// src/components/empty.tsx
+// src/components/empty.tsx (Sau khi sửa)
 
 import { EmptyBoxIcon, EmptyCartIcon, HeartIcon, SearchIconLarge } from "./vectors";
 

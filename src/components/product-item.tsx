@@ -17,9 +17,9 @@ export interface ProductItemProps {
 export default function ProductItem(props: ProductItemProps) {
   const [selected, setSelected] = useState(false);
   
-  // SỬA LỖI: Tách biệt logic đọc và ghi để tối ưu hiệu năng
-  const { addToCart } = useCartActions();
-  const cartQuantity = useCartItemQuantity(props.product.id);
+  // Tách biệt logic đọc và ghi để tối ưu hiệu năng
+  const { addToCart } = useCartActions(); // Chỉ lấy hành động, không gây re-render
+  const cartQuantity = useCartItemQuantity(props.product.id); // Chỉ lắng nghe sự thay đổi số lượng của sản phẩm này
 
   const handleQuantityChange = (quantity: number, options?: { toast: boolean }) => {
     addToCart(props.product, quantity, options);
@@ -98,13 +98,13 @@ export default function ProductItem(props: ProductItemProps) {
             fullWidth
             onClick={(e) => {
               e.stopPropagation();
-              handleQuantityChange(1, { toast: true }); // SỬA LỖI: Gọi hàm mới
+              handleQuantityChange(1, { toast: true });
             }}
           >
             Thêm vào giỏ
           </Button>
         ) : (
-          <QuantityInput value={cartQuantity} onChange={handleQuantityChange} /> // SỬA LỖI: Gọi hàm mới
+          <QuantityInput value={cartQuantity} onChange={handleQuantityChange} />
         )}
       </div>
     </div>

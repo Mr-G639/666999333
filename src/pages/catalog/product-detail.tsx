@@ -14,7 +14,8 @@ import Carousel from "@/components/carousel";
 import { ReactNode, useState, Suspense } from "react";
 import { HeartIcon } from "@/components/vectors";
 import { ProductGridSkeleton } from "@/components/skeleton";
-import ProductReviews from "./product-reviews/index";
+import toast from "react-hot-toast";
+import ProductReviewsSummary from "./product-reviews/summary";
 
 function ProductDetailContent() {
   const { id } = useParams();
@@ -32,11 +33,16 @@ function ProductDetailContent() {
   const isFavorited = favorites.includes(product.id);
 
   const toggleFavorite = () => {
-    setFavorites((prev) =>
-      isFavorited
-        ? prev.filter((favId) => favId !== product.id)
-        : [...prev, product.id]
-    );
+    setFavorites((prev) => {
+      const isCurrentlyFavorited = prev.includes(product.id);
+      if (isCurrentlyFavorited) {
+        toast.success("Đã xóa khỏi danh sách yêu thích");
+        return prev.filter((favId) => favId !== product.id);
+      } else {
+        toast.success("Đã thêm vào danh sách yêu thích");
+        return [...prev, product.id];
+      }
+    });
   };
 
   const mediaSlides: ReactNode[] = [];
@@ -134,10 +140,10 @@ function ProductDetailContent() {
           </div>
         </div>
         
-        {/* === BỐ CỤC MỚI === */}
         <div className="bg-background h-2 w-full"></div>
         <Suspense fallback={<div className="p-4">Đang tải đánh giá...</div>}>
-          <ProductReviews productId={product.id} />
+          {/* Tên thuộc tính chính xác là productId */}
+          <ProductReviewsSummary productId={product.id} />
         </Suspense>
 
         {product.detail && (

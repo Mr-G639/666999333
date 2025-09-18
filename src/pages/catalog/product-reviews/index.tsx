@@ -1,6 +1,6 @@
 // src/pages/catalog/product-reviews/index.tsx
 
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useAtomValue, useSetAtom } from 'jotai';
 import { Avatar, Box, Text, Icon, Button } from 'zmp-ui';
 import { reviewsState, loadableUserInfoState, postReviewAtom } from '@/state';
@@ -8,17 +8,18 @@ import { Review } from '@/types';
 import Section from '@/components/section';
 import { chooseImage } from 'zmp-sdk/apis';
 
-// Số lượng review hiển thị ban đầu
-const INITIAL_REVIEW_COUNT = 6;
+// --- THAY ĐỔI: Số lượng review hiển thị ban đầu và mỗi lần tải thêm ---
+const INITIAL_REVIEW_COUNT = 3; // Hiển thị 3 review đầu tiên
+const REVIEWS_PER_PAGE = 10;   // Mỗi lần "Xem thêm" sẽ tải 10 review
 
-// Component con để hiển thị từng ngôi sao
+// Component con để hiển thị từng ngôi sao (không đổi)
 const Star: React.FC<{ filled: boolean; onClick: () => void; }> = ({ filled, onClick }) => (
   <span onClick={onClick} className="cursor-pointer">
     <Icon icon={filled ? 'zi-star-solid' : 'zi-star'} className="text-yellow-400" />
   </span>
 );
 
-// Component con để hiển thị từng đánh giá
+// Component con để hiển thị từng đánh giá (không đổi)
 const ReviewItem: React.FC<{ review: Review }> = ({ review }) => {
   const timeAgo = (date: string) => {
     const seconds = Math.floor((new Date().getTime() - new Date(date).getTime()) / 1000);
@@ -59,16 +60,26 @@ const ReviewItem: React.FC<{ review: Review }> = ({ review }) => {
 
 // Component chính đã được nâng cấp
 const ProductReviews: React.FC<{ productId: number }> = ({ productId }) => {
-  const reviews = useAtomValue(reviewsState(productId));
+  const allReviews = useAtomValue(reviewsState(productId));
   const userInfoLoadable = useAtomValue(loadableUserInfoState);
   const postReview = useSetAtom(postReviewAtom);
 
-  const [showAll, setShowAll] = useState(false);
+  // --- THAY ĐỔI: Sử dụng state để đếm số lượng review hiển thị ---
+  const [visibleCount, setVisibleCount] = useState(INITIAL_REVIEW_COUNT);
+
   const [rating, setRating] = useState(0);
   const [newReview, setNewReview] = useState('');
   const [reviewImages, setReviewImages] = useState<string[]>([]);
   
-  const displayedReviews = showAll ? reviews : reviews.slice(0, INITIAL_REVIEW_COUNT);
+  // --- THAY ĐỔI: Logic hiển thị review dựa trên visibleCount ---
+  const displayedReviews = useMemo(() => allReviews.slice(0, visibleCount), [allReviews, visibleCount]);
+  
+  // Biến để kiểm tra xem còn review để tải thêm không
+  const hasMoreReviews = visibleCount < allReviews.length;
+
+  const handleLoadMore = () => {
+    setVisibleCount(prevCount => prevCount + REVIEWS_PER_PAGE);
+  };
 
   const handleChooseImage = async () => {
     try {
@@ -104,19 +115,20 @@ const ProductReviews: React.FC<{ productId: number }> = ({ productId }) => {
   return (
     <Section title="Đánh giá sản phẩm">
       <Box className="p-4">
-        {reviews.length > 0 ? (
+        {displayedReviews.length > 0 ? (
           <>
             {displayedReviews.map(review => (
               <ReviewItem key={review.id} review={review} />
             ))}
-            {!showAll && reviews.length > INITIAL_REVIEW_COUNT && (
+            {/* --- THAY ĐỔI: Hiển thị nút "Xem thêm" có điều kiện --- */}
+            {hasMoreReviews && (
               <Button
-                onClick={() => setShowAll(true)}
+                onClick={handleLoadMore}
                 fullWidth
                 variant="tertiary"
                 className="mt-4"
               >
-                Xem thêm {reviews.length - INITIAL_REVIEW_COUNT} đánh giá
+                Xem thêm {Math.min(REVIEWS_PER_PAGE, allReviews.length - visibleCount)} đánh giá
               </Button>
             )}
           </>

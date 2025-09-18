@@ -26,6 +26,7 @@ function OrderItem(props: CartItem & { clickable?: boolean }) {
         <img 
           src={imageUrl} 
           className="w-14 h-14 rounded-lg bg-skeleton"
+          alt={props.product.name}
         />
       }
       suffix={

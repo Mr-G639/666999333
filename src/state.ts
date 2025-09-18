@@ -423,11 +423,18 @@ export const dailyCheckInState = atomWithStorage<DailyCheckInState>(
 export const userPointsState = atomWithStorage<number>("user_points", 500);
 
 // ==================================================================
-// PHẦN ĐÁNH GIÁ SẢN PHẨM
+// PHẦN ĐÁNH GIÁ SẢN PHẨM (ĐÃ CẬP NHẬT)
 // ==================================================================
 export const reviewsState = atomFamily((productId: number) =>
   atomWithRefresh(async () => {
-    return mockReviews.filter(review => review.productId === productId) as Review[];
+    // Lấy tất cả review từ mock
+    const allReviews = mockReviews as Review[];
+    
+    // Lọc ra các review cho sản phẩm hiện tại
+    const productReviews = allReviews.filter(review => review.productId === productId);
+    
+    // Sắp xếp các review theo thời gian, mới nhất lên đầu
+    return productReviews.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
   })
 );
 
@@ -441,8 +448,11 @@ export const postReviewAtom = atom(
     }
     
     console.log("Đang gửi review:", { productId, ...review, author: userInfo.name });
+    // Trong thực tế, bạn sẽ gửi dữ liệu này lên server.
+    // Server sẽ lưu và trả về review mới. Ở đây chúng ta chỉ giả lập.
     await new Promise(resolve => setTimeout(resolve, 1000));
     
+    // Sau khi gửi thành công, làm mới lại danh sách review cho sản phẩm đó.
     set(reviewsState(productId));
     
     toast.success("Đăng đánh giá thành công!");

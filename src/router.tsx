@@ -1,3 +1,5 @@
+// src/router.tsx
+
 import Layout from "@/components/layout";
 import CartPage from "@/pages/cart";
 import CategoryDetailPage from "@/pages/catalog/category-detail";
@@ -25,6 +27,8 @@ import LoginPage from "./pages/auth/login";
 import RegisterPage from "./pages/auth/register";
 import VoucherSelectionPage from "./pages/cart/voucher-selection";
 import WishlistPage from "./pages/profile/wishlist";
+// --- SỬA LỖI TẠI ĐÂY ---
+import ReviewsListPage from "./pages/catalog/product-reviews/ReviewsListPage"; 
 
 const router = createBrowserRouter(
   [
@@ -219,6 +223,15 @@ const router = createBrowserRouter(
           element: <ProductDetailPage />,
           handle: {
             scrollRestoration: 0,
+            noFloatingCart: true,
+          },
+        },
+        {
+          path: "/product/:id/reviews",
+          element: <ReviewsListPage />,
+          handle: {
+            title: "Tất cả đánh giá",
+            noFooter: true,
             noFloatingCart: true,
           },
         },
