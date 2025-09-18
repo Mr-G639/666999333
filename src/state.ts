@@ -56,22 +56,18 @@ const allImages = import.meta.glob<{ default: string }>(
  * @returns Một chuỗi URL hợp lệ cho hình ảnh.
  */
 const getImageUrl = (imagePath: string | { default: string }): string => {
-  // Trường hợp 1: imagePath đã là một module object (từ import trực tiếp)
   if (typeof imagePath !== 'string' && imagePath.default) {
     return imagePath.default;
   }
 
   const pathAsString = imagePath as string;
 
-  // Trường hợp 2: imagePath đã là một URL đầy đủ
   if (pathAsString.startsWith('http') || pathAsString.startsWith('/')) {
     return pathAsString;
   }
   
-  // Trường hợp 3: imagePath là tên tệp cục bộ (cần tìm trong các module đã import)
   const key = Object.keys(allImages).find(k => k.includes(`/${pathAsString}`));
   
-  // Nếu tìm thấy, trả về giá trị `default`. Nếu không, trả về chuỗi rỗng.
   return key ? allImages[key].default : "";
 };
 
@@ -235,7 +231,41 @@ export const searchResultState = atom(async (get) => {
 // PHẦN GIỎ HÀNG (CART)
 // ==================================================================
 
-export const cartState = atomWithStorage<Cart>("cart", []);
+const cartStorage = {
+  getItem: (key: string, initialValue: Cart): Cart => {
+    const storedValue = localStorage.getItem(key);
+    if (!storedValue) {
+      return initialValue;
+    }
+    const parsedCart = JSON.parse(storedValue) as Cart;
+    
+    // Logic di chuyển dữ liệu:
+    const migratedCart = parsedCart.map(item => {
+      if (item.product && !item.product.images && (item.product as any).image) {
+        const legacyProduct = item.product as any;
+        return {
+          ...item,
+          product: {
+            ...legacyProduct,
+            images: [legacyProduct.image],
+            image: undefined,
+          },
+        };
+      }
+      return item;
+    });
+    
+    return migratedCart;
+  },
+  setItem: (key: string, newValue: Cart) => {
+    localStorage.setItem(key, JSON.stringify(newValue));
+  },
+  removeItem: (key: string) => {
+    localStorage.removeItem(key);
+  },
+};
+
+export const cartState = atomWithStorage<Cart>("cart", [], cartStorage);
 
 export const selectedVoucherState = atom<Voucher | undefined>(undefined);
 

@@ -14,7 +14,7 @@ import Carousel from "@/components/carousel";
 import { ReactNode, useState, Suspense } from "react";
 import { HeartIcon } from "@/components/vectors";
 import { ProductGridSkeleton } from "@/components/skeleton";
-import ProductReviews from "./product-reviews";
+import ProductReviews from "./product-reviews/index";
 
 function ProductDetailContent() {
   const { id } = useParams();

@@ -18,7 +18,7 @@ const Star: React.FC<{ filled: boolean; onClick: () => void; }> = ({ filled, onC
   </span>
 );
 
-// Component con để hiển thị từng đánh giá (không thay đổi nhiều)
+// Component con để hiển thị từng đánh giá
 const ReviewItem: React.FC<{ review: Review }> = ({ review }) => {
   const timeAgo = (date: string) => {
     const seconds = Math.floor((new Date().getTime() - new Date(date).getTime()) / 1000);
