@@ -10,6 +10,8 @@ import { ScrollRestoration } from "./scroll-restoration";
 import FloatingCartPreview from "./floating-cart-preview";
 import { useDrag } from "@use-gesture/react";
 import { useSpring, animated } from "@react-spring/web";
+import { useSetAtom } from "jotai";
+import { mainScrollState } from "@/state";
 
 const SWIPE_THRESHOLD_PERCENT = 0.3;
 const EDGE_THRESHOLD_PX = 40;
@@ -19,6 +21,8 @@ export default function Layout() {
   const navigate = useNavigate();
   const location = useLocation();
   const canGoBack = location.key !== "default";
+  
+  const setScrollY = useSetAtom(mainScrollState);
 
   const [{ x }, api] = useSpring(() => ({
     x: 0,
@@ -57,7 +61,10 @@ export default function Layout() {
         className="flex-1 flex flex-col bg-background h-full w-full"
       >
         <Header />
-        <div className="flex-1 overflow-y-auto">
+        <div 
+          className="flex-1 overflow-y-auto"
+          onScroll={(e) => setScrollY(e.currentTarget.scrollTop)}
+        >
           <Suspense fallback={<PageSkeleton />}>
             <Outlet />
           </Suspense>
@@ -79,7 +86,6 @@ export default function Layout() {
             color: '#fff',
             padding: '12px 18px',
             width: '80%',
-            // SỬA LỖI: Xóa dòng animation để sử dụng hiệu ứng mặc định của thư viện
           },
         }}
       />

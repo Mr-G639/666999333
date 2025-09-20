@@ -34,12 +34,22 @@ function ProductDetailContent() {
   const isFavorited = favorites.includes(product.id);
 
   const toggleFavorite = () => {
+    // 1. Xác định nội dung thông báo dựa trên trạng thái hiện tại
+    const message = isFavorited
+      ? "Đã xóa khỏi danh sách yêu thích"
+      : "Đã thêm vào danh sách yêu thích";
+
+    // 2. Hiển thị thông báo thành công với một ID cụ thể
+    // Thư viện sẽ tự động cập nhật thông báo có cùng ID này thay vì tạo mới
+    toast.success(message, {
+      id: 'favorite-toast', // ID duy nhất cho thông báo này
+    });
+
+    // 3. Cập nhật lại trạng thái yêu thích
     setFavorites((prev) => {
       if (isFavorited) {
-        toast.success("Đã xóa khỏi danh sách yêu thích");
         return prev.filter((favId) => favId !== product.id);
       } else {
-        toast.success("Đã thêm vào danh sách yêu thích");
         return [...prev, product.id];
       }
     });

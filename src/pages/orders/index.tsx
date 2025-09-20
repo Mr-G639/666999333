@@ -13,7 +13,10 @@ function OrdersPage() {
     <Tabs
       className="h-full flex flex-col"
       activeKey={status}
-      onChange={(status) => navigate(`/orders/${status}`)}
+      // THAY ĐỔI Ở ĐÂY: Thêm { replace: true } vào hàm navigate
+      // Thao tác này sẽ thay thế trang hiện tại trong lịch sử duyệt web
+      // thay vì thêm một trang mới.
+      onChange={(status) => navigate(`/orders/${status}`, { replace: true })}
     >
       <Tabs.Tab key="pending" label="Đang xử lý">
         <OrderList ordersState={ordersState("pending")} />
@@ -22,7 +25,6 @@ function OrdersPage() {
         <OrderList ordersState={ordersState("shipping")} />
       </Tabs.Tab>
       <Tabs.Tab key="completed" label="Lịch sử">
-        {/* --- THAY ĐỔI: Thêm prop isCompleted={true} --- */}
         <OrderList ordersState={ordersState("completed")} isCompleted />
       </Tabs.Tab>
     </Tabs>

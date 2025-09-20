@@ -9,7 +9,6 @@ import { getBasePath } from "@/utils/zma";
 import { Category } from "./types";
 
 // Tối ưu hiệu năng: Sử dụng React.lazy để tải các trang khi cần thiết (code-splitting).
-// Điều này giúp giảm kích thước bundle ban đầu và tăng tốc độ tải ứng dụng.
 const HomePage = lazy(() => import("@/pages/home"));
 const CartPage = lazy(() => import("@/pages/cart"));
 const CategoryDetailPage = lazy(() => import("@/pages/catalog/category-detail"));
@@ -42,7 +41,8 @@ const FlashSalePage = lazy(() => import("@/pages/flash-sale"));
 const mainRoutes = [
   { path: "/", element: <HomePage />, handle: { logo: true, search: true } },
   { path: "/search", element: <SearchPage />, handle: { search: true, title: "Tìm kiếm", noFooter: true } },
-  { path: "/categories", element: <CategoryListPage />, handle: { title: "Danh mục" } },
+  // THAY ĐỔI: Thêm backTo để quay về trang chủ từ trang "Tất cả danh mục"
+  { path: "/categories", element: <CategoryListPage />, handle: { title: "Danh mục", backTo: "/" } },
   { path: "/category/:id", element: <CategoryDetailPage />, handle: { search: true, title: ({ categories, params }: { categories: Category[], params: Params<string> }) => categories.find((c) => String(c.id) === params.id)?.name } },
   { path: "/product/:id", element: <ProductDetailPage />, handle: { scrollRestoration: 0, noFloatingCart: true } },
   { path: "/product/:id/reviews", element: <ReviewsListPage />, handle: { title: "Tất cả đánh giá", noFooter: true, noFloatingCart: true } },
@@ -50,12 +50,14 @@ const mainRoutes = [
 ];
 
 const orderRoutes = [
-  { path: "/orders/:status?", element: <OrdersPage />, handle: { title: "Đơn hàng" } },
+  // THAY ĐỔI: Thêm backTo để quay về trang chủ
+  { path: "/orders/:status?", element: <OrdersPage />, handle: { title: "Đơn hàng", backTo: "/" } },
   { path: "/order/:id", element: <OrderDetailPage />, handle: { title: "Thông tin đơn hàng" } },
 ];
 
 const cartRoutes = [
-  { path: "/cart", element: <CartPage />, handle: { title: "Giỏ hàng", noBack: true, noFloatingCart: true } },
+  // THAY ĐỔI: Bỏ noBack và thêm backTo để quay về trang chủ
+  { path: "/cart", element: <CartPage />, handle: { title: "Giỏ hàng", backTo: "/", noFloatingCart: true } },
   { path: "/vouchers", element: <VoucherSelectionPage />, handle: { title: "Chọn voucher", noFooter: true } },
   { path: "/shipping-address", element: <ShippingAddressPage />, handle: { title: "Địa chỉ nhận hàng", noFooter: true, noFloatingCart: true } },
   { path: "/stations", element: <StationsPage />, handle: { title: "Điểm nhận hàng", noFooter: true } },

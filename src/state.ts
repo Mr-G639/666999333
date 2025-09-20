@@ -356,5 +356,14 @@ export const walletState = atom((get) => {
 
   return { availableBalance, pendingBalance };
 });
+// ==================================================================
+// SECTION: UI STATE (THÊM MỚI)
+// ==================================================================
+
+/**
+ * Atom để theo dõi vị trí cuộn của layout chính.
+ * Giúp các component con có thể phản ứng lại với hành động cuộn của người dùng.
+ */
+export const mainScrollState = atom(0);
 
 export const userBankInfoState = atomWithStorage<UserBankInfo | undefined>("user_bank_info", undefined);

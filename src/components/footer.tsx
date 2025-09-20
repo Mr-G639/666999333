@@ -1,3 +1,5 @@
+// src/components/footer.tsx
+
 import { CartIcon, CategoryIcon, HomeIcon, PackageIcon } from "./vectors";
 import HorizontalDivider from "./horizontal-divider";
 import { useAtomValue } from "jotai";
@@ -13,9 +15,9 @@ const NAV_ITEMS = [
     icon: HomeIcon,
   },
   {
-    name: "Flash Sale", // <-- THAY ĐỔI TẠI ĐÂY
-    path: "/flash-sale",   // <-- THAY ĐỔI TẠI ĐÂY
-    icon: CategoryIcon, // Giữ lại icon hoặc thay thế bằng icon phù hợp
+    name: "Flash Sale",
+    path: "/flash-sale",
+    icon: CategoryIcon,
   },
   {
     name: "Đơn hàng",
@@ -55,6 +57,9 @@ export default function Footer() {
               <TransitionLink
                 to={item.path}
                 key={item.path}
+                // THAY ĐỔI: Thêm thuộc tính `replace` vào đây
+                // Điều này ngăn việc thêm vào lịch sử duyệt web khi chuyển tab
+                replace 
                 className="flex flex-col items-center space-y-0.5 p-1 pb-0.5 cursor-pointer active:scale-105"
               >
                 {({ isActive }) => (
