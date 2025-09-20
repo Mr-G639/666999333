@@ -272,12 +272,9 @@ export const selectedStationState = atom(async (get) => {
 export const ordersState = atomFamily((status: OrderStatus) =>
   atomWithRefresh(async () => {
     const allMockOrders = await requestWithFallback<Order[]>("/orders", []);
-    const typedOrders = allMockOrders.map(order => ({
-      ...order,
-      createdAt: new Date(order.createdAt),
-      receivedAt: new Date(order.receivedAt),
-    }))
-    return typedOrders.filter((order) => order.status === status);
+    // SỬA LỖI: Không chuyển đổi createdAt/receivedAt sang đối tượng Date.
+    // Dữ liệu mock trả về đã là string, khớp với định nghĩa trong `Order` type.
+    return allMockOrders.filter((order) => order.status === status);
   })
 );
 

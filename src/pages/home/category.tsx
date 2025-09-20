@@ -1,3 +1,5 @@
+// src/pages/home/category.tsx
+
 import { useAtomValue } from "jotai";
 import { categoriesState } from "@/state";
 import { loadable } from "jotai/utils";
@@ -45,7 +47,8 @@ export default function Category() {
   }
 
   const categories = categoriesLoadable.data;
-  const itemsToShow = categories.slice(0, 9); // <-- Lấy 9 danh mục đầu tiên
+  // Lấy 9 danh mục đầu tiên để hiển thị, chừa chỗ cho nút "Tất cả"
+  const itemsToShow = categories.slice(0, 9);
 
   return (
     <div className="bg-section p-4">

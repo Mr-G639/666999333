@@ -1,3 +1,5 @@
+// src/components/category-slider.tsx
+
 import { categoriesState } from "@/state";
 import { useAtomValue } from "jotai";
 import { useParams } from "react-router-dom";
@@ -6,7 +8,12 @@ import TransitionLink from "./transition-link";
 
 const loadableCategoriesState = loadable(categoriesState);
 
-export default function CategorySlider() {
+// Thêm props để có thể truyền vào tùy chọn `replace`
+export interface CategorySliderProps {
+  replace?: boolean;
+}
+
+export default function CategorySlider({ replace = false }: CategorySliderProps) {
   const { id } = useParams();
   const categoriesLoadable = useAtomValue(loadableCategoriesState);
 
@@ -32,6 +39,8 @@ export default function CategorySlider() {
         <TransitionLink
           to={`/category/${category.id}`}
           key={category.id}
+          // Sử dụng thuộc tính `replace` được truyền vào
+          replace={replace}
           className={"h-8 flex-none rounded-full p-1 pr-2 flex items-center space-x-1 border border-black/15 ".concat(
             String(category.id) === id
               ? "bg-primary text-primaryForeground"

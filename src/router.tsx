@@ -41,30 +41,33 @@ const FlashSalePage = lazy(() => import("@/pages/flash-sale"));
 const mainRoutes = [
   { path: "/", element: <HomePage />, handle: { logo: true, search: true } },
   { path: "/search", element: <SearchPage />, handle: { search: true, title: "Tìm kiếm", noFooter: true } },
-  // THAY ĐỔI: Thêm backTo để quay về trang chủ từ trang "Tất cả danh mục"
-  { path: "/categories", element: <CategoryListPage />, handle: { title: "Danh mục", backTo: "/" } },
+  // THAY ĐỔI: Ẩn nút back ở trang Tất cả danh mục
+  { path: "/categories", element: <CategoryListPage />, handle: { title: "Danh mục", noBack: true } },
   { path: "/category/:id", element: <CategoryDetailPage />, handle: { search: true, title: ({ categories, params }: { categories: Category[], params: Params<string> }) => categories.find((c) => String(c.id) === params.id)?.name } },
-  { path: "/product/:id", element: <ProductDetailPage />, handle: { scrollRestoration: 0, noFloatingCart: true } },
+  // THAY ĐỔI: Thêm nút back và điều hướng về trang chủ
+  { path: "/product/:id", element: <ProductDetailPage />, handle: { scrollRestoration: 0, noFloatingCart: true, backTo: "/" } },
   { path: "/product/:id/reviews", element: <ReviewsListPage />, handle: { title: "Tất cả đánh giá", noFooter: true, noFloatingCart: true } },
-  { path: "/flash-sale", element: <FlashSalePage />, handle: { title: "Flash Sale", search: true } },
+  // THAY ĐỔI: Ẩn nút back ở trang Flash Sale
+  { path: "/flash-sale", element: <FlashSalePage />, handle: { title: "Flash Sale", noBack: true, search: true } },
 ];
 
 const orderRoutes = [
-  // THAY ĐỔI: Thêm backTo để quay về trang chủ
-  { path: "/orders/:status?", element: <OrdersPage />, handle: { title: "Đơn hàng", backTo: "/" } },
+  // THAY ĐỔI: Ẩn nút back ở trang Đơn hàng
+  { path: "/orders/:status?", element: <OrdersPage />, handle: { title: "Đơn hàng", noBack: true } },
   { path: "/order/:id", element: <OrderDetailPage />, handle: { title: "Thông tin đơn hàng" } },
 ];
 
 const cartRoutes = [
-  // THAY ĐỔI: Bỏ noBack và thêm backTo để quay về trang chủ
-  { path: "/cart", element: <CartPage />, handle: { title: "Giỏ hàng", backTo: "/", noFloatingCart: true } },
+  // THAY ĐỔI: Ẩn nút back ở trang Giỏ hàng
+  { path: "/cart", element: <CartPage />, handle: { title: "Giỏ hàng", noBack: true, noFloatingCart: true } },
   { path: "/vouchers", element: <VoucherSelectionPage />, handle: { title: "Chọn voucher", noFooter: true } },
   { path: "/shipping-address", element: <ShippingAddressPage />, handle: { title: "Địa chỉ nhận hàng", noFooter: true, noFloatingCart: true } },
   { path: "/stations", element: <StationsPage />, handle: { title: "Điểm nhận hàng", noFooter: true } },
 ];
 
 const profileRoutes = [
-  { path: "/profile", element: <ProfilePage />, handle: { logo: true } },
+  // THAY ĐỔI: Ẩn nút back ở trang cá nhân
+  { path: "/profile", element: <ProfilePage />, handle: { logo: true, noBack: true } },
   { path: "/profile/edit", element: <ProfileEditorPage />, handle: { title: "Thông tin tài khoản", noFooter: true, noFloatingCart: true } },
   { path: "/profile/wishlist", element: <WishlistPage />, handle: { title: "Sản phẩm yêu thích", noFooter: true, noFloatingCart: true } },
   { path: "/profile/vouchers", element: <VouchersPage />, handle: { title: "Ví Voucher", noFooter: true, noFloatingCart: true } },

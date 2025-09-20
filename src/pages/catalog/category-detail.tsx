@@ -1,3 +1,5 @@
+// src/pages/catalog/category-detail.tsx
+
 import { Suspense } from "react";
 import { useParams } from "react-router-dom";
 import { useAtomValue } from "jotai";
@@ -21,7 +23,8 @@ function ProductListByCategory() {
 export default function CategoryDetailPage() {
   return (
     <div className="flex flex-col h-full">
-      <CategorySlider />
+      {/* THAY ĐỔI: Truyền `replace={true}` để kích hoạt logic mới */}
+      <CategorySlider replace={true} />
       <div className="flex-1 overflow-y-auto">
         <Suspense fallback={<ProductGridSkeleton />}>
           <ProductListByCategory />
