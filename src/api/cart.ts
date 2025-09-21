@@ -79,7 +79,6 @@ export const updateCartItemQuantityApi = async (productId: number, quantity: num
     }
   } else if (quantity > 0) {
     // Sản phẩm chưa có, thêm mới vào giỏ hàng
-    // --- SỬA LỖI: Gọi hàm helper để đảm bảo dữ liệu sản phẩm đầy đủ ---
     const productToAdd = findAndFormatProduct(productId);
     if (productToAdd) {
       dummyCart.push({ product: productToAdd, quantity });

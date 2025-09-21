@@ -15,7 +15,7 @@
   "template": {
     "name": "zaui-market",
     "apiUrl": "",
-    "oaIDtoOpenChat": "4318657068771012646",
+    "oaIDtoOpenChat": "YOUR_OA_ID_HERE",
     "shopName": "V2K",
     "shopAddress": "Sàn TMĐT V2K Giá Rẻ"
   }

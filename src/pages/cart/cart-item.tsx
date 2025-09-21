@@ -41,6 +41,7 @@ export default function CartItem(props: CartItemProps) {
     }
   );
   
+  // Sửa lỗi: Sử dụng optional chaining để truy cập an toàn
   const imageUrl = props.product?.images?.[0] ?? placeholderImage;
 
   const handleNavigate = () => {
