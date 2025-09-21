@@ -50,11 +50,9 @@ export default function Header() {
   const hasExtraContent = hasLogo || hasSearch;
 
   return (
+    // Sửa lỗi: Loại bỏ height cố định để tránh layout shift
     <div
-      // Sửa lỗi: Chiều cao header linh hoạt
-      className={`w-full flex flex-col px-4 bg-primary text-primaryForeground pt-st overflow-hidden bg-no-repeat bg-right-top ${
-        hasExtraContent ? 'h-28' : 'h-auto'
-      }`}
+      className={`w-full flex flex-col px-4 bg-primary text-primaryForeground pt-st overflow-hidden bg-no-repeat bg-right-top ${hasExtraContent ? 'pb-2' : ''}`}
       style={{
         backgroundImage: `url(${headerIllus})`,
       }}
@@ -72,7 +70,6 @@ export default function Header() {
             </TransitionLink>
           </>
         ) : (
-          // Sửa lỗi: Căn giữa tiêu đề một cách chính xác
           <div className="flex-1 flex items-center relative">
             {showBack && (
               <div className="absolute left-0 top-1/2 -translate-y-1/2 z-10">

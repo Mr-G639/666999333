@@ -7,7 +7,7 @@ import { favoriteProductsDetailsState } from "@/state";
 import { useAtomValue } from "jotai";
 import { Suspense } from "react";
 // Sửa đổi: Xóa Header và thay Page bằng một thẻ div đơn giản
-import { Page } from "zmp-ui";
+// import { Page } from "zmp-ui"; <--- Dòng này đã được xóa
 
 const Wishlist = () => {
     const favoriteProducts = useAtomValue(favoriteProductsDetailsState);

@@ -4,7 +4,7 @@ import { loadableUserInfoState } from "@/state";
 import { useAtomValue } from "jotai";
 import { PropsWithChildren } from "react";
 import { Button, Icon } from "zmp-ui";
-import Register from "./register";
+// import Register from "./register"; <-- Đã xóa import không cần thiết
 
 function UserInfo({ children }: PropsWithChildren) {
   const userInfo = useAtomValue(loadableUserInfoState);

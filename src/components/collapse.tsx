@@ -2,7 +2,7 @@ import { Fragment, ReactNode, useEffect, useRef, useState } from "react";
 import { MinusIcon, PlusIcon } from "./vectors";
 import HorizontalDivider from "./horizontal-divider";
 import { useRealHeight } from "@/hooks/useUtility";
-import { animated, useSpring, useSpringValue } from "@react-spring/web";
+import { animated, useSpringValue } from "@react-spring/web";
 
 export interface CollapseProps {
   items: {
@@ -49,7 +49,7 @@ export default function Collapse(props: CollapseProps) {
     <div className="px-4 py-1">
       {props.items.map((item, index) => (
         <Fragment key={index}>
-          <CollapseItem key={index} {...item} />
+          <CollapseItem {...item} />
           {index < props.items.length - 1 && <HorizontalDivider />}
         </Fragment>
       ))}
