@@ -6,7 +6,7 @@ import { categoriesStateUpwrapped, loadableUserInfoState } from "@/state";
 import { useMemo } from "react";
 import { useRouteHandle } from "@/hooks/useUtility";
 import { getConfig } from "@/utils/template";
-// import headerIllus from "@/static/header-illus.svg"; // Đã xóa import file ảnh bị lỗi
+import headerIllus from "@/static/header-illus.svg"; // Import lại file ảnh
 import SearchBar from "./search-bar";
 import TransitionLink from "./transition-link";
 import { Icon } from "zmp-ui";
@@ -46,7 +46,11 @@ export default function Header() {
   const showBack = location.key !== "default" && !handle?.noBack;
 
   const handleBackClick = () => {
-    navigate(-1);
+    if (handle?.backTo) {
+      navigate(handle.backTo);
+    } else {
+      navigate(-1);
+    }
   };
 
   const hasLogo = handle?.logo;
@@ -55,10 +59,12 @@ export default function Header() {
 
   return (
     <div
-      // Sửa lỗi: Chiều cao header linh hoạt và đã xóa style không cần thiết
-      className={`w-full flex flex-col px-4 bg-primary text-primaryForeground pt-st overflow-hidden bg-no-repeat bg-right-top ${
-        hasExtraContent ? "h-28" : "h-auto"
+      className={`w-full flex flex-col px-4 bg-primary text-primaryForeground pt-st overflow-hidden bg-no-repeat bg-right-top h-auto ${
+        hasExtraContent ? 'pb-2' : ''
       }`}
+      style={{
+        backgroundImage: `url(${headerIllus})`,
+      }}
     >
       <div className="w-full min-h-12 flex py-2 space-x-2 items-center">
         {hasLogo ? (
@@ -81,7 +87,6 @@ export default function Header() {
             </TransitionLink>
           </>
         ) : (
-          // Sửa lỗi: Căn giữa tiêu đề một cách chính xác
           <div className="flex-1 flex items-center relative">
             {showBack && (
               <div className="absolute left-0 top-1/2 -translate-y-1/2 z-10">

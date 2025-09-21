@@ -34,8 +34,8 @@ type RouteHandle = {
   noBack?: boolean;
   noFloatingCart?: boolean;
   scrollRestoration?: number;
-  // The following line has been added
   noHeader?: boolean;
+  backTo?: string; // Bổ sung thuộc tính backTo
 };
 
 export function useRouteHandle() {
