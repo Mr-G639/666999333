@@ -7,15 +7,15 @@ import {
   cartTotalState,
   cartState,
   ordersState,
-  selectedVoucherState, // Thêm import này
+  selectedVoucherState, // Đã thêm import
 } from "@/state";
 import { useRequestInformation } from "./useUser";
 import { createOrder } from "zmp-sdk/apis";
 
 export function useCheckout() {
-  const { finalAmount } = useAtomValue(cartTotalState); // Sửa thành finalAmount
+  const { finalAmount } = useAtomValue(cartTotalState); // SỬA: Lấy giá trị cuối cùng sau khi đã áp dụng voucher
   const [cart, setCart] = useAtom(cartState);
-  const selectedVoucher = useAtomValue(selectedVoucherState); // Lấy voucher
+  const selectedVoucher = useAtomValue(selectedVoucherState); // Lấy thông tin voucher đã được chọn
   const requestInfo = useRequestInformation();
   const navigate = useNavigate();
   const refreshNewOrders = useSetAtom(ordersState("pending"));
@@ -24,19 +24,21 @@ export function useCheckout() {
     try {
       await requestInfo();
       await createOrder({
-        amount: finalAmount, // Sử dụng finalAmount
+        amount: finalAmount, // SỬA: Sử dụng finalAmount để gửi đúng số tiền cần thanh toán
         desc: `Thanh toán đơn hàng. ${
           selectedVoucher ? `Sử dụng voucher ${selectedVoucher.code}` : ""
-        }`,
+        }`, // Thêm thông tin voucher vào mô tả đơn hàng
         item: cart.map((item) => ({
-          id: String(item.product.id), // Chuyển id sang string để phù hợp với API
+          id: String(item.product.id), // SỬA: Chuyển đổi ID sản phẩm sang string theo yêu cầu của ZaloPay API
           name: item.product.name,
           price: item.product.price,
           quantity: item.quantity,
         })),
       });
-      setCart([]);
-      refreshNewOrders();
+      
+      // Xử lý sau khi tạo đơn hàng thành công
+      setCart([]); // Xóa giỏ hàng
+      refreshNewOrders(); // Làm mới danh sách đơn hàng "chờ xác nhận"
       navigate("/orders", {
         viewTransition: true,
       });

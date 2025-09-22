@@ -4,8 +4,7 @@ import { Product } from "@/types";
 import { formatPrice } from "@/utils/format";
 import TransitionLink from "./transition-link";
 import { useState, useMemo } from "react";
-import { Button } from "zmp-ui";
-// Tối ưu: Import các hook chuyên biệt để tránh re-render không cần thiết
+import { Button, Icon } from "zmp-ui"; // THÊM IMPORT ICON
 import { useCartActions, useCartItemQuantity } from "@/hooks/useCart";
 import QuantityInput from "./quantity-input";
 import MarqueeText from "./marquee-text";
@@ -19,17 +18,13 @@ export default function ProductItem(props: ProductItemProps) {
   const [selected, setSelected] = useState(false);
   const { product } = props;
 
-  // Tối ưu hiệu năng: Tách biệt logic đọc và ghi
-  // `useCartActions` chỉ cung cấp hàm, không gây re-render khi giỏ hàng thay đổi.
   const { addToCart } = useCartActions();
-  // `useCartItemQuantity` chỉ lắng nghe sự thay đổi số lượng của chính sản phẩm này.
   const cartQuantity = useCartItemQuantity(product.id);
 
   const handleQuantityChange = (quantity: number, options?: { toast: boolean }) => {
     addToCart(product, quantity, options);
   };
 
-  // Refactor: Tính toán giá trị giảm giá một lần để code dễ đọc hơn.
   const discountPercent = useMemo(() => {
     if (product.originalPrice && product.price) {
       return Math.round((1 - product.price / product.originalPrice) * 100);
@@ -47,17 +42,15 @@ export default function ProductItem(props: ProductItemProps) {
         replace={props.replace}
         className="p-2 pb-0 flex flex-col flex-1"
       >
-        {({ isTransitioning }) => (
+        {() => (
           <>
             <img
-              // Sửa lỗi: Thêm kiểm tra an toàn cho trường hợp không có ảnh
               src={product.images?.[0] || ""}
               className="w-full aspect-square object-cover rounded-lg"
               style={{
-                viewTransitionName:
-                  isTransitioning && selected
-                    ? `product-image-${product.id}`
-                    : undefined,
+                viewTransitionName: selected
+                  ? `product-image-${product.id}`
+                  : undefined,
               }}
               alt={product.name}
             />
@@ -72,13 +65,13 @@ export default function ProductItem(props: ProductItemProps) {
                     {formatPrice(product.price)}
                   </div>
                   {product.originalPrice && (
-                    <span className="text-danger font-medium text-2xs">
+                    <span className="text-danger font-medium text-xs">
                       -{discountPercent}%
                     </span>
                   )}
                 </div>
 
-                <div className="flex justify-between items-center text-2xs">
+                <div className="flex justify-between items-center text-xs">
                   {product.originalPrice ? (
                     <span className="line-through text-subtitle">
                       {formatPrice(product.originalPrice)}
@@ -87,8 +80,14 @@ export default function ProductItem(props: ProductItemProps) {
                     <span>&nbsp;</span>
                   )}
                   {product.soldCount && (
-                    <div className="text-subtitle">
-                      Đã bán {product.soldCount}
+                    <div className="flex items-center space-x-1 text-subtitle">
+                      {/* THAY ĐỔI Ở ĐÂY: Thêm className="text-primary"
+                        để đổi màu icon sang màu xanh chủ đạo của ứng dụng.
+                      */}
+                      <Icon icon="zi-check" size={14} className="text-primary" />
+                      <span>
+                        {product.soldCount > 1000 ? `${(product.soldCount / 1000).toFixed(1)}k` : product.soldCount}
+                      </span>
                     </div>
                   )}
                 </div>

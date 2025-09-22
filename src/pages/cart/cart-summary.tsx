@@ -1,42 +1,49 @@
 // src/pages/cart/cart-summary.tsx
 
-import { useAtomValue } from "jotai";
-import { cartTotalState, selectedVoucherState } from "@/state";
-import { formatPrice } from "@/utils/format";
-import Section from "@/components/section";
-import HorizontalDivider from "@/components/horizontal-divider";
+import React from 'react';
+import { useAtomValue } from 'jotai';
+import { cartTotalState, selectedVoucherState } from '@/state';
+import { formatPrice } from '@/utils/format';
+import { Box } from 'zmp-ui';
+import HorizontalDivider from '@/components/horizontal-divider';
 
-export default function CartSummary() {
-  const { totalAmount, finalAmount } = useAtomValue(cartTotalState);
+const CartSummary: React.FC = () => {
+  const { totalItems, totalAmount, finalAmount } = useAtomValue(cartTotalState);
   const selectedVoucher = useAtomValue(selectedVoucherState);
 
   return (
-    <Section title="Thanh toán" className="rounded-lg">
-      <div className="px-4 py-2 space-y-4">
-        <table className="table w-full text-sm [&_th]:text-left [&_th]:text-xs [&_th]:text-inactive [&_th]:font-medium [&_td]:text-right">
-          <tbody>
-            <tr>
-              <th>Tạm tính</th>
-              <td>{formatPrice(totalAmount)}</td>
-            </tr>
-            {selectedVoucher && (
-              <tr>
-                <th>Giảm giá</th>
-                <td className="text-red-500">- {formatPrice(selectedVoucher.value)}</td>
-              </tr>
-            )}
-            <tr>
-              <th>Phí vận chuyển</th>
-              <td>0 VND</td>
-            </tr>
-          </tbody>
-        </table>
-        <HorizontalDivider />
-        <div className="flex justify-between font-medium text-sm">
-          <div>Tổng thanh toán</div>
-          <div>{formatPrice(finalAmount)}</div>
-        </div>
+    <Box className="p-4 space-y-3">
+      {/* SỬA LỖI: Thay thế Text.Header bằng div với class tương ứng */}
+      <div className="text-lg font-semibold">
+        Tổng cộng ({totalItems} sản phẩm)
       </div>
-    </Section>
+      
+      <div className="space-y-2">
+        <div className="flex justify-between">
+          <span>Tạm tính</span>
+          <span>{formatPrice(totalAmount)}</span>
+        </div>
+        {selectedVoucher && (
+          <div className="flex justify-between text-primary">
+            <span>Giảm giá</span>
+            <span>
+              - {selectedVoucher.type === 'FIXED_AMOUNT'
+                ? formatPrice(selectedVoucher.value)
+                : `${selectedVoucher.value}%`}
+            </span>
+          </div>
+        )}
+      </div>
+      
+      <HorizontalDivider />
+      
+      <div className="flex justify-between font-semibold">
+        <span>Thành tiền</span>
+        {/* SỬA LỖI: Thay thế Text bằng span với class tương ứng */}
+        <span className="text-primary">{formatPrice(finalAmount)}</span>
+      </div>
+    </Box>
   );
-}
+};
+
+export default CartSummary;

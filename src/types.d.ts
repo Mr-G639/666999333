@@ -55,7 +55,8 @@ export interface Product {
 export interface Category {
   id: number;
   name: string;
-  icon: string; // Sửa lại từ 'image' thành 'icon' để khớp với component
+  icon: string;
+  children?: Category[]; // <--- THÊM DÒNG NÀY
 }
 
 /**

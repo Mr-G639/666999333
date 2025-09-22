@@ -1,35 +1,34 @@
 // src/pages/catalog/category-detail.tsx
 
-import { Suspense } from "react";
-import { useParams } from "react-router-dom";
-import { useAtomValue } from "jotai";
-import { productsByCategoryState } from "@/state";
-import ProductGrid from "@/components/product-grid";
-import { ProductGridSkeleton } from "@/components/skeleton";
-import { EmptyCategory } from "@/components/empty";
-import CategorySlider from "@/components/category-slider";
+import React, { Suspense } from 'react';
+import { useParams } from 'react-router-dom';
+import { useAtomValue } from 'jotai';
+import { productsByCategoryState } from '@/state';
+import ProductGrid from '@/components/product-grid';
+import { ProductGridSkeleton } from '@/components/skeleton';
 
-function ProductListByCategory() {
-  const { id } = useParams();
+/**
+ * Component hiển thị danh sách sản phẩm thuộc về một danh mục cụ thể.
+ */
+const CategoryDetailContent: React.FC = () => {
+  // Lấy ID danh mục từ URL
+  const { id } = useParams<{ id: string }>();
+
+  // Sử dụng ID để lấy danh sách sản phẩm tương ứng từ atomFamily
   const products = useAtomValue(productsByCategoryState(id!));
 
-  if (products.length === 0) {
-    return <EmptyCategory />;
-  }
-
   return <ProductGrid products={products} />;
-}
+};
 
-export default function CategoryDetailPage() {
+/**
+ * Trang chi tiết danh mục, chịu trách nhiệm xử lý trạng thái loading.
+ */
+const CategoryDetailPage: React.FC = () => {
   return (
-    <div className="flex flex-col h-full">
-      {/* THAY ĐỔI: Truyền `replace={true}` để kích hoạt logic mới */}
-      <CategorySlider replace={true} />
-      <div className="flex-1 overflow-y-auto">
-        <Suspense fallback={<ProductGridSkeleton />}>
-          <ProductListByCategory />
-        </Suspense>
-      </div>
-    </div>
+    <Suspense fallback={<ProductGridSkeleton />}>
+      <CategoryDetailContent />
+    </Suspense>
   );
-}
+};
+
+export default CategoryDetailPage;

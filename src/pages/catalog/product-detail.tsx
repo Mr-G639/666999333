@@ -1,3 +1,5 @@
+// src/pages/catalog/product-detail.tsx
+
 import React, { ReactNode, Suspense, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useAtom, useAtomValue } from "jotai";
@@ -7,6 +9,7 @@ import { Button } from "zmp-ui";
 import { favoriteProductsState, productState } from "@/state";
 import { useCartActions } from "@/hooks/useCart";
 import { formatPrice } from "@/utils/format";
+import { Product } from "@/types"; // Bổ sung import Product type
 
 import Section from "@/components/section";
 import Carousel from "@/components/carousel";
@@ -17,12 +20,16 @@ import { ProductGridSkeleton } from "@/components/skeleton";
 import RelatedProducts from "./related-products";
 import ProductReviewsSummary from "./product-reviews/summary";
 
-const ShareButton: React.FC<{ product: any }> = ({ product }) => {
+/**
+ * TỐI ƯU HIỆU NĂNG: Tách ShareButton ra ngoài component cha
+ * để tránh việc bị khởi tạo lại mỗi khi ProductDetailContent re-render.
+ */
+const ShareButton: React.FC<{ product: Product }> = ({ product }) => {
   const handleShare = async () => {
     const shareUrl = `${window.location.origin}/product/${product.id}`;
     const shareData = {
       title: product.name,
-      text: product.name,
+      text: `Kiểm tra sản phẩm này: ${product.name}`,
       url: shareUrl,
     };
 
@@ -30,15 +37,15 @@ const ShareButton: React.FC<{ product: any }> = ({ product }) => {
       try {
         await navigator.share(shareData);
       } catch {
-        // user cancelled or share failed silently
+        // Người dùng hủy chia sẻ, không cần xử lý
       }
       return;
     }
 
-    // fallback: copy link to clipboard
+    // Fallback: sao chép link vào clipboard cho các trình duyệt không hỗ trợ
     try {
       await navigator.clipboard.writeText(shareUrl);
-      toast.success("Đã sao chép liên kết");
+      toast.success("Đã sao chép liên kết sản phẩm");
     } catch {
       toast.error("Không thể chia sẻ");
     }
@@ -55,8 +62,11 @@ const ShareButton: React.FC<{ product: any }> = ({ product }) => {
   );
 };
 
+/**
+ * Component chứa logic và giao diện chính của trang chi tiết sản phẩm.
+ */
 function ProductDetailContent() {
-  const { id } = useParams();
+  const { id } = useParams<{ id: string }>();
   const product = useAtomValue(productState(Number(id)));
   const [favorites, setFavorites] = useAtom(favoriteProductsState);
   const { addToCart } = useCartActions();
@@ -65,6 +75,7 @@ function ProductDetailContent() {
   const [isMuted] = useState(true);
   const [, setActiveSlideIndex] = useState(0);
 
+  // Hiển thị skeleton nếu sản phẩm đang được tải
   if (!product) {
     return <ProductGridSkeleton />;
   }
@@ -119,7 +130,8 @@ function ProductDetailContent() {
 
   const handleBuyNow = () => {
     addToCart(product, 1);
-    navigate("/cart", { viewTransition: true });
+    // SỬA LỖI: Xóa bỏ tùy chọn { viewTransition: true } không hợp lệ
+    navigate("/cart");
   };
 
   const handleAddToCart = () => {
@@ -204,8 +216,10 @@ function ProductDetailContent() {
   );
 }
 
-// Sửa lỗi 2: Thêm kiểu React.FC cho nhất quán
-const ProductDetailPage: React.FC = () => {
+/**
+ * Component cha, chịu trách nhiệm xử lý trạng thái loading chung cho toàn trang.
+ */
+const ProductDetailPage = () => {
   return (
     <Suspense fallback={<ProductGridSkeleton />}>
       <ProductDetailContent />

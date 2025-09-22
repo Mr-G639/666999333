@@ -1,23 +1,43 @@
 // src/pages/home/flash-sales.tsx
 
-import { FC } from "react";
+import React from "react";
 import { Product } from "../../types";
-import ProductItem from "../../components/product-item";
-import { ProductItemSkeleton } from "../../components/skeleton";
 import Section from "../../components/section";
+import ProductItem from "../../components/product-item";
+import { ProductItemSkeleton } from "@/components/skeleton";
 
 interface FlashSalesProps {
   products: Product[];
 }
 
-const FlashSales: FC<FlashSalesProps> = ({ products }) => {
+const FlashSales: React.FC<FlashSalesProps> = ({ products }) => {
+  // Nếu không có sản phẩm, không hiển thị section này
+  if (!products) {
+    return null;
+  }
+  
   return (
-    // Sửa: Xóa prop 'padding' và thêm class p-4
-    <Section title="⚡ Flash Sale" className="bg-white p-4">
-      <div className="grid grid-cols-2 gap-4">
-        {products.length === 0
-          ? Array.from(new Array(4)).map((_, i) => <ProductItemSkeleton key={i} />)
-          : products.map((product) => <ProductItem key={product.id} product={product} />)}
+    <Section title="⚡ Flash Sale">
+      {/* Container chính cho phép cuộn nội dung theo chiều ngang (overflow-x-auto) */}
+      {/* scrollbar-hide là một tiện ích tùy chỉnh để ẩn thanh cuộn cho giao diện sạch sẽ hơn */}
+      <div className="overflow-x-auto scrollbar-hide">
+        {/* Dùng inline-flex để các item con xếp thành một hàng duy nhất */}
+        <div className="inline-flex space-x-4 p-4 pl-0">
+          {products.length === 0
+            ? // Hiển thị skeleton loading khi đang chờ dữ liệu
+              Array.from(new Array(4)).map((_, i) => (
+                <div key={i} className="w-36 flex-shrink-0">
+                  <ProductItemSkeleton />
+                </div>
+              ))
+            : // Hiển thị sản phẩm thực tế
+              products.map((product) => (
+                // Mỗi item có chiều rộng cố định và không bị co lại (flex-shrink-0)
+                <div key={product.id} className="w-36 flex-shrink-0">
+                  <ProductItem product={product} />
+                </div>
+              ))}
+        </div>
       </div>
     </Section>
   );

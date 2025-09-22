@@ -56,7 +56,6 @@ const getImageUrlFromModule = (imageModule: { default: string } | string): strin
   return imageModule.default;
 };
 
-
 // ==================================================================
 // SECTION: USER INFORMATION
 // ==================================================================
@@ -111,7 +110,6 @@ export const phoneState = atom(async () => {
   return phone;
 });
 
-
 // ==================================================================
 // SECTION: GENERAL STORE DATA
 // ==================================================================
@@ -119,12 +117,10 @@ export const phoneState = atom(async () => {
 export const bannersState = atom(() => requestWithFallback<string[]>("/banners", []));
 
 export const categoriesState = atom<Promise<Category[]>>(async () => {
-  // SỬA LỖI: Dữ liệu mock đã đúng định dạng, chỉ cần trả về
   return mockCategoriesData;
 });
 
 export const categoriesStateUpwrapped = unwrap(categoriesState, (prev) => prev ?? []);
-
 
 // ==================================================================
 // SECTION: PRODUCTS
@@ -166,7 +162,6 @@ export const productsByCategoryState = atomFamily((id: string) =>
   })
 );
 
-
 // ==================================================================
 // SECTION: SEARCH
 // ==================================================================
@@ -191,16 +186,22 @@ export const searchResultState = atom(async (get) => {
   );
 });
 
-
 // ==================================================================
 // SECTION: CART
 // ==================================================================
+
+// SỬA LỖI: Định nghĩa một "bản thiết kế" cho dữ liệu tổng giỏ hàng
+export interface CartTotal {
+  totalItems: number;
+  totalAmount: number;
+  finalAmount: number;
+}
 
 export const cartState = atomWithStorage<Cart>("cart", []);
 
 export const selectedVoucherState = atom<Voucher | undefined>(undefined);
 
-export const cartTotalState = atom((get) => {
+export const cartTotalState = atom<CartTotal>((get) => { // Áp dụng "bản thiết kế"
   const items = get(cartState);
   const selectedVoucher = get(selectedVoucherState);
 
@@ -224,7 +225,6 @@ export const cartTotalState = atom((get) => {
     finalAmount: Math.max(0, finalAmount),
   };
 });
-
 
 // ==================================================================
 // SECTION: DELIVERY & CHECKOUT
@@ -262,7 +262,6 @@ export const selectedStationState = atom(async (get) => {
   return stations[index];
 });
 
-
 // ==================================================================
 // SECTION: ORDERS
 // ==================================================================
@@ -270,12 +269,9 @@ export const selectedStationState = atom(async (get) => {
 export const ordersState = atomFamily((status: OrderStatus) =>
   atomWithRefresh(async () => {
     const allMockOrders = await requestWithFallback<Order[]>("/orders", []);
-    // SỬA LỖI: Không chuyển đổi createdAt/receivedAt sang đối tượng Date.
-    // Dữ liệu mock trả về đã là string, khớp với định nghĩa trong `Order` type.
     return allMockOrders.filter((order) => order.status === status);
   })
 );
-
 
 // ==================================================================
 // SECTION: VOUCHERS & POINTS
@@ -295,7 +291,6 @@ interface DailyCheckInState {
 export const dailyCheckInState = atomWithStorage<DailyCheckInState>("daily_check_in", { lastCheckInDate: null, streak: 0 });
 
 export const userPointsState = atomWithStorage<number>("user_points", 500);
-
 
 // ==================================================================
 // SECTION: REVIEWS
@@ -327,7 +322,6 @@ export const postReviewAtom = atom(
   }
 );
 
-
 // ==================================================================
 // SECTION: WALLET & REFERRALS
 // ==================================================================
@@ -351,8 +345,9 @@ export const walletState = atom((get) => {
 
   return { availableBalance, pendingBalance };
 });
+
 // ==================================================================
-// SECTION: UI STATE (THÊM MỚI)
+// SECTION: UI STATE
 // ==================================================================
 
 /**
