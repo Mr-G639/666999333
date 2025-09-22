@@ -1,12 +1,15 @@
-// src/components/footer.tsx
-
-import { CartIcon, CategoryIcon, HomeIcon, PackageIcon } from "./vectors";
+import { CartIcon, CategoryIcon, HomeIcon } from "./vectors"; // SỬA LỖI: Đã xóa 'PackageIcon'
 import HorizontalDivider from "./horizontal-divider";
 import { useAtomValue } from "jotai";
 import { cartState } from "@/state";
 import TransitionLink from "./transition-link";
 import { useRouteHandle } from "@/hooks/useUtility";
 import Badge from "./badge";
+
+// Định nghĩa kiểu dữ liệu cho props của icon
+type IconProps = {
+  active: boolean;
+};
 
 const NAV_ITEMS = [
   {
@@ -20,14 +23,9 @@ const NAV_ITEMS = [
     icon: CategoryIcon,
   },
   {
-    name: "Đơn hàng",
-    path: "/orders",
-    icon: PackageIcon,
-  },
-  {
     name: "Giỏ hàng",
     path: "/cart",
-    icon: (props) => {
+    icon: (props: IconProps) => { // SỬA LỖI: Thêm kiểu dữ liệu cho 'props'
       const cart = useAtomValue(cartState);
 
       return (
@@ -57,9 +55,7 @@ export default function Footer() {
               <TransitionLink
                 to={item.path}
                 key={item.path}
-                // THAY ĐỔI: Thêm thuộc tính `replace` vào đây
-                // Điều này ngăn việc thêm vào lịch sử duyệt web khi chuyển tab
-                replace 
+                replace
                 className="flex flex-col items-center space-y-0.5 p-1 pb-0.5 cursor-pointer active:scale-105"
               >
                 {({ isActive }) => (
@@ -81,4 +77,7 @@ export default function Footer() {
       </>
     );
   }
+
+  // SỬA LỖI: Trả về null nếu không hiển thị footer
+  return null;
 }

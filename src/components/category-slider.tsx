@@ -8,7 +8,6 @@ import TransitionLink from "./transition-link";
 
 const loadableCategoriesState = loadable(categoriesState);
 
-// Thêm props để có thể truyền vào tùy chọn `replace`
 export interface CategorySliderProps {
   replace?: boolean;
 }
@@ -21,7 +20,7 @@ export default function CategorySlider({ replace = false }: CategorySliderProps)
     return (
       <div className="px-3 py-2 overflow-x-auto flex space-x-2">
         {[...Array(6)].map((_, index) => (
-          <div key={index} className="h-8 w-20 flex-none rounded-full bg-gray-300 animate-pulse"></div>
+          <div key={index} className="h-8 w-24 flex-none rounded-full bg-gray-300 animate-pulse"></div>
         ))}
       </div>
     );
@@ -39,19 +38,14 @@ export default function CategorySlider({ replace = false }: CategorySliderProps)
         <TransitionLink
           to={`/category/${category.id}`}
           key={category.id}
-          // Sử dụng thuộc tính `replace` được truyền vào
           replace={replace}
-          className={"h-8 flex-none rounded-full p-1 pr-2 flex items-center space-x-1 border border-black/15 ".concat(
+          className={"h-8 flex-none rounded-full px-4 flex items-center justify-center border border-black/15 ".concat(
             String(category.id) === id
               ? "bg-primary text-primaryForeground"
               : "bg-section"
           )}
         >
-          <img
-            src={category.image}
-            className="w-6 h-6 rounded-full bg-skeleton"
-          />
-          <p className="text-xs whitespace-nowrap">{category.name}</p>
+          <p className="text-sm font-medium whitespace-nowrap">{category.name}</p>
         </TransitionLink>
       ))}
     </div>

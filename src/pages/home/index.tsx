@@ -1,32 +1,48 @@
-import { categoriesState, productsState } from "@/state";
+import { productsState } from "@/state";
 import { useAtomValue } from "jotai";
 import { FC, Suspense } from "react";
+import { Page } from "zmp-ui";
 import AllProducts from "./all-products";
 import Banners from "./banners";
-import Categories from "./category";
 import FlashSales from "./flash-sales";
+import { loadable } from "jotai/utils";
+import { PageSkeleton } from "@/components/skeleton";
 
-const HomePage: FC = () => {
-  const products = useAtomValue(productsState);
-  const categories = useAtomValue(categoriesState);
+const loadableProducts = loadable(productsState);
+
+const HomePageContent: FC = () => {
+  const productsLoadable = useAtomValue(loadableProducts);
+
+  if (productsLoadable.state === 'loading') {
+    return <PageSkeleton />;
+  }
+
+  if (productsLoadable.state === 'hasError') {
+    return <div>Lỗi tải sản phẩm.</div>;
+  }
+
+  const products = productsLoadable.data;
 
   return (
-    <div className="flex-1 overflow-y-auto">
-      <Suspense>
+    <>
+      <Suspense fallback={null}>
         <Banners />
       </Suspense>
-      
-      {/* CỤM ACTIONS VÀ KHU VỰC ĐƠN HÀNG ĐÃ ĐƯỢC XÓA HOÀN TOÀN */}
-
-      <div className="mb-4" />
-      <Suspense>
-        <Categories categories={categories} />
+      <Suspense fallback={null}>
+        <FlashSales products={products} />
       </Suspense>
-      <div className="mb-4" />
-      <FlashSales products={products} />
-      <div className="mb-4" />
-      <AllProducts products={products} />
-    </div>
+      <Suspense fallback={null}>
+        <AllProducts products={products} />
+      </Suspense>
+    </>
+  );
+};
+
+const HomePage: FC = () => {
+  return (
+    <Page>
+      <HomePageContent />
+    </Page>
   );
 };
 

@@ -55,8 +55,9 @@ export interface Product {
 export interface Category {
   id: number;
   name: string;
-  icon: string;
-  children?: Category[]; // <--- THÊM DÒNG NÀY
+  icon?: string; // SỬA LỖI: Thêm dấu '?' để cho phép thuộc tính này có thể không tồn tại
+  image?: string; // Giữ lại image là optional phòng trường hợp khác
+  children?: Category[];
 }
 
 /**

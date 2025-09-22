@@ -1,5 +1,3 @@
-// src/pages/search/index.tsx
-
 import Section from "@/components/section";
 import { SearchResultSkeleton } from "@/components/skeleton";
 import { useAtomValue } from "jotai";

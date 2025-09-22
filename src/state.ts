@@ -1,5 +1,3 @@
-// src/state.ts
-
 import { atom } from "jotai";
 import {
   atomFamily,
@@ -166,7 +164,9 @@ export const productsByCategoryState = atomFamily((id: string) =>
 // SECTION: SEARCH
 // ==================================================================
 
-export const keywordState = atom("");
+// State cho chức năng tìm kiếm toàn cục
+
+export const keywordState = atom(""); // Có thể xem xét gộp với searchKeywordState
 
 export const searchCategoriesResultState = atom(async (get) => {
   const keyword = get(keywordState);
@@ -190,7 +190,6 @@ export const searchResultState = atom(async (get) => {
 // SECTION: CART
 // ==================================================================
 
-// SỬA LỖI: Định nghĩa một "bản thiết kế" cho dữ liệu tổng giỏ hàng
 export interface CartTotal {
   totalItems: number;
   totalAmount: number;
@@ -201,7 +200,7 @@ export const cartState = atomWithStorage<Cart>("cart", []);
 
 export const selectedVoucherState = atom<Voucher | undefined>(undefined);
 
-export const cartTotalState = atom<CartTotal>((get) => { // Áp dụng "bản thiết kế"
+export const cartTotalState = atom<CartTotal>((get) => {
   const items = get(cartState);
   const selectedVoucher = get(selectedVoucherState);
 
@@ -316,7 +315,7 @@ export const postReviewAtom = atom(
     console.log("Đang gửi review:", { productId, ...review, author: userInfo.name });
     await new Promise(resolve => setTimeout(resolve, 1000));
     
-    await set(reviewsState(productId));
+    set(reviewsState(productId)); // Gọi set để kích hoạt refresh
     
     toast.success("Đăng đánh giá thành công!");
   }

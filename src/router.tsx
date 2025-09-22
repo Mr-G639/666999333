@@ -15,7 +15,6 @@ const CategoryDetailPage = lazy(() => import("@/pages/catalog/category-detail"))
 const CategoryListPage = lazy(() => import("@/pages/catalog/category-list"));
 const ProductDetailPage = lazy(() => import("@/pages/catalog/product-detail"));
 const ProfilePage = lazy(() => import("@/pages/profile"));
-const SearchPage = lazy(() => import("@/pages/search"));
 const OrdersPage = lazy(() => import("./pages/orders"));
 const ShippingAddressPage = lazy(() => import("./pages/cart/shipping-address"));
 const StationsPage = lazy(() => import("./pages/cart/stations"));
@@ -32,7 +31,7 @@ const VoucherSelectionPage = lazy(() => import("./pages/cart/voucher-selection")
 const WishlistPage = lazy(() => import("./pages/profile/wishlist"));
 const ReviewsListPage = lazy(() => import("./pages/catalog/product-reviews/ReviewsListPage"));
 const FlashSalePage = lazy(() => import("@/pages/flash-sale"));
-
+const SearchPage = lazy(() => import("@/pages/search"));
 // --- THAY ĐỔI TẠI ĐÂY ---
 // Cập nhật đường dẫn import cho trang Affiliate
 // Ensure the imported module conforms to React.lazy's expected shape { default: Component }
@@ -46,12 +45,12 @@ const AffiliatePage = lazy(() =>
 // Refactor: Nhóm các route lại với nhau để dễ quản lý.
 const mainRoutes = [
   { path: "/", element: <HomePage />, handle: { logo: true, search: true } },
-  { path: "/search", element: <SearchPage />, handle: { search: true, title: "Tìm kiếm", noFooter: true } },
   { path: "/categories", element: <CategoryListPage />, handle: { title: "Danh mục", noBack: true } },
   { path: "/category/:id", element: <CategoryDetailPage />, handle: { search: true, title: ({ categories, params }: { categories: Category[], params: Params<string> }) => categories.find((c) => String(c.id) === params.id)?.name } },
-  { path: "/product/:id", element: <ProductDetailPage />, handle: { scrollRestoration: 0, noFloatingCart: true, backTo: "/" } },
+  { path: "/product/:id", element: <ProductDetailPage />, handle: { scrollRestoration: 0, noFloatingCart: true } },
   { path: "/product/:id/reviews", element: <ReviewsListPage />, handle: { title: "Tất cả đánh giá", noFooter: true, noFloatingCart: true } },
   { path: "/flash-sale", element: <FlashSalePage />, handle: { title: "Flash Sale", noBack: true, search: true } },
+  { path: "/search", element: <SearchPage />, handle: { noHeader: true, noFooter: true } }, // noHeader để dùng header riêng
 ];
 
 const orderRoutes = [

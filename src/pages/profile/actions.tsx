@@ -11,12 +11,8 @@ export default function ProfileActions() {
   return (
     <div className="bg-white rounded-lg border-[0.5px] border-black/15">
       <List>
-        <List.Item
-          title="Đơn hàng của tôi"
-          prefix={<Icon icon="zi-note" />}
-          suffix={<Icon icon="zi-chevron-right" />}
-          onClick={() => navigate("/orders")}
-        />
+
+        /
         <List.Item
           title="Sản phẩm yêu thích"
           prefix={<HeartIcon className="w-5 h-5" />}
