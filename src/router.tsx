@@ -54,7 +54,7 @@ const mainRoutes = [
 ];
 
 const orderRoutes = [
-  { path: "/orders/:status?", element: <OrdersPage />, handle: { title: "Đơn hàng", noBack: true } },
+  { path: "/orders/:status?", element: <OrdersPage title="Đơn hàng">{null}</OrdersPage>, handle: { title: "Đơn hàng", noBack: true } },
   { path: "/order/:id", element: <OrderDetailPage />, handle: { title: "Thông tin đơn hàng" } },
 ];
 
