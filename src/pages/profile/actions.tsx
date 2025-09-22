@@ -1,11 +1,7 @@
 // src/pages/profile/actions.tsx
 
-import {
-  HeartIcon, // Thêm import này
-  OrderHistoryIcon,
-  PackageIcon,
-  VoucherIcon,
-} from "@/components/vectors";
+// --- SỬA LỖI 1: Xóa 'OrderHistoryIcon' không được sử dụng ---
+import { HeartIcon, VoucherIcon } from "@/components/vectors";
 import { useNavigate } from "react-router-dom";
 import { Icon, List } from "zmp-ui";
 
@@ -21,7 +17,6 @@ export default function ProfileActions() {
           suffix={<Icon icon="zi-chevron-right" />}
           onClick={() => navigate("/orders")}
         />
-        {/* Thêm mục mới dưới đây */}
         <List.Item
           title="Sản phẩm yêu thích"
           prefix={<HeartIcon className="w-5 h-5" />}
@@ -34,17 +29,12 @@ export default function ProfileActions() {
           suffix={<Icon icon="zi-chevron-right" />}
           onClick={() => navigate("/profile/vouchers")}
         />
+        {/* --- SỬA LỖI 2: Thay 'zi-wallet' bằng icon hợp lệ --- */}
         <List.Item
-          title="Ví Hoa Hồng"
-          prefix={<PackageIcon active />}
+          title="AFF 1 Click"
+          prefix={<span className="w-5 h-5"><VoucherIcon /></span>}
           suffix={<Icon icon="zi-chevron-right" />}
-          onClick={() => navigate("/profile/wallet")}
-        />
-        <List.Item
-          title="Đơn giới thiệu"
-          prefix={<OrderHistoryIcon />}
-          suffix={<Icon icon="zi-chevron-right" />}
-          onClick={() => navigate("/profile/referrals")}
+          onClick={() => navigate("/profile/affiliate")}
         />
       </List>
     </div>

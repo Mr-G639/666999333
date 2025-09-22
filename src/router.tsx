@@ -23,9 +23,6 @@ const OrderDetailPage = lazy(() => import("./pages/orders/detail"));
 const ProfileEditorPage = lazy(() => import("./pages/profile/editor"));
 const VouchersPage = lazy(() => import("./pages/profile/vouchers"));
 const RedeemPage = lazy(() => import("./pages/profile/redeem"));
-const WalletPage = lazy(() => import("./pages/profile/wallet"));
-const ReferralOrdersPage = lazy(() => import("./pages/profile/referrals"));
-const ReferralDetailPage = lazy(() => import("./pages/profile/referral-detail"));
 const BankInfoPage = lazy(() => import("./pages/profile/bank-info"));
 const WithdrawalPage = lazy(() => import("./pages/profile/withdrawal"));
 const WithdrawalDetailPage = lazy(() => import("./pages/profile/withdrawal-detail"));
@@ -36,29 +33,33 @@ const WishlistPage = lazy(() => import("./pages/profile/wishlist"));
 const ReviewsListPage = lazy(() => import("./pages/catalog/product-reviews/ReviewsListPage"));
 const FlashSalePage = lazy(() => import("@/pages/flash-sale"));
 
+// --- THAY ĐỔI TẠI ĐÂY ---
+// Cập nhật đường dẫn import cho trang Affiliate
+// Ensure the imported module conforms to React.lazy's expected shape { default: Component }
+const AffiliatePage = lazy(() =>
+  import("./pages/profile/affiliate").then((m) => ({
+    // support modules that export default or a named export like Affiliate or AffiliatePage
+    default: (m as any).default ?? (m as any).Affiliate ?? (m as any).AffiliatePage,
+  }))
+);
 
 // Refactor: Nhóm các route lại với nhau để dễ quản lý.
 const mainRoutes = [
   { path: "/", element: <HomePage />, handle: { logo: true, search: true } },
   { path: "/search", element: <SearchPage />, handle: { search: true, title: "Tìm kiếm", noFooter: true } },
-  // THAY ĐỔI: Ẩn nút back ở trang Tất cả danh mục
   { path: "/categories", element: <CategoryListPage />, handle: { title: "Danh mục", noBack: true } },
   { path: "/category/:id", element: <CategoryDetailPage />, handle: { search: true, title: ({ categories, params }: { categories: Category[], params: Params<string> }) => categories.find((c) => String(c.id) === params.id)?.name } },
-  // THAY ĐỔI: Thêm nút back và điều hướng về trang chủ
   { path: "/product/:id", element: <ProductDetailPage />, handle: { scrollRestoration: 0, noFloatingCart: true, backTo: "/" } },
   { path: "/product/:id/reviews", element: <ReviewsListPage />, handle: { title: "Tất cả đánh giá", noFooter: true, noFloatingCart: true } },
-  // THAY ĐỔI: Ẩn nút back ở trang Flash Sale
   { path: "/flash-sale", element: <FlashSalePage />, handle: { title: "Flash Sale", noBack: true, search: true } },
 ];
 
 const orderRoutes = [
-  // THAY ĐỔI: Ẩn nút back ở trang Đơn hàng
   { path: "/orders/:status?", element: <OrdersPage />, handle: { title: "Đơn hàng", noBack: true } },
   { path: "/order/:id", element: <OrderDetailPage />, handle: { title: "Thông tin đơn hàng" } },
 ];
 
 const cartRoutes = [
-  // THAY ĐỔI: Ẩn nút back ở trang Giỏ hàng
   { path: "/cart", element: <CartPage />, handle: { title: "Giỏ hàng", noBack: true, noFloatingCart: true } },
   { path: "/vouchers", element: <VoucherSelectionPage />, handle: { title: "Chọn voucher", noFooter: true } },
   { path: "/shipping-address", element: <ShippingAddressPage />, handle: { title: "Địa chỉ nhận hàng", noFooter: true, noFloatingCart: true } },
@@ -66,23 +67,21 @@ const cartRoutes = [
 ];
 
 const profileRoutes = [
-  // THAY ĐỔI: Ẩn nút back ở trang cá nhân
   { path: "/profile", element: <ProfilePage />, handle: { logo: true, noBack: true } },
   { path: "/profile/edit", element: <ProfileEditorPage />, handle: { title: "Thông tin tài khoản", noFooter: true, noFloatingCart: true } },
   { path: "/profile/wishlist", element: <WishlistPage />, handle: { title: "Sản phẩm yêu thích", noFooter: true, noFloatingCart: true } },
   { path: "/profile/vouchers", element: <VouchersPage />, handle: { title: "Ví Voucher", noFooter: true, noFloatingCart: true } },
   { path: "/profile/redeem", element: <RedeemPage />, handle: { noFooter: true, noFloatingCart: true } },
   { 
-    path: "/profile/wallet", 
-    element: <WalletPage />, 
+    path: "/profile/affiliate", 
+    element: <AffiliatePage />, 
     handle: { 
-      title: "Ví hoa hồng", 
+      title: "AFF 1 Click", 
       noFooter: true, 
       noFloatingCart: true 
     } 
   },
-  { path: "/profile/referrals", element: <ReferralOrdersPage />, handle: { title: "Đơn hàng giới thiệu", noFooter: true, noFloatingCart: true } },
-  { path: "/profile/referrals/:id", element: <ReferralDetailPage />, handle: { noFooter: true, noFloatingCart: true } },
+  // Các route liên quan đến rút tiền vẫn được giữ lại để sử dụng trong trang AFF 1 Click
   { path: "/profile/transaction/:id", element: <WithdrawalDetailPage />, handle: { noFooter: true, noFloatingCart: true } },
   { path: "/profile/bank-info", element: <BankInfoPage />, handle: { noFooter: true, noFloatingCart: true } },
   { path: "/profile/withdrawal", element: <WithdrawalPage />, handle: { noFooter: true, noFloatingCart: true } },
