@@ -1,50 +1,32 @@
-// src/pages/home/index.tsx
-
-import React, { Suspense } from "react";
-import { Box, Page } from "zmp-ui";
+import { categoriesState, productsState } from "@/state";
 import { useAtomValue } from "jotai";
-import {
-  productsState,
-  flashSaleProductsState,
-} from "@/state";
-
-import Banners from "./banners";
-import FlashSales from "./flash-sales";
+import { FC, Suspense } from "react";
 import AllProducts from "./all-products";
-import { PageSkeleton } from "@/components/skeleton";
+import Banners from "./banners";
+import Categories from "./category";
+import FlashSales from "./flash-sales";
 
-/**
- * Component con chứa nội dung chính của trang chủ.
- * Cấu trúc này đã được tinh gọn để tập trung vào các thành phần cốt lõi.
- */
-const HomePageContent: React.FC = () => {
-  const allProducts = useAtomValue(productsState);
-  const flashSaleProducts = useAtomValue(flashSaleProductsState);
+const HomePage: FC = () => {
+  const products = useAtomValue(productsState);
+  const categories = useAtomValue(categoriesState);
 
   return (
-    <Page className="relative flex-1 flex flex-col bg-white">
-      <Box className="flex-1 overflow-auto">
-        {/* Sử dụng space-y-4 để tạo khoảng cách đồng nhất giữa các section */}
-        <div className="flex flex-col space-y-0">
-          <Banners />
-          <FlashSales products={flashSaleProducts} />
-          <AllProducts products={allProducts} />
-        </div>
-      </Box>
-    </Page>
-  );
-};
+    <div className="flex-1 overflow-y-auto">
+      <Suspense>
+        <Banners />
+      </Suspense>
+      
+      {/* CỤM ACTIONS VÀ KHU VỰC ĐƠN HÀNG ĐÃ ĐƯỢC XÓA HOÀN TOÀN */}
 
-/**
- * Component cha của trang chủ.
- * Chịu trách nhiệm xử lý trạng thái chờ (loading) trong khi ứng dụng
- * tìm nạp dữ liệu, mang lại trải nghiệm mượt mà.
- */
-const HomePage: React.FC = () => {
-  return (
-    <Suspense fallback={<PageSkeleton />}>
-      <HomePageContent />
-    </Suspense>
+      <div className="mb-4" />
+      <Suspense>
+        <Categories categories={categories} />
+      </Suspense>
+      <div className="mb-4" />
+      <FlashSales products={products} />
+      <div className="mb-4" />
+      <AllProducts products={products} />
+    </div>
   );
 };
 

@@ -1,6 +1,6 @@
 import Carousel from "@/components/carousel";
-import { useAtomValue } from "jotai";
 import { bannersState } from "@/state";
+import { useAtomValue } from "jotai";
 import { loadable } from "jotai/utils";
 
 const loadableBannersState = loadable(bannersState);
@@ -8,15 +8,18 @@ const loadableBannersState = loadable(bannersState);
 export default function Banners() {
   const bannersLoadable = useAtomValue(loadableBannersState);
 
-  if (bannersLoadable.state === 'loading') {
-    return <div className="w-full h-32 bg-gray-200 rounded"></div>; // Simple skeleton
+  if (bannersLoadable.state === "loading") {
+    // Hiển thị khung xương (skeleton) trong khi chờ tải dữ liệu
+    return <div className="h-30 w-full rounded bg-gray-200"></div>;
   }
 
-  if (bannersLoadable.state === 'hasError') {
+  if (bannersLoadable.state === "hasError") {
+    // Xử lý và thông báo lỗi nếu không tải được banner
     console.error("Error loading banners:", bannersLoadable.error);
-    return <div>Error loading banners.</div>; // Basic error message
+    return <div>Error loading banners.</div>;
   }
 
+  // Hiển thị Carousel với dữ liệu banner đã tải thành công
   return (
     <Carousel
       slides={bannersLoadable.data.map((banner) => (

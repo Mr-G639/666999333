@@ -1,4 +1,3 @@
-// src/components/section.tsx
 
 import { FC, PropsWithChildren, ReactNode } from "react";
 import { Box, Text } from "zmp-ui";

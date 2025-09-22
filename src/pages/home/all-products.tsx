@@ -15,7 +15,7 @@ const AllProducts: FC<AllProductsProps> = ({ products }) => {
     // Sửa: Xóa prop 'padding' và thêm class p-4
     <Section title="Tất cả sản phẩm" className="bg-white p-4">
       {products.length === 0 ? (
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-2 gap-3">
           {Array.from(new Array(8)).map((_, i) => <ProductItemSkeleton key={i} />)}
         </div>
       ) : (

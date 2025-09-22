@@ -22,7 +22,7 @@ const FlashSales: React.FC<FlashSalesProps> = ({ products }) => {
       {/* scrollbar-hide là một tiện ích tùy chỉnh để ẩn thanh cuộn cho giao diện sạch sẽ hơn */}
       <div className="overflow-x-auto scrollbar-hide">
         {/* Dùng inline-flex để các item con xếp thành một hàng duy nhất */}
-        <div className="inline-flex space-x-4 p-4 pl-0">
+        <div className="inline-flex space-x-1 p-0 pl-0">
           {products.length === 0
             ? // Hiển thị skeleton loading khi đang chờ dữ liệu
               Array.from(new Array(4)).map((_, i) => (

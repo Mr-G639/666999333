@@ -2,10 +2,9 @@
 
 import React from "react";
 import { Link } from "react-router-dom";
-import { Box, Text } from "zmp-ui";
+import { Text } from "zmp-ui";
 import { Category } from "@/types";
 import Section from "@/components/section";
-import SeeMoreIcon from "@/static/see-more.png"; // Tạo một icon "Tất cả"
 
 interface CategoriesProps {
   categories: Category[];
