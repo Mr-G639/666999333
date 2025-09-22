@@ -1,27 +1,27 @@
 // src/pages/home/all-products.tsx
 
-import React from "react";
-import { Box, Text } from "zmp-ui";
-import ProductItem from "@/components/product-item";
-import { Product } from "@/types";
+import { FC } from "react";
+import { Product } from "../../types";
+import ProductGrid from "../../components/product-grid";
+import { ProductItemSkeleton } from "../../components/skeleton";
+import Section from "../../components/section";
 
 interface AllProductsProps {
   products: Product[];
 }
 
-const AllProducts: React.FC<AllProductsProps> = ({ products }) => {
+const AllProducts: FC<AllProductsProps> = ({ products }) => {
   return (
-    <Box className="bg-white">
-      <Box p={4}>
-        <Text.Title size="small">Tất cả sản phẩm</Text.Title>
-      </Box>
-      {/* SỬA LỖI: Thêm class grid để tạo layout lưới 2 cột */}
-      <div className="p-4 grid grid-cols-2 gap-4">
-        {products.map((product) => (
-          <ProductItem key={product.id} product={product} />
-        ))}
-      </div>
-    </Box>
+    // Sửa: Xóa prop 'padding' và thêm class p-4
+    <Section title="Tất cả sản phẩm" className="bg-white p-4">
+      {products.length === 0 ? (
+        <div className="grid grid-cols-2 gap-4">
+          {Array.from(new Array(8)).map((_, i) => <ProductItemSkeleton key={i} />)}
+        </div>
+      ) : (
+        <ProductGrid products={products} />
+      )}
+    </Section>
   );
 };
 

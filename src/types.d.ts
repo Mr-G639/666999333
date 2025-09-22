@@ -43,6 +43,10 @@ export interface Product {
   category: Category;
   detail?: string;
   soldCount?: number;
+  // Bổ sung thuộc tính sale để chứa thông tin khuyến mãi
+  sale?: {
+    isFlashSale: boolean;
+  };
 }
 
 /**
