@@ -1,19 +1,29 @@
 // src/api/categories.ts
 
-// Sửa lỗi: Import biến `categories` từ file TypeScript './mock/categories.ts'
-// và đổi tên thành `categoriesData` để sử dụng trong hàm.
-import { categories as categoriesData } from '../mock/categories';
-import { Category } from '@/types';
+import { Category } from "@/types";
+import { categories as rawCategories } from "../mock/categories";
 
 /**
- * Giả lập một cuộc gọi API để lấy danh sách tất cả các danh mục sản phẩm.
- * @returns {Promise<Category[]>} Một promise chứa một mảng các danh mục.
+ * [HELPER] Giả lập độ trễ của một cuộc gọi mạng.
+ * @param ms - Thời gian chờ (tính bằng mili giây).
  */
-export const getAllCategories = async (): Promise<Category[]> => {
-  // Giả lập độ trễ mạng để giống với một cuộc gọi API thực tế.
-  await new Promise(resolve => setTimeout(resolve, 500));
+const simulateApiDelay = (ms: number = 500): Promise<void> => {
+  return new Promise(resolve => setTimeout(resolve, ms));
+};
+
+/**
+ * [API MOCK] Giả lập API lấy danh sách tất cả các danh mục sản phẩm.
+ * * @returns Một Promise chứa một mảng các đối tượng Category.
+ */
+export const getCategories = async (): Promise<Category[]> => {
+  await simulateApiDelay();
+
+  // Biến đổi dữ liệu thô từ mock để phù hợp với kiểu `Category`
+  const categories: Category[] = rawCategories.map(category => ({
+    ...category,
+    // Trong tương lai, có thể thêm các logic xử lý khác ở đây nếu cần.
+  }));
   
-  // Dữ liệu `categoriesData` được import trực tiếp đã có cấu trúc tương thích.
-  // Chỉ cần ép kiểu để đảm bảo TypeScript hiểu đúng.
-  return categoriesData as Category[];
+  // SỬA LỖI: Trả về đúng danh sách danh mục thay vì mảng rỗng.
+  return categories; 
 };

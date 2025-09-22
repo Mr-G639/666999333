@@ -1,6 +1,6 @@
+import React, { useEffect, useState } from "react";
 import { Button } from "zmp-ui";
 import { MinusIcon, PlusIcon } from "./vectors";
-import { useEffect, useState } from "react";
 
 export interface QuantityInputProps {
   value: number;
@@ -8,12 +8,45 @@ export interface QuantityInputProps {
   minValue?: number;
 }
 
-export default function QuantityInput(props: QuantityInputProps) {
-  const [localValue, setLocalValue] = useState(String(props.value));
+const QuantityInput: React.FC<QuantityInputProps> = ({
+  value,
+  onChange,
+  minValue = 0, // Đặt giá trị mặc định cho minValue
+}) => {
+  const [localValue, setLocalValue] = useState(String(value));
 
+  // Đồng bộ state nội bộ khi prop `value` từ bên ngoài thay đổi
   useEffect(() => {
-    setLocalValue(String(props.value));
-  }, [props.value]);
+    setLocalValue(String(value));
+  }, [value]);
+
+  // Xử lý khi người dùng thay đổi giá trị trong input
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    // Chỉ cho phép nhập số
+    const numericValue = e.target.value.replace(/[^0-9]/g, "");
+    setLocalValue(numericValue);
+  };
+
+  // Xử lý khi người dùng rời khỏi input (onBlur)
+  const handleBlur = () => {
+    const finalValue = Math.max(minValue, Number(localValue) || minValue);
+    if (finalValue !== value) {
+      onChange(finalValue);
+    }
+    setLocalValue(String(finalValue)); // Đảm bảo giá trị hiển thị luôn đúng
+  };
+
+  // Xử lý khi nhấn nút giảm số lượng
+  const handleDecrement = (e: React.MouseEvent) => {
+    e.stopPropagation(); // Ngăn sự kiện click lan ra ngoài
+    onChange(Math.max(minValue, value - 1));
+  };
+
+  // Xử lý khi nhấn nút tăng số lượng
+  const handleIncrement = (e: React.MouseEvent) => {
+    e.stopPropagation(); // Ngăn sự kiện click lan ra ngoài
+    onChange(value + 1);
+  };
 
   return (
     <div className="w-full flex items-center">
@@ -21,36 +54,31 @@ export default function QuantityInput(props: QuantityInputProps) {
         size="small"
         variant="tertiary"
         className="min-w-0 aspect-square"
-        onClick={(e) => {
-          e.stopPropagation(); // Ngăn sự kiện click lan ra ngoài
-          props.onChange(Math.max(props.minValue ?? 0, props.value - 1));
-        }}
+        onClick={handleDecrement}
       >
         <MinusIcon width={14} height={14} />
       </Button>
       <input
-        style={{ width: `calc(${String(props.value).length}ch + 16px)` }}
+        style={{ width: `calc(${localValue.length}ch + 16px)` }}
         className="flex-1 text-center font-medium text-xs px-2 focus:outline-none [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
         type="number"
         inputMode="numeric"
         value={localValue}
-        onChange={(e) => setLocalValue(e.currentTarget.value)}
-        onBlur={() =>
-          props.onChange(Math.max(props.minValue ?? 0, Number(localValue)))
-        }
-        onClick={(e) => e.stopPropagation()} // Ngăn sự kiện click trên input
+        onChange={handleInputChange}
+        onBlur={handleBlur}
+        onClick={(e) => e.stopPropagation()}
       />
       <Button
         size="small"
         variant="tertiary"
         className="min-w-0 aspect-square"
-        onClick={(e) => {
-          e.stopPropagation(); // Ngăn sự kiện click lan ra ngoài
-          props.onChange(props.value + 1);
-        }}
+        onClick={handleIncrement}
       >
         <PlusIcon width={14} height={14} />
       </Button>
     </div>
   );
-}
+};
+
+// Tối ưu hóa hiệu năng bằng React.memo
+export default React.memo(QuantityInput);

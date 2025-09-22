@@ -51,7 +51,7 @@ export interface Product {
 export interface Category {
   id: number;
   name: string;
-  image: string;
+  icon: string; // Sửa lại từ 'image' thành 'icon' để khớp với component
 }
 
 /**
@@ -113,7 +113,7 @@ export interface Station {
   id: number;
   name: string;
   image: string;
-  address: string; // Sửa lỗi: Bổ sung thuộc tính `address` còn thiếu.
+  address: string;
   location: Location;
 }
 
@@ -147,8 +147,8 @@ export interface Order {
   id: number;
   status: OrderStatus;
   paymentStatus: PaymentStatus;
-  createdAt: string; // Sửa lỗi: Chuyển từ Date sang string để nhất quán với dữ liệu JSON
-  receivedAt: string; // Sửa lỗi: Chuyển từ Date sang string
+  createdAt: string;
+  receivedAt: string;
   items: CartItem[];
   delivery: Delivery;
   total: number;
@@ -178,6 +178,7 @@ export interface Voucher {
   type: VoucherType;
   value: number;
   condition?: string;
+  discountValue?: number; // SỬA LỖI: Bổ sung thuộc tính này
 }
 
 /**
@@ -217,6 +218,19 @@ export interface ReferralOrder {
   paymentStatus: PaymentStatus;
   commissionStatus: TransactionStatus;
   date: string;
+}
+
+// ==================================================================
+// SECTION: BANNER & KHÁC
+// ==================================================================
+
+/**
+ * Đại diện cho một banner quảng cáo.
+ */
+export interface Banner {
+  id: number;
+  image: string;
+  link?: string;
 }
 
 

@@ -119,10 +119,8 @@ export const phoneState = atom(async () => {
 export const bannersState = atom(() => requestWithFallback<string[]>("/banners", []));
 
 export const categoriesState = atom<Promise<Category[]>>(async () => {
-  return mockCategoriesData.map(category => ({
-    ...category,
-    image: getImageUrlFromModule(category.image as any),
-  }));
+  // SỬA LỖI: Dữ liệu mock đã đúng định dạng, chỉ cần trả về
+  return mockCategoriesData;
 });
 
 export const categoriesStateUpwrapped = unwrap(categoriesState, (prev) => prev ?? []);

@@ -1,31 +1,69 @@
-// src/pages/catalog/product-detail.tsx
-
-import HorizontalDivider from "@/components/horizontal-divider";
-import { useAtom, useAtomValue } from "jotai";
+import React, { ReactNode, Suspense, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { productState, favoriteProductsState } from "@/state";
-import { formatPrice } from "@/utils/format";
-import ShareButton from "./share-buttont";
-import RelatedProducts from "./related-products";
-import { useCartActions } from "@/hooks/useCart";
+import { useAtom, useAtomValue } from "jotai";
+import toast from "react-hot-toast";
 import { Button } from "zmp-ui";
+
+import { favoriteProductsState, productState } from "@/state";
+import { useCartActions } from "@/hooks/useCart";
+import { formatPrice } from "@/utils/format";
+
 import Section from "@/components/section";
 import Carousel from "@/components/carousel";
-import { ReactNode, useState, Suspense, useMemo } from "react";
 import { HeartIcon } from "@/components/vectors";
+import HorizontalDivider from "@/components/horizontal-divider";
 import { ProductGridSkeleton } from "@/components/skeleton";
-import toast from "react-hot-toast";
+
+import RelatedProducts from "./related-products";
 import ProductReviewsSummary from "./product-reviews/summary";
-// --- THAY ĐỔI: Xóa import form đánh giá ---
+
+const ShareButton: React.FC<{ product: any }> = ({ product }) => {
+  const handleShare = async () => {
+    const shareUrl = `${window.location.origin}/product/${product.id}`;
+    const shareData = {
+      title: product.name,
+      text: product.name,
+      url: shareUrl,
+    };
+
+    if (navigator.share) {
+      try {
+        await navigator.share(shareData);
+      } catch {
+        // user cancelled or share failed silently
+      }
+      return;
+    }
+
+    // fallback: copy link to clipboard
+    try {
+      await navigator.clipboard.writeText(shareUrl);
+      toast.success("Đã sao chép liên kết");
+    } catch {
+      toast.error("Không thể chia sẻ");
+    }
+  };
+
+  return (
+    <button
+      type="button"
+      onClick={handleShare}
+      className="w-full h-9 rounded bg-gray-100 text-gray-700"
+    >
+      Chia sẻ
+    </button>
+  );
+};
 
 function ProductDetailContent() {
   const { id } = useParams();
   const product = useAtomValue(productState(Number(id)));
   const [favorites, setFavorites] = useAtom(favoriteProductsState);
-  const navigate = useNavigate();
-  const [isMuted, setIsMuted] = useState(true);
-  const [activeSlideIndex, setActiveSlideIndex] = useState(0);
   const { addToCart } = useCartActions();
+  const navigate = useNavigate();
+
+  const [isMuted] = useState(true);
+  const [, setActiveSlideIndex] = useState(0);
 
   if (!product) {
     return <ProductGridSkeleton />;
@@ -34,25 +72,17 @@ function ProductDetailContent() {
   const isFavorited = favorites.includes(product.id);
 
   const toggleFavorite = () => {
-    // 1. Xác định nội dung thông báo dựa trên trạng thái hiện tại
     const message = isFavorited
       ? "Đã xóa khỏi danh sách yêu thích"
       : "Đã thêm vào danh sách yêu thích";
+    
+    toast.success(message, { id: 'favorite-toast' });
 
-    // 2. Hiển thị thông báo thành công với một ID cụ thể
-    // Thư viện sẽ tự động cập nhật thông báo có cùng ID này thay vì tạo mới
-    toast.success(message, {
-      id: 'favorite-toast', // ID duy nhất cho thông báo này
-    });
-
-    // 3. Cập nhật lại trạng thái yêu thích
-    setFavorites((prev) => {
-      if (isFavorited) {
-        return prev.filter((favId) => favId !== product.id);
-      } else {
-        return [...prev, product.id];
-      }
-    });
+    setFavorites((prev) =>
+      isFavorited
+        ? prev.filter((favId) => favId !== product.id)
+        : [...prev, product.id]
+    );
   };
   
   const mediaSlides: ReactNode[] = useMemo(() => {
@@ -62,10 +92,7 @@ function ProductDetailContent() {
         <video
           key="product-video"
           src={product.video}
-          playsInline
-          autoPlay
-          muted={isMuted}
-          loop
+          playsInline autoPlay muted={isMuted} loop
           className="w-full aspect-square object-cover rounded-lg"
         />
       );
@@ -77,12 +104,6 @@ function ProductDetailContent() {
           src={imgSrc}
           alt={product.name}
           className="w-full aspect-square object-cover rounded-lg"
-          style={{
-            viewTransitionName:
-              i === 0 && !product.video
-                ? `product-image-${product.id}`
-                : undefined,
-          }}
         />
       );
     });
@@ -96,24 +117,27 @@ function ProductDetailContent() {
     return null;
   }, [product.price, product.originalPrice]);
 
+  const handleBuyNow = () => {
+    addToCart(product, 1);
+    navigate("/cart", { viewTransition: true });
+  };
+
+  const handleAddToCart = () => {
+    addToCart(product, 1, { toast: true });
+  };
 
   return (
     <div className="w-full h-full flex flex-col bg-section">
       <div className="flex-1 overflow-y-auto">
         <div className="relative">
-          <Carousel
-            slides={mediaSlides}
-            onSlideChange={setActiveSlideIndex}
-          />
+          <Carousel slides={mediaSlides} onSlideChange={setActiveSlideIndex} />
         </div>
 
         <div className="p-4 space-y-4">
           <div className="bg-red-50 rounded-lg p-3 text-foreground">
             <div className="flex justify-between items-center">
               <div className="flex items-center space-x-2">
-                <span className="text-red-600 text-2xl font-bold">
-                  {formatPrice(product.price)}
-                </span>
+                <span className="text-red-600 text-2xl font-bold">{formatPrice(product.price)}</span>
                 {discountPercent !== null && (
                   <span className="text-xs bg-red-100 text-red-600 font-medium px-2 py-0.5 rounded">
                     GIẢM {discountPercent}%
@@ -121,17 +145,12 @@ function ProductDetailContent() {
                 )}
               </div>
               {product.soldCount && (
-                <span className="text-sm text-gray-600">
-                  Đã bán {product.soldCount}+
-                </span>
+                <span className="text-sm text-gray-600">Đã bán {product.soldCount}+</span>
               )}
             </div>
-
             {product.originalPrice && (
               <div className="mt-1">
-                <span className="text-gray-500 line-through">
-                  {formatPrice(product.originalPrice)}
-                </span>
+                <span className="text-gray-500 line-through">{formatPrice(product.originalPrice)}</span>
               </div>
             )}
           </div>
@@ -141,10 +160,7 @@ function ProductDetailContent() {
           </div>
 
           <div className="flex items-center space-x-2">
-            <Button
-              className="flex-none !bg-red-100 !text-red-500 h-9 aspect-square"
-              onClick={toggleFavorite}
-            >
+            <Button className="flex-none !bg-red-100 !text-red-500 h-9 aspect-square" onClick={toggleFavorite}>
               <HeartIcon active={isFavorited} className="w-6 h-6" />
             </Button>
             <div className="flex-1">
@@ -157,8 +173,6 @@ function ProductDetailContent() {
         <Suspense fallback={<div className="p-4">Đang tải đánh giá...</div>}>
           <ProductReviewsSummary productId={product.id} />
         </Suspense>
-
-        {/* --- THAY ĐỔI: Xóa bỏ hoàn toàn Section chứa form đánh giá --- */}
         
         {product.detail && (
           <>
@@ -179,22 +193,10 @@ function ProductDetailContent() {
 
       <HorizontalDivider />
       <div className="flex-none grid grid-cols-2 gap-2 py-3 px-4 bg-section">
-        <Button
-          variant="tertiary"
-          onClick={() => {
-            addToCart(product, 1, { toast: true });
-          }}
-        >
+        <Button variant="tertiary" onClick={handleAddToCart}>
           Thêm vào giỏ
         </Button>
-        <Button
-          onClick={() => {
-            addToCart(product, 1);
-            navigate("/cart", {
-              viewTransition: true,
-            });
-          }}
-        >
+        <Button onClick={handleBuyNow}>
           Mua ngay
         </Button>
       </div>
@@ -202,10 +204,13 @@ function ProductDetailContent() {
   );
 }
 
-export default function ProductDetailPage() {
+// Sửa lỗi 2: Thêm kiểu React.FC cho nhất quán
+const ProductDetailPage: React.FC = () => {
   return (
     <Suspense fallback={<ProductGridSkeleton />}>
       <ProductDetailContent />
     </Suspense>
   );
-}
+};
+
+export default ProductDetailPage;

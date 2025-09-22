@@ -1,57 +1,51 @@
-// File: src/pages/home/index.tsx
+// src/pages/home/index.tsx
+
+import React, { useEffect, useState } from "react";
+import { Box, Page } from "zmp-ui";
+import { getCategories } from "@/api/categories";
+import { getAllProducts } from "@/api/products"; // Sửa lỗi 1: Import đúng tên hàm
+import { Category, Product } from "@/types";
 
 import Banners from "./banners";
-import Category from "./category";
+import Categories from "./category";
 import FlashSales from "./flash-sales";
 import AllProducts from "./all-products";
-import CategorySlider from "@/components/category-slider"; // <-- Thêm import
-import { useAtomValue } from "jotai"; // <-- Thêm import
-import { mainScrollState } from "@/state"; // <-- Thêm import
-import { useLayoutEffect, useRef, useState } from "react"; // <-- Thêm import
+import Header from "@/components/header";
 
-const HomePage: React.FunctionComponent = () => {
-  const scrollY = useAtomValue(mainScrollState);
-  const categoryRef = useRef<HTMLDivElement>(null);
-  
-  const [categoryHeaderPosition, setCategoryHeaderPosition] = useState(0);
-  const [showStickySlider, setShowStickySlider] = useState(false);
+const HomePage: React.FC = () => {
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [products, setProducts] = useState<Product[]>([]);
 
-  // Lấy vị trí của component Category gốc sau khi nó được render
-  useLayoutEffect(() => {
-    if (categoryRef.current) {
-      setCategoryHeaderPosition(categoryRef.current.offsetTop + categoryRef.current.offsetHeight);
-    }
+  // Refactor và Sửa lỗi 2: Tối ưu hóa việc gọi API
+  useEffect(() => {
+    // Gọi API lấy danh mục sản phẩm
+    getCategories().then(setCategories).catch(error => {
+      console.error("Failed to fetch categories:", error);
+    });
+
+    // Gọi API lấy danh sách tất cả sản phẩm
+    getAllProducts().then(res => {
+      // Xử lý đúng response trả về từ API (có phân trang)
+      setProducts(res.data);
+    }).catch(error => {
+      console.error("Failed to fetch products:", error);
+    });
   }, []);
-  
-  // Quyết định khi nào hiển thị slider dính
-  useLayoutEffect(() => {
-    if (categoryHeaderPosition > 0) {
-      setShowStickySlider(scrollY > categoryHeaderPosition);
-    }
-  }, [scrollY, categoryHeaderPosition]);
+
+  const CategoriesComponent = Categories as unknown as React.ComponentType<{ categories: Category[] }>;
+  const FlashSalesComponent = FlashSales as unknown as React.ComponentType<{ products: Product[] }>;
+  const AllProductsComponent = AllProducts as unknown as React.ComponentType<{ products: Product[] }>;
 
   return (
-    <div className="min-h-full space-y-2 pb-2 relative">
-      {/* Thanh danh mục dính, chỉ hiển thị khi cần */}
-      <div 
-        className={`sticky top-0 z-10 bg-background shadow-md transition-transform duration-300 ${
-          showStickySlider ? 'translate-y-0' : '-translate-y-full'
-        }`}
-      >
-        <CategorySlider />
-      </div>
-
-      {/* Gắn ref vào component Category gốc để lấy vị trí */}
-      <div ref={categoryRef}>
-        <Category />
-      </div>
-      
-      <div className="bg-section">
+    <Page className="relative flex-1 flex flex-col bg-white">
+      <Header />
+      <Box className="flex-1 overflow-auto">
         <Banners />
-      </div>
-      <FlashSales />
-      <AllProducts />
-    </div>
+        <CategoriesComponent categories={categories} />
+        <FlashSalesComponent products={products} />
+        <AllProductsComponent products={products} />
+      </Box>
+    </Page>
   );
 };
 
