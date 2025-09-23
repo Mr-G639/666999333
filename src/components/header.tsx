@@ -84,7 +84,7 @@ export default function Header() {
                   <MarqueeText text={marqueeString} />
                 </div>
                 <div className="flex w-full items-center justify-between">
-                  <div className="flex items-center space-x-2">
+                  <div className="flex items-center space-x-3">
                     <OrderStatusItem label="Đã thanh toán" count={orderStatusCounts.paid} onClick={() => navigate("/orders/paid")} />
                     <OrderStatusItem label="Đang vận chuyển" count={orderStatusCounts.shipping} onClick={() => navigate("/orders/shipping")} />
                     <OrderStatusItem label="Lịch sử" count={0} onClick={() => navigate("/orders/history")} />
