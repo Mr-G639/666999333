@@ -1,6 +1,6 @@
 // src/router.tsx
 
-import { createBrowserRouter, Params } from "react-router-dom";
+import { createBrowserRouter, createRoutesFromElements, Route, Params } from "react-router-dom";
 import { lazy } from "react";
 
 // Utils & Layout
@@ -8,7 +8,7 @@ import Layout from "@/components/layout";
 import { getBasePath } from "@/utils/zma";
 import { Category } from "./types";
 
-// Tối ưu hiệu năng: Sử dụng React.lazy để tải các trang khi cần thiết (code-splitting).
+// Pages
 const HomePage = lazy(() => import("@/pages/home"));
 const CartPage = lazy(() => import("@/pages/cart"));
 const CategoryDetailPage = lazy(() => import("@/pages/catalog/category-detail"));
@@ -32,79 +32,46 @@ const WishlistPage = lazy(() => import("./pages/profile/wishlist"));
 const ReviewsListPage = lazy(() => import("./pages/catalog/product-reviews/ReviewsListPage"));
 const FlashSalePage = lazy(() => import("@/pages/flash-sale"));
 const SearchPage = lazy(() => import("@/pages/search"));
-// --- THAY ĐỔI TẠI ĐÂY ---
-// Cập nhật đường dẫn import cho trang Affiliate
-// Ensure the imported module conforms to React.lazy's expected shape { default: Component }
 const AffiliatePage = lazy(() =>
   import("./pages/profile/affiliate").then((m) => ({
-    // support modules that export default or a named export like Affiliate or AffiliatePage
     default: (m as any).default ?? (m as any).Affiliate ?? (m as any).AffiliatePage,
   }))
 );
 
-// Refactor: Nhóm các route lại với nhau để dễ quản lý.
-const mainRoutes = [
-  { path: "/", element: <HomePage />, handle: { logo: true, search: true } },
-  { path: "/categories", element: <CategoryListPage />, handle: { title: "Danh mục", noBack: true } },
-  { path: "/category/:id", element: <CategoryDetailPage />, handle: { search: true, title: ({ categories, params }: { categories: Category[], params: Params<string> }) => categories.find((c) => String(c.id) === params.id)?.name } },
-  { path: "/product/:id", element: <ProductDetailPage />, handle: { scrollRestoration: 0, noFloatingCart: true } },
-  { path: "/product/:id/reviews", element: <ReviewsListPage />, handle: { title: "Tất cả đánh giá", noFooter: true, noFloatingCart: true } },
-  { path: "/flash-sale", element: <FlashSalePage />, handle: { title: "Flash Sale", noBack: true, search: true } },
-  { path: "/search", element: <SearchPage />, handle: { noHeader: true, noFooter: true } }, // noHeader để dùng header riêng
-];
+export const router = createBrowserRouter(
+  createRoutesFromElements(
+    <Route path="/" element={<Layout />}>
+      {/* === CÁC TRANG CÓ HIỂN THỊ HEADER === */}
+      <Route index element={<HomePage />} handle={{ search: true, noBack: true }} />
+      <Route path="/product/:id" element={<ProductDetailPage />} handle={{ search: true, noFloatingCart: true }} />
+      
+      {/* SỬA LỖI: Thêm 'backTo: "/"' để nút back luôn về trang chủ */}
+      <Route path="/cart" element={<CartPage />} handle={{ search: true, noFloatingCart: true, backTo: "/" }} />
+      <Route path="/flash-sale" element={<FlashSalePage />} handle={{ search: true, backTo: "/" }} />
 
-const orderRoutes = [
-  { path: "/orders/:status?", element: <OrdersPage title="Đơn hàng">{null}</OrdersPage>, handle: { title: "Đơn hàng", noBack: true } },
-  { path: "/order/:id", element: <OrderDetailPage />, handle: { title: "Thông tin đơn hàng" } },
-];
-
-const cartRoutes = [
-  { path: "/cart", element: <CartPage />, handle: { title: "Giỏ hàng", noBack: true, noFloatingCart: true } },
-  { path: "/vouchers", element: <VoucherSelectionPage />, handle: { title: "Chọn voucher", noFooter: true } },
-  { path: "/shipping-address", element: <ShippingAddressPage />, handle: { title: "Địa chỉ nhận hàng", noFooter: true, noFloatingCart: true } },
-  { path: "/stations", element: <StationsPage />, handle: { title: "Điểm nhận hàng", noFooter: true } },
-];
-
-const profileRoutes = [
-  { path: "/profile", element: <ProfilePage />, handle: { logo: true, noBack: true } },
-  { path: "/profile/edit", element: <ProfileEditorPage />, handle: { title: "Thông tin tài khoản", noFooter: true, noFloatingCart: true } },
-  { path: "/profile/wishlist", element: <WishlistPage />, handle: { title: "Sản phẩm yêu thích", noFooter: true, noFloatingCart: true } },
-  { path: "/profile/vouchers", element: <VouchersPage />, handle: { title: "Ví Voucher", noFooter: true, noFloatingCart: true } },
-  { path: "/profile/redeem", element: <RedeemPage />, handle: { noFooter: true, noFloatingCart: true } },
-  { 
-    path: "/profile/affiliate", 
-    element: <AffiliatePage />, 
-    handle: { 
-      title: "AFF 1 Click", 
-      noFooter: true, 
-      noFloatingCart: true 
-    } 
-  },
-  // Các route liên quan đến rút tiền vẫn được giữ lại để sử dụng trong trang AFF 1 Click
-  { path: "/profile/transaction/:id", element: <WithdrawalDetailPage />, handle: { noFooter: true, noFloatingCart: true } },
-  { path: "/profile/bank-info", element: <BankInfoPage />, handle: { noFooter: true, noFloatingCart: true } },
-  { path: "/profile/withdrawal", element: <WithdrawalPage />, handle: { noFooter: true, noFloatingCart: true } },
-];
-
-const authRoutes = [
-  { path: "/login", element: <LoginPage />, handle: { title: "Đăng nhập", noFooter: true, noFloatingCart: true } },
-  { path: "/register", element: <RegisterPage />, handle: { title: "Đăng ký", noFooter: true, noFloatingCart: true } },
-];
-
-const router = createBrowserRouter(
-  [
-    {
-      path: "/",
-      element: <Layout />,
-      children: [
-        ...mainRoutes,
-        ...orderRoutes,
-        ...cartRoutes,
-        ...profileRoutes,
-        ...authRoutes,
-      ],
-    },
-  ],
+      {/* === CÁC TRANG BỊ ẨN HEADER === */}
+      <Route path="/categories" element={<CategoryListPage />} handle={{ noHeader: true }} />
+      <Route path="/category/:id" element={<CategoryDetailPage />} handle={{ noHeader: true, title: ({ categories, params }: { categories: Category[], params: Params<string> }) => categories.find((c) => String(c.id) === params.id)?.name } } />
+      <Route path="/product/:id/reviews" element={<ReviewsListPage />} handle={{ noHeader: true }} />
+      <Route path="/search" element={<SearchPage />} handle={{ noHeader: true }} />
+      <Route path="/orders/:status?" element={<OrdersPage title="Đơn hàng">{null}</OrdersPage>} handle={{ noHeader: true }} />
+      <Route path="/order/:id" element={<OrderDetailPage />} handle={{ noHeader: true }} />
+      <Route path="/vouchers" element={<VoucherSelectionPage />} handle={{ noHeader: true }} />
+      <Route path="/shipping-address" element={<ShippingAddressPage />} handle={{ noHeader: true }} />
+      <Route path="/stations" element={<StationsPage />} handle={{ noHeader: true }} />
+      <Route path="/profile" element={<ProfilePage />} handle={{ noHeader: true }} />
+      <Route path="/profile/edit" element={<ProfileEditorPage />} handle={{ noHeader: true }} />
+      <Route path="/profile/wishlist" element={<WishlistPage />} handle={{ noHeader: true }} />
+      <Route path="/profile/vouchers" element={<VouchersPage />} handle={{ noHeader: true }} />
+      <Route path="/profile/redeem" element={<RedeemPage />} handle={{ noHeader: true }} />
+      <Route path="/profile/affiliate" element={<AffiliatePage />} handle={{ noHeader: true }} />
+      <Route path="/profile/transaction/:id" element={<WithdrawalDetailPage />} handle={{ noHeader: true }} />
+      <Route path="/profile/bank-info" element={<BankInfoPage />} handle={{ noHeader: true }} />
+      <Route path="/profile/withdrawal" element={<WithdrawalPage />} handle={{ noHeader: true }} />
+      <Route path="/login" element={<LoginPage />} handle={{ noHeader: true }} />
+      <Route path="/register" element={<RegisterPage />} handle={{ noHeader: true }} />
+    </Route>
+  ),
   { basename: getBasePath() }
 );
 

@@ -1,6 +1,6 @@
 // src/components/layout.tsx
 
-import { Outlet, useLocation, useNavigate } from "react-router-dom";
+import { Outlet, useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import Header from "./header";
 import Footer from "./footer";
 import { Suspense, useEffect } from "react";
@@ -11,55 +11,54 @@ import FloatingCartPreview from "./floating-cart-preview";
 import { useDrag } from "@use-gesture/react";
 import { useSpring, animated } from "@react-spring/web";
 import { useSetAtom } from "jotai";
-import { mainScrollState } from "@/state";
+import { mainScrollState, searchOverlayVisibleState } from "@/state";
+import { SearchOverlay } from "./search-overlay";
 
 // Hằng số cấu hình cho cử chỉ vuốt
-const SWIPE_THRESHOLD_PERCENT = 0.3; // Tỷ lệ vuốt tối thiểu để kích hoạt hành động
-const EDGE_THRESHOLD_PX = 40; // Vùng cạnh màn hình để bắt đầu cử chỉ
-const DRAG_ACTIVATION_THRESHOLD_PX = 10; // Ngưỡng kéo tối thiểu để cử chỉ được nhận diện
+const SWIPE_THRESHOLD_PERCENT = 0.3;
+const EDGE_THRESHOLD_PX = 40;
+const DRAG_ACTIVATION_THRESHOLD_PX = 10;
 
-/**
- * Layout chính của ứng dụng, đóng vai trò là "bộ khung" cho tất cả các trang.
- * - Cung cấp Header, Footer, và khu vực nội dung chính.
- * - Tích hợp cử chỉ vuốt từ cạnh trái để quay lại trang trước.
- * - Quản lý các thành phần global như Toaster (thông báo) và Giỏ hàng nổi.
- * - Theo dõi và cập nhật vị trí cuộn của trang vào state toàn cục.
- */
 export default function Layout() {
   const navigate = useNavigate();
   const location = useLocation();
-  const canGoBack = location.key !== "default"; // Kiểm tra xem có trang trước đó trong lịch sử không
+  const canGoBack = location.key !== "default";
 
   const setScrollY = useSetAtom(mainScrollState);
+  
+  // SỬA LỖI: Lấy hàm `set` state và `searchParams` từ URL
+  const setSearchOverlayVisible = useSetAtom(searchOverlayVisibleState);
+  const [searchParams] = useSearchParams();
 
-  // Thiết lập animation cho việc kéo thả trang
+  // SỬA LỖI: Thêm useEffect để đồng bộ trạng thái của Lớp phủ tìm kiếm với URL
+  useEffect(() => {
+    if (searchParams.get("search") === "true") {
+      setSearchOverlayVisible(true);
+    } else {
+      setSearchOverlayVisible(false);
+    }
+  }, [searchParams, setSearchOverlayVisible]);
+
   const [{ x }, api] = useSpring(() => ({
     x: 0,
     config: { tension: 250, friction: 30 },
   }));
 
-  // Reset vị trí animation mỗi khi chuyển trang
   useEffect(() => {
     api.start({ x: 0, immediate: true });
   }, [location.key, api]);
 
-  // Gắn logic xử lý cử chỉ vuốt
   const bind = useDrag(
     ({ down, movement: [mx], initial: [ix], velocity: [vx], last }) => {
-      // Bỏ qua nếu không thể quay lại, hoặc nếu bắt đầu vuốt quá xa cạnh màn hình
       if (!canGoBack || (down && ix > EDGE_THRESHOLD_PX)) return;
 
       if (last) {
-        // Nếu người dùng đã thả tay
         if (mx > window.innerWidth * SWIPE_THRESHOLD_PERCENT || vx > 0.5) {
-          // Nếu vuốt đủ xa hoặc đủ nhanh, thực hiện hành động quay lại
           navigate(-1);
         } else {
-          // Nếu không, trả về vị trí cũ
           api.start({ x: 0 });
         }
       } else {
-        // Khi đang vuốt, cập nhật vị trí trang theo tay người dùng
         api.start({ x: Math.max(mx, 0), immediate: true });
       }
     },
@@ -71,10 +70,9 @@ export default function Layout() {
 
   return (
     <div className="w-screen h-screen flex flex-col bg-section text-foreground overflow-x-hidden">
-      {/* Container cho phép animation và nhận diện cử chỉ */}
       <animated.div
         {...bind()}
-        style={{ x, touchAction: 'pan-y' }} // touchAction để trình duyệt không chặn cuộn dọc
+        style={{ x, touchAction: 'pan-y' }}
         className="flex-1 flex flex-col bg-background h-full w-full"
       >
         <Header />
@@ -89,7 +87,7 @@ export default function Layout() {
         <Footer />
       </animated.div>
       
-      {/* Các thành phần toàn cục, hiển thị bên trên layout chính */}
+      {/* CÁC THÀNH PHẦN TOÀN CỤC */}
       <Toaster
         position="top-center"
         containerStyle={{
@@ -99,17 +97,14 @@ export default function Layout() {
         toastOptions={{
           className: 'text-sm font-medium',
           duration: 3000,
-          style: {
-            borderRadius: '8px',
-            background: 'rgba(0, 0, 0, 0.8)',
-            color: '#fff',
-            padding: '12px 18px',
-          },
         }}
       />
 
       <FloatingCartPreview />
       <ScrollRestoration />
+
+      {/* SỬA LỖI: Luôn render SearchOverlay và để nó tự quyết định việc hiển thị */}
+      <SearchOverlay />
     </div>
   );
 }

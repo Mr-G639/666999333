@@ -1,14 +1,16 @@
+// src/components/header.tsx
+
 import { useAtomValue } from "jotai";
 import { useMemo, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { loadableUserInfoState } from "@/state";
+import { loadableUserInfoState } from "@/state"; // Đã xóa import không cần thiết
 import { useRouteHandle } from "@/hooks/useUtility";
 import { Icon } from "zmp-ui";
 import CategoryPopup from "./category-popup";
 import MarqueeText from "./marquee-text";
 import SearchBar from "./search-bar";
 import TransitionLink from "./transition-link";
-import { CartIcon, DefaultUserAvatar } from "./vectors";
+import { DefaultUserAvatar } from "./vectors";
 
 const OrderStatusItem = ({ label, count, onClick }: { label: string; count: number, onClick: () => void }) => (
   <div className="relative cursor-pointer rounded-full bg-white bg-opacity-20 px-3 py-1" onClick={onClick}>
@@ -63,34 +65,42 @@ export default function Header() {
             {hasSearch ? (
               <>
                 <div className="flex w-full items-center space-x-3">
-                  <TransitionLink to="/profile">
-                    {userInfo.state === "hasData" && userInfo.data ? (
-                      <img className="h-8 w-8 rounded-full flex-none" src={userInfo.data.avatar} alt="User Avatar" />
-                    ) : (
-                      <DefaultUserAvatar width={32} height={32} className={`flex-none ${userInfo.state === 'loading' ? 'animate-pulse' : ''}`} />
-                    )}
-                  </TransitionLink>
-                  <div className="flex-1">
-                    <SearchBar onClick={() => navigate('/search')} />
-                  </div>
-                  <div className="flex items-center space-x-3 flex-none">
-                    <Icon icon="zi-chat" size={27} />
-                    <div className="cursor-pointer w-[27px] h-[27px]" onClick={() => navigate('/cart')}>
-                      <CartIcon />
+                  {showBack ? (
+                    <div className="cursor-pointer p-2 -ml-2 flex-none" onClick={handleBackClick}>
+                      <Icon icon="zi-arrow-left" size={24} className="text-white" />
                     </div>
+                  ) : (
+                    <TransitionLink to="/profile" className="flex-none">
+                      {userInfo.state === "hasData" && userInfo.data ? (
+                        <img className="h-8 w-8 rounded-full" src={userInfo.data.avatar} alt="User Avatar" />
+                      ) : (
+                        <DefaultUserAvatar width={32} height={32} className={`${userInfo.state === 'loading' ? 'animate-pulse' : ''}`} />
+                      )}
+                    </TransitionLink>
+                  )}
+                  <div className="w-3/4">
+                    {/* SỬA LỖI: onClick điều hướng đến URL có search param */}
+                    <SearchBar onClick={() => navigate("/?search=true")} />
                   </div>
                 </div>
+
                 <div className="w-full overflow-hidden">
                   <MarqueeText text={marqueeString} />
                 </div>
+
                 <div className="flex w-full items-center justify-between">
-                  <div className="flex items-center space-x-3">
+                  <div className="flex items-center space-x-2 flex-grow">
                     <OrderStatusItem label="Đã thanh toán" count={orderStatusCounts.paid} onClick={() => navigate("/orders/paid")} />
                     <OrderStatusItem label="Đang vận chuyển" count={orderStatusCounts.shipping} onClick={() => navigate("/orders/shipping")} />
                     <OrderStatusItem label="Lịch sử" count={0} onClick={() => navigate("/orders/history")} />
                   </div>
-                  <div className="cursor-pointer" onClick={() => setIsPopupVisible(true)}>
-                    <Icon icon="zi-list-1" size={27} />
+                  <div className="flex items-center space-x-3 flex-none">
+                    <div className="cursor-pointer">
+                      <Icon icon="zi-chat" size={27} />
+                    </div>
+                    <div className="cursor-pointer" onClick={() => setIsPopupVisible(true)}>
+                      <Icon icon="zi-list-1" size={27} />
+                    </div>
                   </div>
                 </div>
               </>

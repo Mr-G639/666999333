@@ -354,5 +354,5 @@ export const walletState = atom((get) => {
  * Giúp các component con có thể phản ứng lại với hành động cuộn của người dùng.
  */
 export const mainScrollState = atom(0);
-
+export const searchOverlayVisibleState = atom(false);
 export const userBankInfoState = atomWithStorage<UserBankInfo | undefined>("user_bank_info", undefined);
