@@ -9,6 +9,7 @@ import {
   unwrap,
 } from "jotai/utils";
 import {
+  // [SỬA LỖI 3] Loại bỏ 'Banner' không được sử dụng
   Category,
   Delivery,
   Location,
@@ -40,6 +41,8 @@ import { categories as mockCategoriesData } from "./mock/categories";
 import mockTransactions from "./mock/transactions.json";
 import mockReviews from "./mock/reviews.json";
 import { getFinalPrice } from "./utils/cart";
+// [SỬA LỖI 1] Sửa tên hàm import cho đúng
+import { getAllBanners } from "./api/banners";
 
 // ==================================================================
 // HELPER: XỬ LÝ HÌNH ẢNH
@@ -72,7 +75,7 @@ export const userInfoState = atom<Promise<UserInfo | undefined>>(async (get) => 
     if (authSetting["scope.userInfo"] || isDev) {
       const { userInfo } = await getUserInfo({});
       const phone = authSetting["scope.userPhonenumber"] || isDev ? await get(phoneState) : "";
-      
+
       const fullUserInfo: UserInfo = {
         id: userInfo.id,
         name: userInfo.name,
@@ -110,8 +113,6 @@ export const phoneState = atom(async () => {
 // SECTION: GENERAL STORE DATA
 // ==================================================================
 
-export const bannersState = atom(() => requestWithFallback<string[]>("/banners", []));
-
 export const categoriesState = atom<Promise<Category[]>>(async () => {
   return mockCategoriesData;
 });
@@ -124,17 +125,15 @@ export const categoriesStateUpwrapped = unwrap(categoriesState, (prev) => prev ?
 
 export const productsState = atom(async (get) => {
   const categories = await get(categoriesState);
-  // Thêm kiểu cho product để TypeScript hiểu rõ cấu trúc dữ liệu trả về từ API
   const products = await requestWithFallback<(Omit<Product, 'category'> & { categoryId: number; images: any[] })[]>("/products", []);
 
-  // Map dữ liệu sản phẩm, thêm thông tin category và xử lý URL hình ảnh
   return products.map((product) => {
     const category = categories.find((cat) => cat.id === product.categoryId);
     return {
       ...product,
-      category: category!, // Thêm '!' để khẳng định category luôn tồn tại
+      category: category!,
       images: product.images.map(img => getImageUrlFromModule(img)),
-    } as Product; // Ép kiểu kết quả cuối cùng về Product
+    } as Product;
   });
 });
 
@@ -163,6 +162,23 @@ export const productsByCategoryState = atomFamily((id: string) =>
     return products.filter((product) => String(product.category.id) === id);
   })
 );
+
+// ==================================================================
+// SECTION: HOME PAGE DATA - TỐI ƯU HÓA
+// ==================================================================
+
+export const bannersState = atom(async () => {
+  // [SỬA LỖI 1] Sửa tên hàm gọi API cho đúng
+  return getAllBanners();
+});
+
+export const homeDataState = atom(async (get) => {
+  const products = await get(productsState);
+  const banners = await get(bannersState);
+
+  return { products, banners };
+});
+
 
 // ==================================================================
 // SECTION: SEARCH
@@ -208,11 +224,13 @@ export const cartDetailsState = atom(async (get) => {
     return {
       product,
       quantity: identifier.quantity,
-    };
+      options: [],
+    } as CartItem;
   }).filter((item): item is CartItem => item !== null);
 
   return cartDetails;
 });
+
 
 export interface CartTotal {
   totalItems: number;
@@ -257,7 +275,8 @@ export const shippingAddressState = atomWithStorage<ShippingAddress | undefined>
 export const stationsState = atom(async () => {
   let location: Location | undefined;
   try {
-    const { token } = await getLocation(); // Không truyền thuộc tính không hợp lệ, xử lý từ chối trong catch
+    // [SỬA LỖI 2] Loại bỏ thuộc tính không hợp lệ `failOnDenied`
+    const { token } = await getLocation();
     if (token) {
       toast("Giả lập vị trí thành công!", { icon: "ℹ" });
       location = { lat: 10.773756, lng: 106.689247 }; // VNG Campus
@@ -267,7 +286,7 @@ export const stationsState = atom(async () => {
   }
 
   const stations = await requestWithFallback<Station[]>("/stations", []);
-  
+
   return stations.map((station) => ({
     ...station,
     distance: location ? formatDistant(calculateDistance(location.lat, location.lng, station.location.lat, station.location.lng)) : undefined,
@@ -332,12 +351,12 @@ export const postReviewAtom = atom(
       toast.error("Vui lòng đăng nhập để đánh giá");
       return;
     }
-    
+
     console.log("Đang gửi review:", { productId, ...review, author: userInfo.name });
     await new Promise(resolve => setTimeout(resolve, 1000));
-    
+
     set(reviewsState(productId));
-    
+
     toast.success("Đăng đánh giá thành công!");
   }
 );

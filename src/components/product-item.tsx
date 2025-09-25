@@ -1,8 +1,8 @@
 // src/components/product-item.tsx
 
-import React, { FC, useState, useMemo } from "react";
+import React, { FC, useState, useMemo, useCallback } from "react"; // Thêm import useCallback
 import { Button, Icon } from "zmp-ui";
-import toast from 'react-hot-toast'; // SỬA LỖI: Thêm import còn thiếu
+import toast from 'react-hot-toast';
 
 import { Product } from "@/types";
 import { formatPrice } from "@/utils/format";
@@ -24,15 +24,21 @@ const ProductItem: FC<ProductItemProps> = ({ product, replace }) => {
   const { updateCart } = useCartActions();
   const cartQuantity = useCartItemQuantity(product.id);
 
-  const handleQuantityChange = (quantity: number) => {
+  // [TỐI ƯU HIỆU NĂNG] Bọc hàm trong useCallback.
+  // Hàm này sẽ chỉ được tạo lại khi product hoặc updateCart thay đổi.
+  // Điều này giúp QuantityInput (component con) không bị re-render không cần thiết.
+  const handleQuantityChange = useCallback((quantity: number) => {
     updateCart(product, quantity);
-  };
+  }, [product, updateCart]);
 
-  const handleAddToCart = (e: React.MouseEvent) => {
+  // [TỐI ƯU HIỆU NĂNG] Bọc hàm trong useCallback.
+  // Tương tự, ổn định hàm này để tránh tạo lại mỗi lần render,
+  // giúp Button không bị re-render oan.
+  const handleAddToCart = useCallback((e: React.MouseEvent) => {
     e.stopPropagation();
     updateCart(product, 1);
     toast.success("Đã thêm vào giỏ hàng");
-  };
+  }, [product, updateCart]);
 
   const discountPercent = useMemo(() => {
     if (product.originalPrice && product.price) {
@@ -120,4 +126,5 @@ const ProductItem: FC<ProductItemProps> = ({ product, replace }) => {
   );
 }
 
+// Component này đã được memo, việc sử dụng useCallback ở trên sẽ phát huy tối đa hiệu quả.
 export default React.memo(ProductItem);

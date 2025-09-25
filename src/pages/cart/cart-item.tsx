@@ -27,6 +27,13 @@ type Props = {
  * - Tối ưu hóa re-render cho hiệu năng cao trong danh sách dài.
  */
 const CartItem: FC<Props> = ({ item }) => {
+  // [SỬA LỖI] Bổ sung Guard Clause để phòng ngừa crash.
+  // Nếu vì một lý do nào đó (lỗi API, dữ liệu hỏng), một item trong giỏ hàng
+  // không có thông tin sản phẩm, component sẽ không render thay vì gây lỗi.
+  if (!item.product) {
+    return null;
+  }
+
   const { product, quantity } = item;
   const { updateCart } = useCartActions();
   const navigate = useNavigate();
@@ -57,12 +64,11 @@ const CartItem: FC<Props> = ({ item }) => {
       axis: "x",
       bounds: { left: -SWIPE_TO_DELETE_THRESHOLD, right: 0 },
       rubberband: true,
-      // preventScroll: true, // Có thể gây ra trải nghiệm không tốt trên một số thiết bị
     }
   );
   
   // Lấy ảnh sản phẩm an toàn, sử dụng ảnh mặc định nếu không có
-  const imageUrl = product?.images?.[0] ?? placeholderImage;
+  const imageUrl = product.images?.[0] ?? placeholderImage;
 
   // Điều hướng đến trang chi tiết sản phẩm
   const handleNavigate = () => {

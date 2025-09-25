@@ -1,4 +1,6 @@
-import React, { useEffect, useState } from "react";
+// src/components/quantity-input.tsx
+
+import React, { FC, useEffect, useState, useCallback } from "react";
 import { Button } from "zmp-ui";
 import { MinusIcon, PlusIcon } from "./vectors";
 
@@ -8,45 +10,51 @@ export interface QuantityInputProps {
   minValue?: number;
 }
 
-const QuantityInput: React.FC<QuantityInputProps> = ({
+/**
+ * Component input cho phép người dùng chọn số lượng.
+ * Được tối ưu hóa bằng React.memo để tránh re-render không cần thiết.
+ */
+const QuantityInput: FC<QuantityInputProps> = ({
   value,
   onChange,
-  minValue = 0, // Đặt giá trị mặc định cho minValue
+  minValue = 0,
 }) => {
   const [localValue, setLocalValue] = useState(String(value));
 
   // Đồng bộ state nội bộ khi prop `value` từ bên ngoài thay đổi
   useEffect(() => {
-    setLocalValue(String(value));
+    if (Number(localValue) !== value) {
+      setLocalValue(String(value));
+    }
   }, [value]);
 
   // Xử lý khi người dùng thay đổi giá trị trong input
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    // Chỉ cho phép nhập số
+  const handleInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const numericValue = e.target.value.replace(/[^0-9]/g, "");
     setLocalValue(numericValue);
-  };
+  }, []);
 
   // Xử lý khi người dùng rời khỏi input (onBlur)
-  const handleBlur = () => {
+  const handleBlur = useCallback(() => {
     const finalValue = Math.max(minValue, Number(localValue) || minValue);
     if (finalValue !== value) {
       onChange(finalValue);
     }
-    setLocalValue(String(finalValue)); // Đảm bảo giá trị hiển thị luôn đúng
-  };
+    // Luôn đồng bộ lại giá trị hiển thị để tránh sai lệch
+    setLocalValue(String(finalValue));
+  }, [localValue, value, minValue, onChange]);
 
   // Xử lý khi nhấn nút giảm số lượng
-  const handleDecrement = (e: React.MouseEvent) => {
-    e.stopPropagation(); // Ngăn sự kiện click lan ra ngoài
+  const handleDecrement = useCallback((e: React.MouseEvent) => {
+    e.stopPropagation();
     onChange(Math.max(minValue, value - 1));
-  };
+  }, [value, minValue, onChange]);
 
   // Xử lý khi nhấn nút tăng số lượng
-  const handleIncrement = (e: React.MouseEvent) => {
-    e.stopPropagation(); // Ngăn sự kiện click lan ra ngoài
+  const handleIncrement = useCallback((e: React.MouseEvent) => {
+    e.stopPropagation();
     onChange(value + 1);
-  };
+  }, [value, onChange]);
 
   return (
     <div className="w-full flex items-center">
@@ -55,6 +63,7 @@ const QuantityInput: React.FC<QuantityInputProps> = ({
         variant="tertiary"
         className="min-w-0 aspect-square"
         onClick={handleDecrement}
+        disabled={value <= minValue} // Vô hiệu hóa nút khi đạt giá trị tối thiểu
       >
         <MinusIcon width={14} height={14} />
       </Button>
@@ -80,5 +89,7 @@ const QuantityInput: React.FC<QuantityInputProps> = ({
   );
 };
 
-// Tối ưu hóa hiệu năng bằng React.memo
+// [TỐI ƯU HIỆU NĂNG]
+// Bọc component bằng React.memo. Component này sẽ chỉ re-render nếu các props
+// của nó (value, onChange, minValue) thực sự thay đổi.
 export default React.memo(QuantityInput);

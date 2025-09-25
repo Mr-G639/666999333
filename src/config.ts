@@ -7,6 +7,19 @@
  */
 const CONFIG = {
   /**
+   * API Secret Key - KHÔNG ĐƯỢC HARDCODE TRỰC TIẾP TẠI ĐÂY.
+   * Key này phải được load từ biến môi trường để đảm bảo an toàn.
+   * Kẻ xấu có thể chiếm quyền truy cập hệ thống nếu key này bị lộ.
+   *
+   * Cách sử dụng:
+   * 1. Tạo file `.env` ở thư mục gốc của dự án.
+   * 2. Thêm dòng sau vào file `.env`:
+   * `VITE_API_SECRET=your-super-secret-key-goes-here`
+   * (Lưu ý: Với Vite, biến môi trường phía client phải bắt đầu bằng `VITE_`)
+   */
+  API_SECRET: import.meta.env.VITE_API_SECRET,
+
+  /**
    * Định nghĩa các key (khóa) được sử dụng để lưu trữ dữ liệu trong Local Storage.
    * Sử dụng các hằng số này thay vì viết chuỗi trực tiếp sẽ giúp:
    * 1. IDE tự động gợi ý, tránh gõ sai.
