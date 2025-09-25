@@ -1,12 +1,15 @@
+// src/pages/profile/index.tsx
+
 import { useNavigate } from "react-router-dom";
+import { Button } from "zmp-ui";
+
 import ProfileActions from "./actions";
 import DailyCheckIn from "./daily-check-in";
 import FollowOA from "./follow-oa";
 import Points from "./points";
 import UserInfo from "./user-info";
-import { Button } from "zmp-ui";
 
-export default function ProfilePage() {
+const ProfilePage = () => {
   const navigate = useNavigate();
 
   return (
@@ -26,4 +29,6 @@ export default function ProfilePage() {
       <FollowOA />
     </div>
   );
-}
+};
+
+export default ProfilePage;

@@ -1,14 +1,15 @@
 // src/pages/cart/cart-list.tsx
 
 import { useAtomValue } from "jotai";
-import { cartState } from "@/state";
+import { cartDetailsState } from "@/state"; // SỬA LỖI: Luôn dùng atom này để đọc giỏ hàng chi tiết
 import CartItem from "./cart-item";
 import Section from "@/components/section";
-import { Icon } from "zmp-ui"; // SỬA LỖI: Đã xóa 'Input' không được sử dụng
+import { Icon } from "zmp-ui";
 import HorizontalDivider from "@/components/horizontal-divider";
 
 export default function CartList() {
-  const cart = useAtomValue(cartState);
+  // SỬA LỖI: Dùng atom đã được xử lý để có đầy đủ thông tin sản phẩm
+  const cart = useAtomValue(cartDetailsState);
 
   return (
     <Section
@@ -25,7 +26,8 @@ export default function CartList() {
     >
       <div className="w-full">
         {cart.map((item) => (
-          <CartItem key={item.product.id} {...item} />
+          // Logic này giờ đây hoàn toàn chính xác vì `cart` là một mảng `CartItem[]`
+          <CartItem key={item.product.id} item={item} />
         ))}
       </div>
       <HorizontalDivider />

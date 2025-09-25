@@ -4,13 +4,18 @@ import { useSetAtom, useAtomValue } from "jotai";
 import { selectAtom } from 'jotai/utils';
 import { useCallback, useMemo } from "react";
 import toast from "react-hot-toast";
-import { cartState, userVouchersState } from "@/state";
+import { 
+  cartState, 
+  userVouchersState, 
+  cartDetailsState, // SỬA LỖI: Luôn dùng atom này để đọc giỏ hàng chi tiết
+} from "@/state";
 import { Product, CartItem, Voucher } from "@/types";
+import { getFinalPrice } from "@/utils/cart";
 
 /**
  * @typedef CartSummary
  * @type {object}
- * @property {CartItem[]} cart - Danh sách các sản phẩm trong giỏ.
+ * @property {CartItem[]} cart - Danh sách các sản phẩm trong giỏ (đã có đủ thông tin).
  * @property {number} totalPrice - Tổng giá trị đơn hàng (chưa giảm giá).
  * @property {number} totalQuantity - Tổng số lượng sản phẩm.
  * @property {number} finalPrice - Giá cuối cùng sau khi đã áp dụng voucher.
@@ -30,13 +35,14 @@ type CartSummary = {
  * @returns {CartSummary} Thông tin chi tiết về giỏ hàng.
  */
 export function useCart(): CartSummary {
-  const cart = useAtomValue(cartState);
+  // SỬA LỖI: Dùng `cartDetailsState` để lấy `CartItem[]` hoàn chỉnh, không phải `CartItemIdentifier[]`
+  const cart = useAtomValue(cartDetailsState);
   const vouchers = useAtomValue(userVouchersState);
 
-  // Tối ưu hóa: Chỉ tính toán lại khi `cart` hoặc `vouchers` thay đổi.
   const summary = useMemo(() => {
+    // Logic tính toán giờ đây hoàn toàn chính xác vì `cart` đã có đầy đủ `product`
     const calculatedTotalPrice = cart.reduce(
-      (acc, currentItem) => acc + (currentItem.product.price ?? 0) * currentItem.quantity,
+      (acc, currentItem) => acc + getFinalPrice(currentItem.product) * currentItem.quantity,
       0
     );
 
@@ -69,10 +75,10 @@ export function useCart(): CartSummary {
 /**
  * @typedef CartActions
  * @type {object}
- * @property {(product: Product, quantity: number, options?: { toast?: boolean }) => void} addToCart - Thêm, cập nhật, hoặc xóa sản phẩm khỏi giỏ.
+ * @property {(product: Product, quantity: number, options?: { toast?: boolean }) => void} updateCart - Thêm, cập nhật, hoặc xóa sản phẩm khỏi giỏ.
  */
 type CartActions = {
-  addToCart: (product: Product, quantity: number, options?: { toast?: boolean }) => void;
+  updateCart: (product: Product, quantity: number, options?: { toast?: boolean }) => void;
 };
 
 /**
@@ -81,38 +87,43 @@ type CartActions = {
  * @returns {CartActions} Các hàm để thao tác với giỏ hàng.
  */
 export function useCartActions(): CartActions {
+  // Tương tác ghi sẽ thực hiện trên `cartState` (state gốc chỉ chứa ID)
   const setCart = useSetAtom(cartState);
 
-  const addToCart = useCallback((product: Product, quantity: number, options?: { toast?: boolean }) => {
+  const updateCart = useCallback((product: Product, quantity: number, options?: { toast?: boolean }) => {
     setCart((currentCart) => {
+      // SỬA LỖI: Tìm kiếm item trong giỏ hàng dựa trên `productId`
       const itemIndex = currentCart.findIndex(
-        (item) => item.product.id === product.id
+        (item) => item.productId === product.id
       );
 
       if (itemIndex > -1) {
         if (quantity <= 0) {
+          // Xóa sản phẩm
           return currentCart.filter((_, index) => index !== itemIndex);
         }
+        // Cập nhật số lượng
         return currentCart.map((item, index) =>
           index === itemIndex ? { ...item, quantity } : item
         );
       }
       
       if (quantity > 0) {
-        return [...currentCart, { product, quantity }];
+        // SỬA LỖI: Thêm item mới vào giỏ hàng với đúng cấu trúc `productId`
+        return [...currentCart, { productId: product.id, quantity }];
       }
 
       return currentCart;
     });
 
     if (options?.toast && quantity > 0) {
-      toast.success("Đã thêm vào giỏ hàng", {
-        id: 'add-to-cart-toast',
+      toast.success("Đã cập nhật giỏ hàng", {
+        id: 'update-cart-toast',
       });
     }
   }, [setCart]);
 
-  return { addToCart };
+  return { updateCart };
 }
 
 /**
@@ -126,8 +137,9 @@ export function useCartItemQuantity(productId: number): number {
     () =>
       selectAtom(
         cartState,
+        // SỬA LỖI: Tìm kiếm trên `cartState` gốc dựa trên `productId`
         (cart) =>
-          cart.find((item) => item.product.id === productId)?.quantity ?? 0
+          cart.find((item) => item.productId === productId)?.quantity ?? 0
       ),
     [productId]
   );

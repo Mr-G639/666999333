@@ -5,7 +5,6 @@ import { Product, PaginatedResponse } from "@/types";
 
 /**
  * [HELPER] Định nghĩa cấu trúc dữ liệu thô của sản phẩm từ file JSON.
- * Điều này giúp đảm bảo an toàn kiểu trong quá trình xử lý dữ liệu mock.
  */
 interface RawProductData {
   id: number;
@@ -21,37 +20,55 @@ interface RawProductData {
 
 /**
  * [HELPER] Giả lập độ trễ của một cuộc gọi mạng.
- * @param ms - Thời gian chờ (tính bằng mili giây).
  */
 const simulateApiDelay = (ms: number = 500): Promise<void> => {
   return new Promise(resolve => setTimeout(resolve, ms));
 };
 
 /**
- * [API MOCK] Giả lập API lấy danh sách sản phẩm từ server, hỗ trợ phân trang.
- *
- * @param page - Số trang hiện tại (mặc định là 1).
- * @param limit - Số lượng sản phẩm trên mỗi trang (mặc định là 10).
- * @returns Một Promise chứa đối tượng PaginatedResponse<Product>.
- * Lưu ý: Dữ liệu trả về ở đây vẫn ở dạng thô (chưa có object 'category' đầy đủ).
- * Việc "enrich" (làm giàu) dữ liệu sẽ được thực hiện ở tầng state management.
+ * Định nghĩa các tham số đầu vào cho API lấy sản phẩm.
+ * Việc này giúp code an toàn và dễ đọc hơn.
  */
-export const getAllProducts = async (
-  page: number = 1,
-  limit: number = 10
+export interface GetProductsParams {
+  page?: number;
+  limit?: number;
+  categoryId?: number;
+  keyword?: string;
+}
+
+/**
+ * [API MOCK REFACTORED] Giả lập API lấy danh sách sản phẩm,
+ * hỗ trợ đầy đủ các tính năng lọc và phân trang.
+ *
+ * @param params - Một đối tượng chứa các tùy chọn lọc và phân trang.
+ * @returns Một Promise chứa đối tượng PaginatedResponse<Product>.
+ * Dữ liệu trả về vẫn ở dạng thô, việc làm giàu dữ liệu sẽ diễn ra ở tầng state.
+ */
+export const getProducts = async (
+  params: GetProductsParams = {}
 ): Promise<PaginatedResponse<Product>> => {
+  const { page = 1, limit = 10, categoryId, keyword } = params;
   await simulateApiDelay();
 
+  let filteredData = productsData as RawProductData[];
+
+  // BƯỚC 1: LỌC DỮ LIỆU THEO TIÊU CHÍ (LOGIC SERVER)
+  if (categoryId) {
+    filteredData = filteredData.filter(p => p.categoryId === categoryId);
+  }
+
+  if (keyword) {
+    const lowercasedKeyword = keyword.toLowerCase();
+    filteredData = filteredData.filter(p =>
+      p.name.toLowerCase().includes(lowercasedKeyword)
+    );
+  }
+
+  // BƯỚC 2: PHÂN TRANG TRÊN TẬP DỮ LIỆU ĐÃ LỌC
+  const totalItems = filteredData.length;
   const startIndex = (page - 1) * limit;
-  const endIndex = Math.min(startIndex + limit, productsData.length);
-  
-  // Sửa lỗi & Refactor:
-  // 1. Ép kiểu dữ liệu thô về `RawProductData[]` để đảm bảo an toàn kiểu.
-  // 2. Ép kiểu kết quả cuối cùng về `any` rồi mới đến `PaginatedResponse<Product>`
-  //    để TypeScript hiểu rằng việc biến đổi cuối cùng sẽ diễn ra ở nơi khác (state.ts).
-  //    Điều này tốt hơn việc dùng `any[]` một cách chung chung.
-  const paginatedData = (productsData as RawProductData[]).slice(startIndex, endIndex);
-  const totalItems = productsData.length;
+  const endIndex = Math.min(startIndex + limit, totalItems);
+  const paginatedData = filteredData.slice(startIndex, endIndex);
   const totalPages = Math.ceil(totalItems / limit);
 
   return {

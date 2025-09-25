@@ -9,7 +9,6 @@ import {
   unwrap,
 } from "jotai/utils";
 import {
-  Cart,
   Category,
   Delivery,
   Location,
@@ -24,6 +23,7 @@ import {
   ReferralOrder,
   UserBankInfo,
   Review,
+  CartItem,
 } from "@/types";
 import { requestWithFallback } from "@/utils/request";
 import {
@@ -39,6 +39,7 @@ import CONFIG from "./config";
 import { categories as mockCategoriesData } from "./mock/categories";
 import mockTransactions from "./mock/transactions.json";
 import mockReviews from "./mock/reviews.json";
+import { getFinalPrice } from "./utils/cart";
 
 // ==================================================================
 // HELPER: XỬ LÝ HÌNH ẢNH
@@ -123,14 +124,20 @@ export const categoriesStateUpwrapped = unwrap(categoriesState, (prev) => prev ?
 
 export const productsState = atom(async (get) => {
   const categories = await get(categoriesState);
-  const products = await requestWithFallback<(Product & { categoryId: number; images: any[] })[]>("/products", []);
+  // Thêm kiểu cho product để TypeScript hiểu rõ cấu trúc dữ liệu trả về từ API
+  const products = await requestWithFallback<(Omit<Product, 'category'> & { categoryId: number; images: any[] })[]>("/products", []);
 
-  return products.map((product) => ({
-    ...product,
-    category: categories.find((cat) => cat.id === product.categoryId)!,
-    images: product.images.map(img => getImageUrlFromModule(img)),
-  }));
+  // Map dữ liệu sản phẩm, thêm thông tin category và xử lý URL hình ảnh
+  return products.map((product) => {
+    const category = categories.find((cat) => cat.id === product.categoryId);
+    return {
+      ...product,
+      category: category!, // Thêm '!' để khẳng định category luôn tồn tại
+      images: product.images.map(img => getImageUrlFromModule(img)),
+    } as Product; // Ép kiểu kết quả cuối cùng về Product
+  });
 });
+
 
 export const favoriteProductsState = atomWithStorage<number[]>("favorites", []);
 
@@ -182,8 +189,30 @@ export const searchResultState = atom(async (get) => {
 });
 
 // ==================================================================
-// SECTION: CART
+// SECTION: CART - REFACTORED
 // ==================================================================
+
+export type CartItemIdentifier = { productId: number; quantity: number };
+
+export const cartState = atomWithStorage<CartItemIdentifier[]>("cart", []);
+
+export const cartDetailsState = atom(async (get) => {
+  const cartIdentifiers = get(cartState);
+  const allProducts = await get(productsState);
+
+  const cartDetails = cartIdentifiers.map(identifier => {
+    const product = allProducts.find(p => p.id === identifier.productId);
+    if (!product) {
+      return null;
+    }
+    return {
+      product,
+      quantity: identifier.quantity,
+    };
+  }).filter((item): item is CartItem => item !== null);
+
+  return cartDetails;
+});
 
 export interface CartTotal {
   totalItems: number;
@@ -191,15 +220,14 @@ export interface CartTotal {
   finalAmount: number;
 }
 
-export const cartState = atomWithStorage<Cart>("cart", []);
 export const selectedVoucherState = atom<Voucher | undefined>(undefined);
 
-export const cartTotalState = atom<CartTotal>((get) => {
-  const items = get(cartState);
+export const cartTotalState = atom<Promise<CartTotal>>(async (get) => {
+  const items = await get(cartDetailsState);
   const selectedVoucher = get(selectedVoucherState);
 
   const totalAmount = items.reduce(
-    (total, item) => total + item.product.price * item.quantity,
+    (total, item) => total + getFinalPrice(item.product) * item.quantity,
     0
   );
 
@@ -213,7 +241,7 @@ export const cartTotalState = atom<CartTotal>((get) => {
   }
 
   return {
-    totalItems: items.length,
+    totalItems: items.reduce((total, item) => total + item.quantity, 0),
     totalAmount,
     finalAmount: Math.max(0, finalAmount),
   };
@@ -229,13 +257,13 @@ export const shippingAddressState = atomWithStorage<ShippingAddress | undefined>
 export const stationsState = atom(async () => {
   let location: Location | undefined;
   try {
-    const { token } = await getLocation({});
+    const { token } = await getLocation(); // Không truyền thuộc tính không hợp lệ, xử lý từ chối trong catch
     if (token) {
       toast("Giả lập vị trí thành công!", { icon: "ℹ" });
       location = { lat: 10.773756, lng: 106.689247 }; // VNG Campus
     }
   } catch (error) {
-    console.warn("Lấy vị trí thất bại hoặc người dùng từ chối:", error);
+    console.warn("Lấy vị trí thất bại:", error);
   }
 
   const stations = await requestWithFallback<Station[]>("/stations", []);
@@ -265,7 +293,6 @@ export const ordersState = atomFamily((status: OrderStatus) =>
   })
 );
 
-// THÊM DÒNG NÀY: State để lưu các đơn hàng mới tạo trong phiên
 export const newOrdersState = atomWithStorage<Order[]>("new_orders", []);
 
 // ==================================================================

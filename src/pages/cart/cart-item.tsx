@@ -1,6 +1,6 @@
 // src/pages/cart/cart-item.tsx
 
-import React, { useCallback } from "react";
+import React, { FC, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { animated, useSpring } from "@react-spring/web";
 import { useDrag } from "@use-gesture/react";
@@ -8,6 +8,7 @@ import { Icon } from "zmp-ui";
 
 import { useCartActions } from "@/hooks/useCart";
 import { CartItem as CartItemType } from "@/types";
+import { getFinalPrice } from "@/utils/cart"; // Sử dụng hàm tính giá đúng
 import { formatPrice } from "@/utils/format";
 import QuantityInput from "@/components/quantity-input";
 import placeholderImage from '@/static/logo.png';
@@ -15,14 +16,19 @@ import placeholderImage from '@/static/logo.png';
 // Ngưỡng kéo (bằng pixel) để hiển thị và kích hoạt nút xóa
 const SWIPE_TO_DELETE_THRESHOLD = 80;
 
+type Props = {
+  item: CartItemType;
+};
+
 /**
  * Component hiển thị một sản phẩm trong giỏ hàng.
  * Tích hợp các tính năng nâng cao:
  * - Cử chỉ vuốt sang trái để xóa sản phẩm.
  * - Tối ưu hóa re-render cho hiệu năng cao trong danh sách dài.
  */
-const CartItem: React.FC<CartItemType> = ({ product, quantity }) => {
-  const { addToCart } = useCartActions();
+const CartItem: FC<Props> = ({ item }) => {
+  const { product, quantity } = item;
+  const { updateCart } = useCartActions();
   const navigate = useNavigate();
 
   // Thiết lập animation cho cử chỉ kéo
@@ -32,7 +38,11 @@ const CartItem: React.FC<CartItemType> = ({ product, quantity }) => {
   const bind = useDrag(
     ({ last, offset: [ox] }) => {
       // Cập nhật vị trí item theo cử chỉ kéo của người dùng
-      api.start({ x: Math.min(ox, 0), immediate: true });
+      // Chỉ cho phép kéo sang trái (ox < 0)
+      if (ox < 0) {
+        api.start({ x: ox, immediate: true });
+      }
+      
       if (last) {
         // Khi người dùng thả tay, kiểm tra xem đã kéo đủ xa chưa
         if (ox < -SWIPE_TO_DELETE_THRESHOLD) {
@@ -47,7 +57,7 @@ const CartItem: React.FC<CartItemType> = ({ product, quantity }) => {
       axis: "x",
       bounds: { left: -SWIPE_TO_DELETE_THRESHOLD, right: 0 },
       rubberband: true,
-      preventScroll: true,
+      // preventScroll: true, // Có thể gây ra trải nghiệm không tốt trên một số thiết bị
     }
   );
   
@@ -56,14 +66,13 @@ const CartItem: React.FC<CartItemType> = ({ product, quantity }) => {
 
   // Điều hướng đến trang chi tiết sản phẩm
   const handleNavigate = () => {
-    // SỬA LỖI: Xóa bỏ tùy chọn { viewTransition: true } không hợp lệ
     navigate(`/product/${product.id}`);
   };
   
   // Tối ưu hóa hàm xử lý thay đổi số lượng bằng useCallback
   const handleQuantityChange = useCallback((newQuantity: number) => {
-    addToCart(product, newQuantity);
-  }, [addToCart, product]);
+    updateCart(product, newQuantity);
+  }, [updateCart, product]);
 
   // Xử lý xóa sản phẩm (bằng cách cập nhật số lượng về 0)
   const handleDelete = () => {
@@ -105,7 +114,7 @@ const CartItem: React.FC<CartItemType> = ({ product, quantity }) => {
             <div className="text-sm line-clamp-2">{product.name}</div>
             <div className="flex flex-col">
               <div className="text-sm font-bold">
-                {formatPrice(product.price)}
+                {formatPrice(getFinalPrice(product))}
               </div>
               {product.originalPrice && (
                 <div className="line-through text-subtitle text-xs">
@@ -124,5 +133,5 @@ const CartItem: React.FC<CartItemType> = ({ product, quantity }) => {
   );
 };
 
-// Tối ưu hóa hiệu năng, chỉ re-render component này khi props (product, quantity) thực sự thay đổi
+// TỐI ƯU HIỆU NĂNG: Chỉ re-render component này khi props (item) thực sự thay đổi.
 export default React.memo(CartItem);

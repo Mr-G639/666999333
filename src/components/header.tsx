@@ -39,7 +39,7 @@ export default function Header() {
   }, [handle]);
 
   const orderStatusCounts = { paid: 1, shipping: 2, history: 10 };
-  const newsTickerData = ["Chào mừng bạn đến với ZAUI Market!", "Miễn phí vận chuyển cho đơn hàng từ 200K."];
+  const newsTickerData = ["Chào mừng bạn đến với V2K!, nơi mà bạn có thể mua sắm thỏa thích, không lo về giá. Đặc biệt được tích hợp chức năng AFF 1 Click, giúp bạn dễ dàng chia sẻ sản phẩm yêu thích đến bạn bè và người thân.", "Giờ đây, việc mua sắm trở nên tiện lợi hơn bao giờ hết với V2K!"];
   const marqueeString = newsTickerData.join("   •••   ");
 
   if (handle?.noHeader) {

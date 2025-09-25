@@ -2,13 +2,14 @@
 
 import React, { ReactNode, Suspense, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { useAtom, useAtomValue, useSetAtom } from "jotai"; // SỬA LỖI: Cập nhật import
+import { useAtom, useAtomValue } from "jotai";
 import toast from "react-hot-toast";
 import { Button, Icon, Text } from "zmp-ui";
 
-import { favoriteProductsState, productState, cartState } from "@/state";
+import { favoriteProductsState, productState } from "@/state";
+import { useCartActions } from "@/hooks/useCart"; // SỬA LỖI: Import hook đã được chuẩn hóa
 import { formatPrice } from "@/utils/format";
-import { CartItem, Product } from "@/types";
+import { Product } from "@/types";
 
 import Section from "@/components/section";
 import Carousel from "@/components/carousel";
@@ -32,7 +33,9 @@ const ShareButton: React.FC<{ product: Product }> = ({ product }) => {
     if (navigator.share) {
       try {
         await navigator.share(shareData);
-      } catch {}
+      } catch {
+        // Bỏ qua lỗi nếu người dùng hủy chia sẻ
+      }
       return;
     }
 
@@ -55,7 +58,9 @@ function ProductDetailContent() {
   const { id } = useParams<{ id: string }>();
   const product = useAtomValue(productState(Number(id)));
   const [favorites, setFavorites] = useAtom(favoriteProductsState);
-  const setCart = useSetAtom(cartState); // SỬA LỖI: Dùng useSetAtom để chỉ lấy hàm set
+  
+  // SỬA LỖI: Sử dụng hook tập trung thay vì logic cục bộ
+  const { updateCart } = useCartActions(); 
   const navigate = useNavigate();
 
   const [quantity, setQuantity] = useState(1);
@@ -65,27 +70,9 @@ function ProductDetailContent() {
   if (!product) {
     return <ProductGridSkeleton />;
   }
-
-  const addToCart = (productToAdd: Product, quantityToAdd: number) => {
-    setCart((prevCart) => {
-      const existingItemIndex = prevCart.findIndex(
-        (item) => item.product.id === productToAdd.id
-      );
-      let newCart: CartItem[];
-
-      if (existingItemIndex > -1) {
-        newCart = [...prevCart];
-        newCart[existingItemIndex] = {
-          ...newCart[existingItemIndex],
-          quantity: newCart[existingItemIndex].quantity + quantityToAdd,
-        };
-      } else {
-        newCart = [...prevCart, { product: productToAdd, quantity: quantityToAdd }];
-      }
-      return newCart;
-    });
-  };
-
+  
+  // SỬA LỖI: Xóa bỏ hoàn toàn hàm addToCart cục bộ đã lỗi thời
+  
   const isFavorited = favorites.includes(product.id);
 
   const toggleFavorite = () => {
@@ -113,13 +100,16 @@ function ProductDetailContent() {
   }, [product.price, product.originalPrice]);
 
   const handleBuyNow = () => {
-    addToCart(product, quantity);
+    if (!product) return;
+    // SỬA LỖI: Gọi hàm `updateCart` từ hook
+    updateCart(product, quantity);
     navigate("/cart/delivery");
   };
 
   const handleAddToCart = () => {
-    addToCart(product, quantity);
-    toast.success("Đã thêm vào giỏ hàng!");
+    if (!product) return;
+    // SỬA LỖI: Gọi hàm `updateCart` từ hook
+    updateCart(product, quantity, { toast: true });
   };
 
   return (
@@ -189,6 +179,7 @@ function ProductDetailContent() {
         </div>
         <div className="flex items-center space-x-3">
           <Button
+            disabled={!product}
             onClick={handleAddToCart}
             variant="secondary"
             className="flex-1"
@@ -197,6 +188,7 @@ function ProductDetailContent() {
             <Icon icon="zi-plus-circle" />
           </Button>
           <Button
+            disabled={!product}
             onClick={handleBuyNow}
             fullWidth
             className="flex-grow"

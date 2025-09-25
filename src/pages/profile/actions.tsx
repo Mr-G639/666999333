@@ -1,38 +1,87 @@
 // src/pages/profile/actions.tsx
 
-// --- SỬA LỖI 1: Xóa 'OrderHistoryIcon' không được sử dụng ---
-import { HeartIcon, VoucherIcon } from "@/components/vectors";
-import { useNavigate } from "react-router-dom";
-import { Icon, List } from "zmp-ui";
+import { useNavigate } from 'react-router-dom';
+import { List, Icon } from 'zmp-ui';
+import { ComponentProps } from 'react';
 
-export default function ProfileActions() {
+type IconType = ComponentProps<typeof Icon>['icon'];
+
+type ProfileAction = {
+  id: string;
+  icon: IconType;
+  title: string;
+  path: string;
+};
+
+const actionConfig: ProfileAction[] = [
+  {
+    id: 'orders',
+    icon: 'zi-note',
+    title: 'Lịch sử đơn hàng',
+    path: '/orders',
+  },
+  {
+    id: 'wishlist',
+    icon: 'zi-heart',
+    title: 'Danh sách yêu thích',
+    path: '/profile/wishlist',
+  },
+  {
+    id: 'vouchers',
+    icon: 'zi-ticket' as IconType, // SỬA LỖI: 'zi-wallet' -> 'zi-ticket'
+    title: 'Ví voucher',
+    path: '/profile/vouchers',
+  },
+  {
+    id: 'points',
+    icon: 'zi-star-solid',
+    title: 'Điểm tích lũy',
+    path: '/profile/points',
+  },
+  {
+    id: 'affiliate',
+    icon: 'zi-share-solid',
+    title: 'Affiliate',
+    path: '/profile/affiliate',
+  },
+  {
+    id: 'addresses',
+    icon: 'zi-location-solid',
+    title: 'Sổ địa chỉ',
+    path: '/profile/addresses',
+  },
+  {
+    id: 'support',
+    icon: 'zi-call-solid',
+    title: 'Hỗ trợ',
+    path: '/profile/support',
+  },
+  {
+    id: 'settings',
+    icon: 'zi-setting',
+    title: 'Cài đặt',
+    path: '/profile/settings',
+  },
+];
+
+const ProfileActions = () => {
   const navigate = useNavigate();
 
   return (
-    <div className="bg-white rounded-lg border-[0.5px] border-black/15">
+    <div className="bg-white rounded-xl">
       <List>
-
-        /
-        <List.Item
-          title="Sản phẩm yêu thích"
-          prefix={<HeartIcon className="w-5 h-5" />}
-          suffix={<Icon icon="zi-chevron-right" />}
-          onClick={() => navigate("/profile/wishlist")}
-        />
-        <List.Item
-          title="Ví Voucher"
-          prefix={<VoucherIcon />}
-          suffix={<Icon icon="zi-chevron-right" />}
-          onClick={() => navigate("/profile/vouchers")}
-        />
-        {/* --- SỬA LỖI 2: Thay 'zi-wallet' bằng icon hợp lệ --- */}
-        <List.Item
-          title="AFF 1 Click"
-          prefix={<span className="w-5 h-5"><VoucherIcon /></span>}
-          suffix={<Icon icon="zi-chevron-right" />}
-          onClick={() => navigate("/profile/affiliate")}
-        />
+        {actionConfig.map((action) => (
+          <List.Item
+            key={action.id}
+            onClick={() => navigate(action.path)}
+            title={action.title}
+            prefix={<Icon icon={action.icon} />}
+            suffix={<Icon icon="zi-chevron-right" />}
+          />
+        ))}
       </List>
     </div>
   );
-}
+};
+
+export default ProfileActions;

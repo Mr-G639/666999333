@@ -1,16 +1,44 @@
+// src/pages/search/index.tsx
+
+import { Suspense, useState, useEffect } from "react"; // SỬA LỖI: Xóa 'React' không cần thiết
+import { useAtomValue } from "jotai";
+
 import Section from "@/components/section";
 import { SearchResultSkeleton } from "@/components/skeleton";
-import { useAtomValue } from "jotai";
-import { Suspense } from "react";
+import ProductGrid from "@/components/product-grid";
+import { EmptySearchResult } from "@/components/empty";
+import TransitionLink from "@/components/transition-link";
 import {
   keywordState,
   recommendedProductsState,
   searchResultState,
   searchCategoriesResultState,
 } from "@/state";
-import ProductGrid from "@/components/product-grid";
-import { EmptySearchResult } from "@/components/empty";
-import TransitionLink from "@/components/transition-link";
+
+/**
+ * Custom hook để trì hoãn (debounce) một giá trị.
+ * Chỉ cập nhật giá trị trả về sau khi giá trị đầu vào không thay đổi trong một khoảng thời gian delay.
+ * @param value - Giá trị cần debounce.
+ * @param delay - Thời gian trì hoãn (ms).
+ * @returns Giá trị đã được debounce.
+ */
+function useDebounce<T>(value: T, delay: number): T {
+  const [debouncedValue, setDebouncedValue] = useState<T>(value);
+
+  useEffect(() => {
+    // Thiết lập một timer để cập nhật giá trị sau khoảng thời gian delay
+    const handler = setTimeout(() => {
+      setDebouncedValue(value);
+    }, delay);
+
+    // Dọn dẹp timer nếu value thay đổi (người dùng tiếp tục gõ)
+    return () => {
+      clearTimeout(handler);
+    };
+  }, [value, delay]);
+
+  return debouncedValue;
+}
 
 function SearchedCategories() {
   const categories = useAtomValue(searchCategoriesResultState);
@@ -21,7 +49,7 @@ function SearchedCategories() {
 
   return (
     <Section title="Danh mục liên quan">
-      <div className="px-4 pt-2 pb-4">
+      <div className="px-3 pt-2 pb-3">
         {categories.map((category) => (
           <TransitionLink
             to={`/category/${category.id}`}
@@ -30,7 +58,7 @@ function SearchedCategories() {
           >
             <img
               src={category.image}
-              className="w-10 h-10 rounded-full bg-skeleton"
+              className="w-10 h-10 rounded-full bg-skeleton object-cover"
               alt={category.name}
             />
             <span className="font-medium">{category.name}</span>
@@ -44,18 +72,18 @@ function SearchedCategories() {
 function SearchedProducts() {
   const searchResult = useAtomValue(searchResultState);
 
-  if (searchResult.length === 0) {
-    return <EmptySearchResult />;
-  }
-
   return (
     <Section title={`Sản phẩm (${searchResult.length})`}>
-      <ProductGrid products={searchResult} />
+      {searchResult.length === 0 ? (
+        <EmptySearchResult />
+      ) : (
+        <ProductGrid products={searchResult} />
+      )}
     </Section>
   );
 }
 
-export function SearchResult() {
+function SearchResult() {
   const searchResult = useAtomValue(searchResultState);
   const categoriesResult = useAtomValue(searchCategoriesResultState);
 
@@ -73,7 +101,7 @@ export function SearchResult() {
   );
 }
 
-export function RecommendedProducts() {
+function RecommendedProducts() {
   const recommendedProducts = useAtomValue(recommendedProductsState);
 
   return (
@@ -85,13 +113,15 @@ export function RecommendedProducts() {
 
 export default function SearchPage() {
   const keyword = useAtomValue(keywordState);
+  const debouncedKeyword = useDebounce(keyword, 500);
 
-  if (keyword) {
+  if (debouncedKeyword) {
     return (
       <Suspense fallback={<SearchResultSkeleton />}>
         <SearchResult />
       </Suspense>
     );
   }
+  
   return <RecommendedProducts />;
 }
