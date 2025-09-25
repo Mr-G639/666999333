@@ -1,7 +1,9 @@
 // src/api/products.ts
 
 import productsData from "../mock/products.json";
-import { Product, PaginatedResponse } from "@/types";
+// [SỬA LỖI] Sử dụng import có tên thay vì default import cho categories
+import { categories as allCategories } from "../mock/categories";
+import { Product, PaginatedResponse, Category } from "@/types";
 
 /**
  * [HELPER] Định nghĩa cấu trúc dữ liệu thô của sản phẩm từ file JSON.
@@ -26,8 +28,19 @@ const simulateApiDelay = (ms: number = 500): Promise<void> => {
 };
 
 /**
+ * [HELPER] Chuyển đổi dữ liệu sản phẩm thô sang kiểu Product hoàn chỉnh.
+ */
+const transformRawProduct = (raw: RawProductData): Product => {
+  // [SỬA LỖI] Cung cấp kiểu dữ liệu tường minh cho tham số 'c'
+  const category = allCategories.find((c: Category) => c.id === raw.categoryId);
+  return {
+    ...raw,
+    category: category || { id: raw.categoryId, name: "Unknown Category" }
+  };
+};
+
+/**
  * Định nghĩa các tham số đầu vào cho API lấy sản phẩm.
- * Việc này giúp code an toàn và dễ đọc hơn.
  */
 export interface GetProductsParams {
   page?: number;
@@ -39,10 +52,6 @@ export interface GetProductsParams {
 /**
  * [API MOCK REFACTORED] Giả lập API lấy danh sách sản phẩm,
  * hỗ trợ đầy đủ các tính năng lọc và phân trang.
- *
- * @param params - Một đối tượng chứa các tùy chọn lọc và phân trang.
- * @returns Một Promise chứa đối tượng PaginatedResponse<Product>.
- * Dữ liệu trả về vẫn ở dạng thô, việc làm giàu dữ liệu sẽ diễn ra ở tầng state.
  */
 export const getProducts = async (
   params: GetProductsParams = {}
@@ -52,11 +61,10 @@ export const getProducts = async (
 
   let filteredData = productsData as RawProductData[];
 
-  // BƯỚC 1: LỌC DỮ LIỆU THEO TIÊU CHÍ (LOGIC SERVER)
+  // Lọc dữ liệu...
   if (categoryId) {
     filteredData = filteredData.filter(p => p.categoryId === categoryId);
   }
-
   if (keyword) {
     const lowercasedKeyword = keyword.toLowerCase();
     filteredData = filteredData.filter(p =>
@@ -64,16 +72,26 @@ export const getProducts = async (
     );
   }
 
-  // BƯỚC 2: PHÂN TRANG TRÊN TẬP DỮ LIỆU ĐÃ LỌC
+  // Phân trang...
   const totalItems = filteredData.length;
   const startIndex = (page - 1) * limit;
   const endIndex = Math.min(startIndex + limit, totalItems);
   const paginatedData = filteredData.slice(startIndex, endIndex);
   const totalPages = Math.ceil(totalItems / limit);
 
+  const transformedData = paginatedData.map(transformRawProduct);
+
   return {
-    data: paginatedData as any, // Dữ liệu sẽ được hoàn thiện ở tầng state
+    data: transformedData,
     totalItems: totalItems,
     totalPages: totalPages,
   };
+};
+
+/**
+ * [API MOCK - REFACTORED] Giả lập API lấy TẤT CẢ sản phẩm.
+ */
+export const getAllProducts = async (): Promise<Product[]> => {
+  await simulateApiDelay();
+  return (productsData as RawProductData[]).map(transformRawProduct);
 };

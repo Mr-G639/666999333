@@ -4,6 +4,7 @@ import { useAtom, useAtomValue, useSetAtom } from "jotai";
 import { Suspense } from "react";
 import { useNavigate } from "react-router-dom";
 import { Box, Button, Page, Text } from "zmp-ui";
+// [SỬA LỖI] Quay lại sử dụng import zmp mặc định
 import zmp from "zmp-sdk";
 
 import {
@@ -56,6 +57,15 @@ const DeliverySummaryContent = () => {
   const navigate = useNavigate();
 
   const createOrder = () => {
+    if (deliveryMode === 'shipping' && !shippingAddress) {
+      console.error("Lỗi logic: Địa chỉ giao hàng bị thiếu.");
+      return;
+    }
+    if (deliveryMode === 'pickup' && !selectedStation) {
+      console.error("Lỗi logic: Điểm nhận hàng bị thiếu.");
+      return;
+    }
+
     const newOrder: Order = {
       id: Math.floor(Math.random() * 100000),
       items: cart,
@@ -63,22 +73,27 @@ const DeliverySummaryContent = () => {
       status: 'pending',
       total: totals.finalAmount,
       paymentStatus: 'pending',
-      // SỬA LỖI: Xóa thuộc tính `shippingFee` không hợp lệ
-      delivery: deliveryMode === 'shipping' 
-        ? { type: 'shipping', address: shippingAddress! }
-        : { type: 'pickup', station: selectedStation! },
+      delivery: deliveryMode === 'shipping'
+        ? { type: 'shipping', ...shippingAddress! }
+        : {
+            type: 'pickup',
+            name: selectedStation!.name,
+            address: selectedStation!.address,
+          },
       note: '',
       receivedAt: '',
     };
-    
+
     setNewOrders([...newOrders, newOrder]);
     // @ts-ignore
     resetCart("RESET");
-    
+
     navigate("/orders", { state: { newOrder: true } });
-    
+
+    // [SỬA LỖI] Bỏ qua lỗi định nghĩa kiểu của SDK và gọi API zmp.openApp
+    // @ts-ignore 
     zmp.openApp({
-      appID: '258560612220502',
+      appID: '2585606122290030502',
       path: 'order/success',
       params: { orderId: newOrder.id.toString() }
     }).catch((err: unknown) => console.error("Không thể mở App khác:", err));
@@ -123,10 +138,4 @@ const DeliverySummaryContent = () => {
   );
 }
 
-export default function DeliverySummaryPage() {
-  return (
-    <Suspense>
-      <DeliverySummaryContent />
-    </Suspense>
-  );
-}
+export default DeliverySummaryContent;
