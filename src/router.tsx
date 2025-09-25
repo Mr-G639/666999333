@@ -17,7 +17,6 @@ const ProductDetailPage = lazy(() => import("@/pages/catalog/product-detail"));
 const ProfilePage = lazy(() => import("@/pages/profile"));
 const OrdersPage = lazy(() => import("./pages/orders"));
 const ShippingAddressPage = lazy(() => import("./pages/cart/shipping-address"));
-const StationsPage = lazy(() => import("./pages/cart/stations"));
 const OrderDetailPage = lazy(() => import("./pages/orders/detail"));
 const ProfileEditorPage = lazy(() => import("./pages/profile/editor"));
 const VouchersPage = lazy(() => import("./pages/profile/vouchers"));
@@ -32,6 +31,9 @@ const WishlistPage = lazy(() => import("./pages/profile/wishlist"));
 const ReviewsListPage = lazy(() => import("./pages/catalog/product-reviews/ReviewsListPage"));
 const FlashSalePage = lazy(() => import("@/pages/flash-sale"));
 const SearchPage = lazy(() => import("@/pages/search"));
+const DeliveryPage = lazy(() => import("./pages/cart/delivery"));
+// SỬA LỖI: Xóa import của PayPage không còn dùng đến
+// const PayPage = lazy(() => import("./pages/cart/pay")); 
 const AffiliatePage = lazy(() =>
   import("./pages/profile/affiliate").then((m) => ({
     default: (m as any).default ?? (m as any).Affiliate ?? (m as any).AffiliatePage,
@@ -44,12 +46,14 @@ export const router = createBrowserRouter(
       {/* === CÁC TRANG CÓ HIỂN THỊ HEADER === */}
       <Route index element={<HomePage />} handle={{ search: true, noBack: true }} />
       <Route path="/product/:id" element={<ProductDetailPage />} handle={{ search: true, noFloatingCart: true }} />
-      
-      {/* SỬA LỖI: Thêm 'backTo: "/"' để nút back luôn về trang chủ */}
       <Route path="/cart" element={<CartPage />} handle={{ search: true, noFloatingCart: true, backTo: "/" }} />
       <Route path="/flash-sale" element={<FlashSalePage />} handle={{ search: true, backTo: "/" }} />
 
       {/* === CÁC TRANG BỊ ẨN HEADER === */}
+      <Route path="/cart/delivery" element={<DeliveryPage />} handle={{ noHeader: true }} />
+      
+      {/* SỬA LỖI: Đã xóa bỏ route "/cart/pay" */}
+
       <Route path="/categories" element={<CategoryListPage />} handle={{ noHeader: true }} />
       <Route path="/category/:id" element={<CategoryDetailPage />} handle={{ noHeader: true, title: ({ categories, params }: { categories: Category[], params: Params<string> }) => categories.find((c) => String(c.id) === params.id)?.name } } />
       <Route path="/product/:id/reviews" element={<ReviewsListPage />} handle={{ noHeader: true }} />
@@ -58,7 +62,6 @@ export const router = createBrowserRouter(
       <Route path="/order/:id" element={<OrderDetailPage />} handle={{ noHeader: true }} />
       <Route path="/vouchers" element={<VoucherSelectionPage />} handle={{ noHeader: true }} />
       <Route path="/shipping-address" element={<ShippingAddressPage />} handle={{ noHeader: true }} />
-      <Route path="/stations" element={<StationsPage />} handle={{ noHeader: true }} />
       <Route path="/profile" element={<ProfilePage />} handle={{ noHeader: true }} />
       <Route path="/profile/edit" element={<ProfileEditorPage />} handle={{ noHeader: true }} />
       <Route path="/profile/wishlist" element={<WishlistPage />} handle={{ noHeader: true }} />

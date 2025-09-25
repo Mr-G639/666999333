@@ -1,3 +1,5 @@
+// src/state.ts
+
 import { atom } from "jotai";
 import {
   atomFamily,
@@ -42,11 +44,6 @@ import mockReviews from "./mock/reviews.json";
 // HELPER: XỬ LÝ HÌNH ẢNH
 // ==================================================================
 
-/**
- * Hàm trợ giúp để lấy đường dẫn URL cuối cùng từ một module hình ảnh đã được import hoặc một chuỗi.
- * @param imageModule - Module được import từ một file ảnh hoặc một chuỗi URL.
- * @returns Chuỗi URL của hình ảnh.
- */
 const getImageUrlFromModule = (imageModule: { default: string } | string): string => {
   if (typeof imageModule === 'string') {
     return imageModule;
@@ -164,9 +161,7 @@ export const productsByCategoryState = atomFamily((id: string) =>
 // SECTION: SEARCH
 // ==================================================================
 
-// State cho chức năng tìm kiếm toàn cục
-
-export const keywordState = atom(""); // Có thể xem xét gộp với searchKeywordState
+export const keywordState = atom("");
 
 export const searchCategoriesResultState = atom(async (get) => {
   const keyword = get(keywordState);
@@ -197,7 +192,6 @@ export interface CartTotal {
 }
 
 export const cartState = atomWithStorage<Cart>("cart", []);
-
 export const selectedVoucherState = atom<Voucher | undefined>(undefined);
 
 export const cartTotalState = atom<CartTotal>((get) => {
@@ -230,7 +224,6 @@ export const cartTotalState = atom<CartTotal>((get) => {
 // ==================================================================
 
 export const deliveryModeState = atomWithStorage<Delivery["type"]>(CONFIG.STORAGE_KEYS.DELIVERY, "shipping");
-
 export const shippingAddressState = atomWithStorage<ShippingAddress | undefined>(CONFIG.STORAGE_KEYS.SHIPPING_ADDRESS, undefined);
 
 export const stationsState = atom(async () => {
@@ -272,6 +265,9 @@ export const ordersState = atomFamily((status: OrderStatus) =>
   })
 );
 
+// THÊM DÒNG NÀY: State để lưu các đơn hàng mới tạo trong phiên
+export const newOrdersState = atomWithStorage<Order[]>("new_orders", []);
+
 // ==================================================================
 // SECTION: VOUCHERS & POINTS
 // ==================================================================
@@ -286,9 +282,7 @@ interface DailyCheckInState {
   lastCheckInDate: string | null;
   streak: number;
 }
-
 export const dailyCheckInState = atomWithStorage<DailyCheckInState>("daily_check_in", { lastCheckInDate: null, streak: 0 });
-
 export const userPointsState = atomWithStorage<number>("user_points", 500);
 
 // ==================================================================
@@ -315,7 +309,7 @@ export const postReviewAtom = atom(
     console.log("Đang gửi review:", { productId, ...review, author: userInfo.name });
     await new Promise(resolve => setTimeout(resolve, 1000));
     
-    set(reviewsState(productId)); // Gọi set để kích hoạt refresh
+    set(reviewsState(productId));
     
     toast.success("Đăng đánh giá thành công!");
   }
@@ -349,10 +343,7 @@ export const walletState = atom((get) => {
 // SECTION: UI STATE
 // ==================================================================
 
-/**
- * Atom để theo dõi vị trí cuộn của layout chính.
- * Giúp các component con có thể phản ứng lại với hành động cuộn của người dùng.
- */
 export const mainScrollState = atom(0);
 export const searchOverlayVisibleState = atom(false);
+export const cartPopupVisibleState = atom(false);
 export const userBankInfoState = atomWithStorage<UserBankInfo | undefined>("user_bank_info", undefined);

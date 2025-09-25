@@ -1,16 +1,16 @@
 // src/components/header.tsx
 
-import { useAtomValue } from "jotai";
+import { useAtomValue, useSetAtom } from "jotai";
 import { useMemo, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { loadableUserInfoState } from "@/state"; // Đã xóa import không cần thiết
+import { loadableUserInfoState, cartPopupVisibleState } from "@/state"; // Import thêm cartPopupVisibleState
 import { useRouteHandle } from "@/hooks/useUtility";
 import { Icon } from "zmp-ui";
 import CategoryPopup from "./category-popup";
 import MarqueeText from "./marquee-text";
 import SearchBar from "./search-bar";
 import TransitionLink from "./transition-link";
-import { DefaultUserAvatar } from "./vectors";
+import { DefaultUserAvatar, CartIcon } from "./vectors";
 
 const OrderStatusItem = ({ label, count, onClick }: { label: string; count: number, onClick: () => void }) => (
   <div className="relative cursor-pointer rounded-full bg-white bg-opacity-20 px-3 py-1" onClick={onClick}>
@@ -28,6 +28,7 @@ export default function Header() {
   const location = useLocation();
   const [handle] = useRouteHandle();
   const [isPopupVisible, setIsPopupVisible] = useState(false);
+  const setCartPopupVisible = useSetAtom(cartPopupVisibleState); // Lấy hàm để bật popup
   
   const userInfo = useAtomValue(loadableUserInfoState);
   const title = useMemo(() => {
@@ -79,7 +80,6 @@ export default function Header() {
                     </TransitionLink>
                   )}
                   <div className="w-3/4">
-                    {/* SỬA LỖI: onClick điều hướng đến URL có search param */}
                     <SearchBar onClick={() => navigate("/?search=true")} />
                   </div>
                 </div>
@@ -95,8 +95,9 @@ export default function Header() {
                     <OrderStatusItem label="Lịch sử" count={0} onClick={() => navigate("/orders/history")} />
                   </div>
                   <div className="flex items-center space-x-3 flex-none">
-                    <div className="cursor-pointer">
-                      <Icon icon="zi-chat" size={27} />
+                    {/* SỬA LỖI: onClick bật popup giỏ hàng, đồng bộ kích thước icon */}
+                    <div className="cursor-pointer w-[27px] h-[27px]" onClick={() => setCartPopupVisible(true)}>
+                      <CartIcon />
                     </div>
                     <div className="cursor-pointer" onClick={() => setIsPopupVisible(true)}>
                       <Icon icon="zi-list-1" size={27} />

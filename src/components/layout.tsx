@@ -13,6 +13,7 @@ import { useSpring, animated } from "@react-spring/web";
 import { useSetAtom } from "jotai";
 import { mainScrollState, searchOverlayVisibleState } from "@/state";
 import { SearchOverlay } from "./search-overlay";
+import { CartPopup } from "./cart-popup"; // THÊM DÒNG NÀY
 
 // Hằng số cấu hình cho cử chỉ vuốt
 const SWIPE_THRESHOLD_PERCENT = 0.3;
@@ -26,11 +27,9 @@ export default function Layout() {
 
   const setScrollY = useSetAtom(mainScrollState);
   
-  // SỬA LỖI: Lấy hàm `set` state và `searchParams` từ URL
   const setSearchOverlayVisible = useSetAtom(searchOverlayVisibleState);
   const [searchParams] = useSearchParams();
 
-  // SỬA LỖI: Thêm useEffect để đồng bộ trạng thái của Lớp phủ tìm kiếm với URL
   useEffect(() => {
     if (searchParams.get("search") === "true") {
       setSearchOverlayVisible(true);
@@ -103,8 +102,9 @@ export default function Layout() {
       <FloatingCartPreview />
       <ScrollRestoration />
 
-      {/* SỬA LỖI: Luôn render SearchOverlay và để nó tự quyết định việc hiển thị */}
+      {/* Các lớp phủ (overlays) toàn cục */}
       <SearchOverlay />
+      <CartPopup /> {/* THÊM DÒNG NÀY */}
     </div>
   );
 }

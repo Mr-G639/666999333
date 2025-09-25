@@ -1,72 +1,63 @@
 // src/pages/orders/order-list.tsx
 
-import { Order, Product } from "@/types";
-import { useAtomValue, useSetAtom, WritableAtom } from "jotai";
-import { loadable } from "jotai/utils";
-import { useMemo, useState } from "react";
+import { FC, useMemo, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { getAllOrders } from "@/api/orders";
+import { Order, OrderStatus, Product, PaginatedResponse } from "@/types";
+import { Box } from "zmp-ui";
+import OrderSummary from "./order-summary"; // SỬA LỖI: Sử dụng component OrderSummary
+import { useAtomValue } from "jotai";
+import { newOrdersState } from "@/state";
 import { EmptyOrder } from "@/components/empty";
-import ErrorMessage from "@/components/error-message";
-import OrderSummary from "./order-summary";
-import { OrderSummarySkeleton } from "@/components/skeleton";
-import ReviewModal from "./review-modal"; // --- THÊM IMPORT MỚI ---
+import ReviewModal from "./review-modal";
 
 interface OrderListProps {
-  ordersState: WritableAtom<Promise<Order[]>, [void], void>;
-  isCompleted?: boolean; // --- THÊM PROP MỚI ---
+  status: OrderStatus;
 }
 
-function OrderList(props: OrderListProps) {
-  const orderListLoadable = useAtomValue(
-    useMemo(() => loadable(props.ordersState), [props.ordersState])
-  );
-  const refreshOrders = useSetAtom(props.ordersState);
-  
-  // --- THÊM STATE ĐỂ QUẢN LÝ MODAL ---
+const OrderList: FC<OrderListProps> = ({ status }) => {
+  const { data: originalOrders = [] } = useQuery<PaginatedResponse<Order>, Error, Order[]>({
+    queryKey: ["orders"],
+    queryFn: () => getAllOrders(),
+    select: (data) => data.data,
+  });
+
+  const newOrders = useAtomValue(newOrdersState);
+
+  const combinedAndFilteredOrders = useMemo(() => {
+    const allOrders = [...newOrders.slice().reverse(), ...originalOrders];
+    const uniqueOrders = [...new Map(allOrders.map(order => [order.id, order])).values()];
+    
+    return uniqueOrders.filter(
+      (order) => order.status.toUpperCase() === status.toUpperCase()
+    );
+  }, [newOrders, originalOrders, status]);
+
   const [reviewingProduct, setReviewingProduct] = useState<Product | null>(null);
 
-  if (orderListLoadable.state === "hasError") {
-    return (
-      <ErrorMessage
-        message="Không thể tải danh sách đơn hàng."
-        onRetry={() => refreshOrders()}
-      />
-    );
-  }
-
-  if (orderListLoadable.state === "loading") {
-    return (
-      <div className="space-y-2 p-4">
-        <OrderSummarySkeleton />
-        <OrderSummarySkeleton />
-        <OrderSummarySkeleton />
-      </div>
-    );
-  }
-  
-  if (orderListLoadable.state === "hasData" && orderListLoadable.data.length === 0) {
+  if (combinedAndFilteredOrders.length === 0) {
     return <EmptyOrder />;
   }
 
   return (
     <>
-      <div className="space-y-2 p-4">
-        {orderListLoadable.data.map((order) => (
-          <OrderSummary 
-            key={order.id} 
-            order={order} 
-            // --- TRUYỀN PROPS XUỐNG ---
-            isCompleted={props.isCompleted}
+      <Box className="p-4 space-y-4">
+        {combinedAndFilteredOrders.map((order) => (
+          // SỬA LỖI: Sử dụng OrderSummary và truyền đúng props
+          <OrderSummary
+            key={order.id}
+            order={order}
+            isCompleted={order.status === 'completed'}
             onReview={setReviewingProduct}
           />
         ))}
-      </div>
-      {/* --- RENDER MODAL --- */}
+      </Box>
       <ReviewModal 
         product={reviewingProduct} 
         onClose={() => setReviewingProduct(null)} 
       />
     </>
   );
-}
+};
 
 export default OrderList;

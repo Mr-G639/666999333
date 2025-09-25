@@ -1,8 +1,10 @@
+// src/pages/cart/cart-list.tsx
+
 import { useAtomValue } from "jotai";
 import { cartState } from "@/state";
 import CartItem from "./cart-item";
 import Section from "@/components/section";
-import { Icon, Input } from "zmp-ui";
+import { Icon } from "zmp-ui"; // SỬA LỖI: Đã xóa 'Input' không được sử dụng
 import HorizontalDivider from "@/components/horizontal-divider";
 
 export default function CartList() {
@@ -32,7 +34,7 @@ export default function CartList() {
         <input
           type="text"
           placeholder="Lưu ý cho người bán..."
-          className="text-sm text-right flex-1 focus:outline-none"
+          className="text-sm text-right flex-1 focus:outline-none bg-transparent"
         />
       </div>
     </Section>

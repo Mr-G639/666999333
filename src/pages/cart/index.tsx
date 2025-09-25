@@ -1,29 +1,32 @@
-import CartList from "./cart-list";
-import ApplyVoucher from "./apply-voucher";
-import CartSummary from "./cart-summary";
-import { useAtomValue } from "jotai";
+// src/pages/cart/index.tsx
+
+import { FC, Suspense } from "react";
+import { Box, Page } from "zmp-ui"; // SỬA LỖI: Đã xóa các import không dùng đến
+import CartLoading from "@/components/skeleton"; // SỬA LỖI: Sửa cú pháp import
+import CartSummary from "./cart-summary"; // SỬA LỖI: Sửa cú pháp import
+import { useNavigate } from "react-router-dom"; // SỬA LỖI: Đã xóa useLocation
+import CartList from "./cart-list"; // SỬA LỖI: Sửa cú pháp import
+import { useAtomValue } from "jotai"; // SỬA LỖI: Dùng Jotai thay cho Recoil
 import { cartState } from "@/state";
-import { EmptyCart } from "@/components/empty";
-import Delivery from "./delivery";
-import HorizontalDivider from "@/components/horizontal-divider";
-import Pay from "./pay";
 
-export default function CartPage() {
-  const cart = useAtomValue(cartState);
+const CartPage: FC = () => {
+  const navigate = useNavigate();
+  const cart = useAtomValue(cartState); // SỬA LỖI: Dùng useAtomValue
 
-  if (!cart.length) {
-    return <EmptyCart />;
-  }
   return (
-    <div className="w-full h-full flex flex-col">
-      <div className="flex-1 overflow-y-auto px-4 py-2 space-y-2">
-        <Delivery />
-        <CartList />
-        <ApplyVoucher />
-        <CartSummary />
-      </div>
-      <HorizontalDivider />
-      <Pay />
-    </div>
+    <Page className="flex flex-col">
+      <Box className="flex-1 overflow-y-auto">
+        <Suspense fallback={<CartLoading />}>
+          <CartList />
+        </Suspense>
+      </Box>
+      {cart.length > 0 && (
+        <CartSummary
+          onClick={() => navigate("/cart/delivery")}
+        />
+      )}
+    </Page>
   );
-}
+};
+
+export default CartPage;
